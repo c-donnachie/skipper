@@ -17,7 +17,21 @@ Cuando trabajas en código, el plugin:
    - `/skipper:new-plan "título"` — crea un plan de implementación
    - `/skipper:init-structure` — crea estructura `docs/` + detecta stack
    - `/skipper:scan` — detecta el stack del proyecto (no escribe)
-   - `/skipper:stack:apply <stack-id>` — aplica perfil opinado (CLAUDE.md + docs/architecture/stack.md)
+   - `/skipper:stack-apply <stack-id>` — aplica perfil opinado (CLAUDE.md + docs/architecture/stack.md)
+
+4. **Sub-agentes especialistas** (v0.3) — pueden escribir/refactorizar:
+   - `/skipper:architect "..."` — estructura, capas, dependencias
+   - `/skipper:solid-coach "archivo o pregunta"` — Clean Code, SOLID
+   - `/skipper:react-vite "..."` — convenciones React + Vite
+   - `/skipper:react-native "..."` — convenciones RN + Expo
+   - `/skipper:nextjs "..."` — Next.js App Router, RSC, Server Actions
+   - `/skipper:node-backend "..."` — Fastify + Zod + Drizzle
+   - `/skipper:supabase "..."` — RLS, auth, migraciones, Realtime
+
+5. **Atajos inteligentes**:
+   - `/skipper:ask "pregunta libre"` — enruta al especialista correcto
+   - `/skipper:refactor src/foo.ts` — refactor SOLID directo
+   - `/skipper:review` — review del diff actual con el especialista del stack
 
 ## Stacks soportados (v0.2)
 
