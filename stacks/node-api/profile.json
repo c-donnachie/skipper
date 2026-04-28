@@ -1,0 +1,20 @@
+{
+  "id": "node-api",
+  "name": "Node API (Fastify + Zod)",
+  "description": "Backend Node.js standalone con Fastify, Zod para validación, Drizzle/Prisma para DB. Arquitectura por capas (routes → services → repositories).",
+  "frontend": null,
+  "backend": "node-fastify",
+  "core_libs": [
+    "fastify",
+    "zod",
+    "drizzle-orm"
+  ],
+  "recommended_libs": [
+    "@fastify/cors",
+    "@fastify/jwt",
+    "pino",
+    "tsx"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

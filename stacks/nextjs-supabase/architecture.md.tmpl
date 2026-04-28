@@ -1,0 +1,81 @@
+# Stack: {{PROJECT_NAME}} — Next.js + Supabase
+
+> Generado por skipper {{DATE}}.
+
+## Resumen
+
+Next.js 14+ App Router con Supabase como backend (Auth + Postgres + Storage). Auth via cookies (SSR-friendly). Sin servidor extra.
+
+## Los 3 clientes Supabase
+
+```
+shared/supabase/
+├── server.ts        # createServerClient → para RSC y actions
+├── client.ts        # createBrowserClient → 'use client' components
+└── middleware.ts    # createMiddlewareClient → refresh session
+```
+
+**Nunca mezcles** — el server client usa cookies del request, el browser client usa cookies del navegador.
+
+## Auth flow
+
+1. Login form (client) → action server o `supabase.auth.signInWithPassword()`.
+2. Sesión guardada en cookies (via `@supabase/ssr`).
+3. `middleware.ts` refresca el token en cada request.
+4. RSC y server actions: `const supabase = createServerClient(); const { data: { user } } = await supabase.auth.getUser();`
+5. Si no hay user → redirect a `/login`.
+
+## Server Actions canónicas
+
+```typescript
+"use server";
+import { z } from "zod";
+import { createServerClient } from "@/shared/supabase/server";
+import { revalidatePath } from "next/cache";
+
+const Schema = z.object({ name: z.string().min(1) });
+
+export async function createBudget(input: unknown) {
+    const supabase = createServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+
+    const data = Schema.parse(input);
+    const { error } = await supabase.from("budgets").insert({ ...data, user_id: user.id });
+    if (error) throw error;
+
+    revalidatePath("/budgets");
+}
+```
+
+Patrón: `client server → auth → validate → mutate → revalidate`.
+
+## RLS policies
+
+Todas las tablas con datos de usuario:
+
+```sql
+ALTER TABLE budgets ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_owns_row" ON budgets
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+Las queries con el JWT del usuario respetan RLS automáticamente. **Sin RLS = data leak.**
+
+## Decisiones técnicas
+
+Ver `docs/decisions/`.
+
+## Gotchas
+
+- `cookies()` de Next sólo funciona en Server Components/Actions.
+- `getUser()` valida con Supabase (más seguro que `getSession()`).
+- Service role: SOLO para webhooks/cron jobs server-side. NUNCA expuesto al cliente.
+
+## TODO inicial
+
+- [ ] Configurar `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [ ] Crear los 3 clientes en `shared/supabase/`
+- [ ] Configurar middleware para refresh
+- [ ] Habilitar RLS en todas las tablas
+- [ ] Generar tipos: `npx supabase gen types`

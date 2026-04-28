@@ -15,7 +15,24 @@ Cuando trabajas en código, el plugin:
    - `/skipper:new-adr "título"` — crea un ADR numerado
    - `/skipper:new-prd "título"` — crea un PRD
    - `/skipper:new-plan "título"` — crea un plan de implementación
-   - `/skipper:init` — crea la estructura `docs/` inicial
+   - `/skipper:init-structure` — crea estructura `docs/` + detecta stack
+   - `/skipper:scan` — detecta el stack del proyecto (no escribe)
+   - `/skipper:stack:apply <stack-id>` — aplica perfil opinado (CLAUDE.md + docs/architecture/stack.md)
+
+## Stacks soportados (v0.2)
+
+| ID | Stack |
+|---|---|
+| `react-vite-supabase` | React + Vite + Supabase |
+| `react-vite-node` | React + Vite + Node API |
+| `nextjs-fullstack` | Next.js (App Router + RSC + Server Actions) |
+| `nextjs-supabase` | Next.js + Supabase |
+| `expo-supabase` | React Native Expo + Supabase |
+| `expo-node` | React Native Expo + Node API |
+| `node-api` | Fastify + Zod + Drizzle |
+| `python-fastapi` | FastAPI + Pydantic v2 + SQLAlchemy |
+
+Cada stack viene con un CLAUDE.md opinado fuerte (estructura obligatoria, naming, libs recomendadas, reglas SOLID validables) y un `docs/architecture/stack.md` con detalle expandido.
 
 ## Estructura que mantiene
 

@@ -1,0 +1,62 @@
+## Stack: Python FastAPI
+
+Esta sección la mantiene `skipper`. Editar con `/skipper:stack:apply python-fastapi`.
+
+### Estructura obligatoria
+
+```
+src/
+├── api/
+│   └── routers/<dominio>.py       # FastAPI APIRouter
+├── services/<dominio>.py          # lógica de negocio (sin FastAPI)
+├── repositories/<dominio>.py      # SQLAlchemy queries
+├── schemas/<dominio>.py           # Pydantic v2 models (request/response)
+├── models/<dominio>.py            # SQLAlchemy/SQLModel ORM
+├── core/                          # config, db, auth, logging
+└── main.py                        # FastAPI app bootstrap
+```
+
+**Reglas de capas (estrictas):**
+- routers → services → repositories → DB.
+- services NO importan FastAPI.
+- repositories NO importan services.
+- Pydantic schemas (boundaries HTTP) ≠ SQLAlchemy models (DB).
+
+### Convenciones obligatorias
+
+- Python 3.11+, async/await en TODO endpoint y query.
+- Pydantic v2 (model_validate, model_dump).
+- Type hints obligatorios (`mypy --strict` opcional).
+- pyproject.toml + uv o poetry para dep management.
+- Migraciones con Alembic.
+- Logger: `loguru` o `structlog` (NO print).
+- Config: `pydantic-settings` (`Settings` class con env vars).
+
+### Reglas SOLID
+
+- **SRP**: router hace 1 cosa (validar → service → respond).
+- **DIP**: services dependen de abstracciones de repositories (interfaces).
+- Service < 200 líneas. Helpers privados con `_prefix`.
+- Inyección de dependencias con `Depends(get_db)`, `Depends(get_current_user)`.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | FastAPI |
+| ORM | SQLAlchemy 2.0 + SQLModel (recomendado) |
+| Schemas | Pydantic v2 |
+| DB driver | asyncpg (Postgres) |
+| Auth | python-jose (JWT) + passlib (bcrypt) |
+| Migraciones | Alembic |
+| Test | pytest + pytest-asyncio + httpx |
+
+### Anti-patterns
+
+- ❌ Lógica de negocio en routers.
+- ❌ Queries inline en services.
+- ❌ Mezclar Pydantic schemas con ORM models.
+- ❌ Endpoints sync (`def`) — siempre `async def`.
+- ❌ Hard-coded secrets — usar `pydantic-settings`.
+
+@docs/architecture/stack.md

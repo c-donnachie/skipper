@@ -1,0 +1,49 @@
+# Stack: {{PROJECT_NAME}} — React + Vite + Node API
+
+> Generado por skipper {{DATE}}.
+
+## Resumen
+
+SPA con React + Vite. Backend Node propio. JWT-based auth con cookies httpOnly o token en memory.
+
+## HTTP client
+
+```typescript
+// shared/lib/api.ts
+import ky from "ky";
+export const api = ky.create({
+    prefixUrl: import.meta.env.VITE_API_URL,
+    credentials: "include",  // si usas cookies httpOnly
+    hooks: {
+        beforeRequest: [/* añadir Bearer si usas tokens */],
+        afterResponse: [/* refresh logic */],
+    },
+});
+```
+
+## Auth flow (cookies httpOnly recomendado)
+
+1. POST `/auth/login` → backend setea cookie httpOnly.
+2. Cada request `credentials: include` envía cookie automáticamente.
+3. 401 → intenta `/auth/refresh`; si falla → redirect /login.
+4. `useAuth` hook verifica `/auth/me` al inicio.
+
+## Features-first
+
+Cada `features/<dominio>/` es independiente:
+- `api.ts`: endpoints
+- `hooks.ts`: queries/mutations
+- `types.ts`: Zod schemas
+- `components/`: UI
+
+## Decisiones técnicas
+
+Ver `docs/decisions/`.
+
+## TODO inicial
+
+- [ ] Configurar path alias en vite.config + tsconfig
+- [ ] Definir contrato API (OpenAPI o Zod schemas compartidos)
+- [ ] Implementar interceptor de refresh
+- [ ] Layout `Protected` con redirect
+- [ ] Setup TanStack Query devtools en dev

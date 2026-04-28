@@ -1,0 +1,74 @@
+## Stack: React Native Expo + Supabase
+
+Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply expo-supabase` para regenerarla.
+
+### Estructura obligatoria
+
+```
+src/
+├── data/                 # capa de acceso a datos (Supabase, AsyncStorage)
+│   ├── services/<dominio>.ts   # cliente Supabase + queries
+│   └── types/<dominio>.ts      # tipos generados de Supabase + Zod schemas
+├── domain/               # lógica de negocio pura (sin RN ni Supabase)
+│   └── hooks/<dominio>.ts      # hooks React (selectors, mutations vía Zustand)
+├── global/               # config, constantes, theme
+└── presentation/         # UI
+    ├── screens/<flow>/<screen>.tsx
+    ├── components/shared/      # reusables
+    └── components/<flow>/      # específicos del flow
+```
+
+**Reglas de capas (Claude debe respetar):**
+- `presentation/` puede importar de `domain/` y `global/`. NUNCA de `data/`.
+- `domain/` puede importar de `data/` y `global/`. NUNCA de `presentation/`.
+- `data/` sólo importa de `global/` y libs externas.
+
+### Convenciones obligatorias
+
+- **Named exports siempre** — nunca `export default`.
+- `import * as React from 'react'` — no `import React from 'react'`.
+- TypeScript strict. No `any`.
+- Paths absolutos: `@/data`, `@/domain`, `@/global`, `@/presentation`.
+- Estado server: queries directas a Supabase + Zustand para cache/UI state.
+- Estado UI/cliente: Zustand con slices por dominio.
+- Validación de input: Zod en boundaries (forms, deep links, push payloads).
+- Idioma de strings: español chileno informal por defecto.
+
+### Reglas SOLID que aplico
+
+- **SRP**: componente < 200 líneas. Si crece, extraer hooks (`use<X>.ts`) o subcomponentes.
+- **OCP**: extender vía props/hooks, no editar componentes compartidos.
+- **DIP**: hooks de `domain/` no llaman a `supabase.from(...)` directo — pasan por `data/services/`.
+- Hook custom existe sólo si se reusa **2+ veces reales**. Si no, inline.
+- No lógica en `presentation/components/` — vive en `domain/hooks/`.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | Expo (SDK 54+) + React Native 0.81+ |
+| Lenguaje | TypeScript strict |
+| Estado | Zustand (con slices por dominio) |
+| Server | Supabase JS client + RLS policies por user_id |
+| Validación | Zod |
+| Routing | Expo Router (file-based) |
+| Styling | NativeWind (recomendado) o StyleSheet |
+| Storage | expo-secure-store (sensible) + AsyncStorage (no sensible) |
+| Forms | react-hook-form + Zod |
+
+### Anti-patterns (NUNCA hacer)
+
+- ❌ Llamar a `supabase.from(...)` desde un componente.
+- ❌ Lógica de negocio en JSX.
+- ❌ `useEffect` para fetch de datos (mejor un hook dedicado en `domain/`).
+- ❌ `console.log` en código que se mergea (queda en bundle de producción).
+- ❌ Tablas Supabase sin RLS — toda query pasa por `auth.uid()`.
+
+### Documentación viva
+
+- Decisiones técnicas → `docs/decisions/NNNN-*.md` (`/skipper:new-adr`)
+- Features futuras → `docs/prds/NNNN-*.md` (`/skipper:new-prd`)
+- Trabajo en curso → `docs/plans/NNNN-*.md` (`/skipper:new-plan`)
+- Subsistemas → `docs/architecture/<dominio>.md`
+
+@docs/architecture/stack.md

@@ -1,0 +1,21 @@
+{
+  "id": "nextjs-supabase",
+  "name": "Next.js + Supabase",
+  "description": "Next.js 14+ App Router con Supabase como backend (Auth + Postgres + RLS). Server Actions llaman a Supabase con service role o user JWT.",
+  "frontend": "nextjs-app-router",
+  "backend": "supabase",
+  "core_libs": [
+    "next",
+    "react",
+    "@supabase/supabase-js",
+    "@supabase/ssr",
+    "zod"
+  ],
+  "recommended_libs": [
+    "tailwindcss",
+    "shadcn/ui",
+    "react-hook-form"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

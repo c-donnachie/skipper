@@ -1,0 +1,71 @@
+# Stack: {{PROJECT_NAME}} — Python FastAPI
+
+> Generado por skipper {{DATE}}.
+
+## Resumen
+
+Backend Python async con FastAPI + Pydantic v2 + SQLAlchemy 2.0. Arquitectura en capas estrictas.
+
+## Capas
+
+```
+HTTP request
+    ↓
+api/routers/      (FastAPI, validación Pydantic)
+    ↓
+services/         (lógica de negocio, puro Python)
+    ↓
+repositories/     (SQLAlchemy queries)
+    ↓
+Postgres (async via asyncpg)
+```
+
+## Patrón de router
+
+```python
+# api/routers/budgets.py
+from fastapi import APIRouter, Depends
+from src.schemas.budgets import BudgetCreate, BudgetRead
+from src.services.budgets import BudgetService
+from src.core.deps import get_current_user, get_budget_service
+
+router = APIRouter(prefix="/budgets", tags=["budgets"])
+
+@router.post("", response_model=BudgetRead, status_code=201)
+async def create_budget(
+    payload: BudgetCreate,
+    current_user = Depends(get_current_user),
+    service: BudgetService = Depends(get_budget_service),
+):
+    return await service.create(current_user.id, payload)
+```
+
+## Service pattern
+
+```python
+# services/budgets.py
+class BudgetService:
+    def __init__(self, repo: BudgetRepository):
+        self._repo = repo
+
+    async def create(self, user_id: UUID, data: BudgetCreate) -> Budget:
+        if data.amount <= 0:
+            raise BusinessError("Amount must be positive")
+        return await self._repo.insert(user_id, data)
+```
+
+## Auth
+
+JWT con `python-jose`. `Depends(get_current_user)` verifica token, busca en DB, retorna user.
+
+## Decisiones técnicas
+
+Ver `docs/decisions/`.
+
+## TODO inicial
+
+- [ ] Setup `pydantic-settings` con `.env`
+- [ ] Configurar Alembic y primera migración
+- [ ] Definir excepciones custom + handler global
+- [ ] Setup tests con pytest-asyncio
+- [ ] Configurar `uvicorn` + `gunicorn` para prod

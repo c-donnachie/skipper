@@ -1,0 +1,60 @@
+# Stack: {{PROJECT_NAME}} — Expo + Node API
+
+> Generado por skipper {{DATE}}.
+
+## Resumen
+
+App móvil Expo + backend Node propio. JWT-based auth. TanStack Query para data fetching.
+
+## Capas
+
+```
+presentation/ → domain/ → data/api/ → Backend Node
+```
+
+## HTTP client (ky)
+
+```typescript
+// data/api/client.ts
+import ky from "ky";
+import * as SecureStore from "expo-secure-store";
+
+export const api = ky.create({
+    prefixUrl: process.env.EXPO_PUBLIC_API_URL,
+    hooks: {
+        beforeRequest: [async (req) => {
+            const token = await SecureStore.getItemAsync("token");
+            if (token) req.headers.set("Authorization", `Bearer ${token}`);
+        }],
+        afterResponse: [/* refresh token logic */],
+    },
+});
+```
+
+## Auth flow
+
+1. Login: POST `/auth/login` → recibe `{ token, refreshToken }`.
+2. Tokens en `expo-secure-store`.
+3. Cada request lleva `Authorization: Bearer <token>` (auto vía interceptor).
+4. 401 → intenta refresh; si falla → logout.
+
+## TanStack Query patterns
+
+```typescript
+// domain/hooks/budgets.ts
+export const useBudgets = () => useQuery({
+    queryKey: ["budgets"],
+    queryFn: () => budgetsApi.list(),
+});
+```
+
+## Decisiones técnicas
+
+Ver `docs/decisions/`.
+
+## TODO inicial
+
+- [ ] Definir contrato del backend (OpenAPI/Zod schemas compartidos)
+- [ ] Setup `expo-secure-store` para tokens
+- [ ] Configurar interceptor de refresh
+- [ ] Añadir TanStack Query devtools en dev

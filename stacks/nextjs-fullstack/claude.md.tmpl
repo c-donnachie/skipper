@@ -1,0 +1,79 @@
+## Stack: Next.js Full-stack (App Router + RSC + Server Actions)
+
+Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply nextjs-fullstack`.
+
+### Estructura obligatoria
+
+```
+src/
+├── app/                       # App Router (Next 14+)
+│   ├── (public)/              # rutas públicas (sin auth)
+│   ├── (app)/                 # rutas protegidas
+│   │   └── <flow>/page.tsx
+│   ├── api/                   # route handlers (REST/webhook)
+│   ├── layout.tsx             # root layout
+│   └── globals.css
+├── features/<dominio>/        # features self-contained
+│   ├── actions.ts             # 'use server' actions
+│   ├── queries.ts             # server queries (RSC)
+│   ├── schema.ts              # Zod + Drizzle schemas
+│   ├── components/            # mezcla server/client components
+│   └── hooks.ts               # client hooks (use<X>)
+├── shared/
+│   ├── ui/                    # shadcn/ui components
+│   ├── db/                    # drizzle client + migrations
+│   ├── auth/                  # next-auth config
+│   └── lib/                   # utils
+└── middleware.ts              # auth guard
+```
+
+**Reglas de capas:**
+- Server components y server actions usan `features/*/queries.ts` y `actions.ts`.
+- Client components usan `features/*/hooks.ts` (que llaman a server actions vía `useTransition`).
+- NUNCA pongas lógica de DB en client components.
+
+### Convenciones obligatorias
+
+- **Por defecto: Server Components**. Marca `"use client"` sólo cuando uses hooks/event handlers.
+- **Server Actions** para mutations: directiva `"use server"` arriba del archivo o de la función.
+- **Validación**: TODA server action valida input con Zod ANTES de tocar DB. No-negociable.
+- **Named exports** siempre. Excepción: `page.tsx` y `layout.tsx` (Next requiere default export).
+- TypeScript strict.
+- Path alias `@/`.
+
+### Reglas SOLID que aplico
+
+- **SRP**: server action hace 1 cosa (validar → mutar → revalidar). Si crece, extraer helpers en `features/<x>/lib.ts`.
+- **DIP**: actions no llaman a `db` directo — pasan por `features/<x>/queries.ts` o `repository.ts`.
+- Componente client < 200 líneas. Si crece, extraer custom hooks o sub-componentes.
+- Server queries en `queries.ts`, NO inline en server components (testeable).
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | Next.js 14+ (App Router) |
+| Lenguaje | TypeScript strict |
+| DB | Drizzle ORM + Postgres (recomendado: Neon o Supabase) |
+| Auth | next-auth v5 (Auth.js) |
+| Validación | Zod |
+| Styling | Tailwind + shadcn/ui |
+| Forms | react-hook-form + Zod (en client components) |
+
+### Anti-patterns (NUNCA hacer)
+
+- ❌ `"use client"` en archivos que no necesitan interactividad.
+- ❌ `fetch()` desde client component a tu propia API (mejor server action).
+- ❌ Server action sin Zod validation.
+- ❌ Lógica de DB en client components.
+- ❌ Cookies/sessions tocadas desde client (siempre server-side).
+- ❌ `revalidatePath` global cuando basta `revalidateTag` específico.
+
+### Documentación viva
+
+- Decisiones técnicas → `docs/decisions/NNNN-*.md` (`/skipper:new-adr`)
+- Features futuras → `docs/prds/NNNN-*.md` (`/skipper:new-prd`)
+- Trabajo en curso → `docs/plans/NNNN-*.md` (`/skipper:new-plan`)
+- Subsistemas → `docs/architecture/<dominio>.md`
+
+@docs/architecture/stack.md

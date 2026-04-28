@@ -1,0 +1,62 @@
+## Stack: Node API (Fastify + Zod)
+
+Esta sección la mantiene `skipper`. Editar con `/skipper:stack:apply node-api`.
+
+### Estructura obligatoria (capas)
+
+```
+src/
+├── routes/                    # endpoints HTTP (Fastify routes)
+│   └── <dominio>.routes.ts
+├── services/                  # lógica de negocio (puro TS, sin Fastify)
+│   └── <dominio>.service.ts
+├── repositories/              # acceso a DB (Drizzle queries)
+│   └── <dominio>.repository.ts
+├── schemas/                   # Zod schemas compartidos request/response
+│   └── <dominio>.schema.ts
+├── lib/                       # utils, db client, jwt, logger
+└── server.ts                  # Fastify bootstrap
+```
+
+**Reglas de capas (estrictas):**
+- `routes/` → `services/` → `repositories/` → DB.
+- `services/` NO conoce Fastify (request/reply).
+- `repositories/` NO conoce ni Fastify ni servicios — sólo Drizzle.
+- Tipos compartidos vía `schemas/` (Zod = source of truth).
+
+### Convenciones obligatorias
+
+- Named exports siempre. TS strict. ESM.
+- `tsx` para dev (no `ts-node`).
+- Validación Zod en TODO endpoint (`fastify-type-provider-zod` recomendado).
+- Auth con `@fastify/jwt`. Tokens cortos (15min) + refresh tokens (30d).
+- Errores: clases custom (`AppError`, `NotFoundError`, etc.) que el handler global mapea a HTTP status.
+- Logging: `pino` (Fastify lo trae builtin).
+
+### Reglas SOLID
+
+- **SRP**: una route hace 1 cosa (validar → llamar service → responder).
+- **DIP**: services no conocen DB — usan repositories.
+- Service < 200 líneas. Si crece, extraer sub-services o helpers.
+- Repository: 1 archivo por entidad de dominio.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | Fastify |
+| ORM | Drizzle (recomendado) o Prisma |
+| Validación | Zod + `fastify-type-provider-zod` |
+| Auth | `@fastify/jwt` |
+| Logger | pino |
+| Dev | tsx |
+| Test | vitest |
+
+### Anti-patterns
+
+- ❌ Lógica de negocio en `routes/` (mover a service).
+- ❌ Queries inline en services (mover a repository).
+- ❌ Endpoints sin validación Zod.
+- ❌ Try/catch en cada route — usar handler global.
+
+@docs/architecture/stack.md

@@ -1,0 +1,85 @@
+# Stack: {{PROJECT_NAME}} — Node API (Fastify + Zod)
+
+> Generado por skipper {{DATE}}.
+
+## Resumen
+
+Backend Node.js con Fastify, validación Zod, ORM Drizzle. Arquitectura en capas estrictas. Type-safe end-to-end.
+
+## Capas (direccionalidad estricta)
+
+```
+HTTP request
+    ↓
+routes/         (Fastify, validación request)
+    ↓
+services/       (lógica de negocio, puro TS)
+    ↓
+repositories/   (Drizzle queries)
+    ↓
+Postgres
+```
+
+Nunca hacia arriba. Service nunca toca `request/reply`. Repository nunca conoce service.
+
+## Patrón de route
+
+```typescript
+// routes/budgets.routes.ts
+import { FastifyPluginAsync } from "fastify";
+import { CreateBudgetSchema, BudgetSchema } from "@/schemas/budgets.schema";
+import { budgetsService } from "@/services/budgets.service";
+
+export const budgetsRoutes: FastifyPluginAsync = async (app) => {
+    app.post("/budgets", {
+        schema: { body: CreateBudgetSchema, response: { 201: BudgetSchema } },
+    }, async (req, reply) => {
+        const userId = req.user.id;  // de @fastify/jwt
+        const budget = await budgetsService.create(userId, req.body);
+        reply.code(201).send(budget);
+    });
+};
+```
+
+## Service pattern
+
+```typescript
+// services/budgets.service.ts
+import { budgetsRepository } from "@/repositories/budgets.repository";
+import { CreateBudget } from "@/schemas/budgets.schema";
+import { AppError } from "@/lib/errors";
+
+export const budgetsService = {
+    async create(userId: string, input: CreateBudget) {
+        if (input.amount <= 0) throw new AppError("Amount must be positive", 400);
+        return budgetsRepository.insert({ ...input, userId });
+    },
+};
+```
+
+## Auth (JWT)
+
+```typescript
+// server.ts
+app.register(jwt, { secret: process.env.JWT_SECRET });
+app.addHook("onRequest", async (req) => {
+    if (req.url.startsWith("/auth/")) return;
+    await req.jwtVerify();
+});
+```
+
+## Error handling
+
+Handler global mapea `AppError` → HTTP status. Pino loggea con `req.id`.
+
+## Decisiones técnicas
+
+Ver `docs/decisions/`.
+
+## TODO inicial
+
+- [ ] Setup `fastify-type-provider-zod`
+- [ ] Configurar Drizzle + migraciones
+- [ ] Definir clases de error custom
+- [ ] Setup `@fastify/cors` y `@fastify/helmet`
+- [ ] Tests con vitest (al menos services + repositories)

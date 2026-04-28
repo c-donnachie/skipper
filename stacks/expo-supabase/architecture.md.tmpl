@@ -1,0 +1,66 @@
+# Stack: {{PROJECT_NAME}} — Expo + Supabase
+
+> Generado por skipper {{DATE}}. Detalle expandido del stack.
+
+## Resumen
+
+App móvil React Native con Expo. Backend completamente Supabase (Postgres + Auth + Storage + Realtime). Sin servidor intermedio.
+
+## Capas
+
+```
+┌──────────────────────────────────────────┐
+│  presentation/  (screens, components)    │  ← UI
+├──────────────────────────────────────────┤
+│  domain/  (hooks, business logic)        │  ← reglas + Zustand
+├──────────────────────────────────────────┤
+│  data/  (services, types)                │  ← Supabase client
+├──────────────────────────────────────────┤
+│  Supabase  (Postgres + RLS + Auth)       │  ← backend
+└──────────────────────────────────────────┘
+```
+
+**Direccionalidad estricta**: presentation → domain → data → Supabase. Nunca hacia arriba.
+
+## Auth flow
+
+1. `supabase.auth.signInWithPassword()` desde `data/services/auth.ts`.
+2. Sesión persistida con `expo-secure-store`.
+3. JWT contiene `user_id` que las RLS policies validan.
+4. Hook `useAuth` (en `domain/hooks/auth.ts`) suscrito a `onAuthStateChange`.
+
+## Sync de datos
+
+- Lectura: hook `use<Dominio>` lee de Zustand. Si está stale, dispara fetch desde `data/services/<dominio>.ts`.
+- Escritura: mutation hook → optimistic update en Zustand → Supabase upsert → reconcilia respuesta.
+- Realtime: para tablas con cambios frecuentes, suscripción `supabase.channel(...)` que dispatcha al store.
+
+## RLS (Row Level Security)
+
+Toda tabla con datos de usuario lleva policy:
+
+```sql
+ALTER TABLE <tabla> ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_owns_row" ON <tabla>
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+Sin RLS habilitada → la tabla es pública. **Verificar siempre antes de mergear migraciones.**
+
+## Decisiones técnicas
+
+Ver `docs/decisions/` (ADRs).
+
+## Gotchas conocidos
+
+- `supabase.auth.refreshSession()` falla silenciosamente si no hay red — manejar offline.
+- Tipos generados de Supabase quedan en `src/data/types/database.ts` (regenerar con `npx supabase gen types`).
+- Expo Router: archivos con `_layout.tsx` definen el shell del stack/tab.
+- iOS-specific: deep links requieren config en `app.json`.
+
+## TODO inicial al adoptar el stack
+
+- [ ] Verificar `app.json` con `expo.scheme` configurado para deep links
+- [ ] Generar tipos Supabase: `npx supabase gen types typescript --project-id <id> > src/data/types/database.ts`
+- [ ] Habilitar RLS en todas las tablas con datos de usuario
+- [ ] Configurar `expo-secure-store` para tokens

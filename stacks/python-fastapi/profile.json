@@ -1,0 +1,21 @@
+{
+  "id": "python-fastapi",
+  "name": "Python FastAPI",
+  "description": "Backend Python con FastAPI, Pydantic v2, SQLAlchemy/SQLModel, async-first. Arquitectura por capas (routers → services → repositories).",
+  "frontend": null,
+  "backend": "python-fastapi",
+  "core_libs": [
+    "fastapi",
+    "pydantic",
+    "sqlalchemy"
+  ],
+  "recommended_libs": [
+    "sqlmodel",
+    "alembic",
+    "asyncpg",
+    "python-jose",
+    "passlib"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

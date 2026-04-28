@@ -1,0 +1,78 @@
+## Stack: React + Vite + Supabase
+
+Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply react-vite-supabase` para regenerarla.
+
+### Estructura obligatoria (features-first)
+
+```
+src/
+├── features/<dominio>/        # cada feature es self-contained
+│   ├── api.ts                 # queries Supabase + types
+│   ├── hooks.ts               # TanStack Query hooks + Zustand selectors
+│   ├── types.ts               # Zod schemas + TS types
+│   ├── components/            # UI específica del dominio
+│   └── index.ts               # barrel export público del feature
+├── shared/                    # cross-cutting (ui kit, utils, hooks comunes)
+│   ├── ui/                    # componentes base reusables
+│   ├── lib/                   # supabase client, utils, fetcher
+│   └── hooks/                 # hooks transversales
+└── app/                       # rutas, layouts, providers
+    ├── routes/                # react-router config
+    ├── layouts/               # shells de páginas
+    └── providers.tsx          # QueryClientProvider, ThemeProvider, etc.
+```
+
+**Reglas de imports:**
+- `features/<A>/` NUNCA importa de `features/<B>/` — comparten vía `shared/`.
+- `app/` puede importar de cualquier feature (es el ensamblador).
+- `shared/` no importa de `features/` ni `app/`.
+
+### Convenciones obligatorias
+
+- **Named exports siempre**.
+- `import * as React from 'react'`.
+- TypeScript strict. No `any`.
+- Path alias: `@/features`, `@/shared`, `@/app` (configurar en `vite.config.ts` + `tsconfig.json`).
+- Server state → **TanStack Query** (NO Redux/Zustand para data del server).
+- UI state → **Zustand** con un store por feature complejo, hooks `use<Feature>Store`.
+- Validación → Zod en boundaries (forms, URL params, API responses).
+- Estilos → Tailwind. Componentes base reusables en `shared/ui/` (recomendado: shadcn/ui).
+
+### Reglas SOLID que aplico
+
+- **SRP**: componente < 200 líneas. Hook custom existe sólo si se reusa 2+ veces.
+- **OCP**: componentes en `shared/ui/` extensibles vía props/`asChild`.
+- **DIP**: hooks en `features/<X>/hooks.ts` no llaman a `supabase.from(...)` directo — pasan por `api.ts`.
+- No lógica en componentes — vive en hooks.
+- No fetch en `useEffect` — usa TanStack Query.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Build | Vite 5+ |
+| Lenguaje | TypeScript strict |
+| Server state | TanStack Query (react-query) |
+| Client state | Zustand |
+| Routing | React Router v6+ |
+| Validación | Zod |
+| Styling | Tailwind + shadcn/ui |
+| Forms | react-hook-form + Zod |
+| Data | Supabase JS client + RLS |
+
+### Anti-patterns (NUNCA hacer)
+
+- ❌ Llamar a `supabase.from(...)` desde un componente.
+- ❌ Fetch en `useEffect` (usa TanStack Query).
+- ❌ Cross-imports entre features.
+- ❌ `any` en types — siempre Zod o tipos generados de Supabase.
+- ❌ Tablas Supabase sin RLS.
+
+### Documentación viva
+
+- Decisiones técnicas → `docs/decisions/NNNN-*.md` (`/skipper:new-adr`)
+- Features futuras → `docs/prds/NNNN-*.md` (`/skipper:new-prd`)
+- Trabajo en curso → `docs/plans/NNNN-*.md` (`/skipper:new-plan`)
+- Subsistemas → `docs/architecture/<dominio>.md`
+
+@docs/architecture/stack.md

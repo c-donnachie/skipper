@@ -1,0 +1,23 @@
+{
+  "id": "react-vite-node",
+  "name": "React + Vite + Node API",
+  "description": "SPA web con React + Vite + backend Node propio (Fastify/Express/Hono). Auth con JWT en cookies httpOnly o tokens.",
+  "frontend": "react-vite",
+  "backend": "node-api",
+  "core_libs": [
+    "react",
+    "vite",
+    "@tanstack/react-query",
+    "zustand",
+    "zod",
+    "react-router-dom"
+  ],
+  "recommended_libs": [
+    "tailwindcss",
+    "shadcn/ui",
+    "ky",
+    "react-hook-form"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

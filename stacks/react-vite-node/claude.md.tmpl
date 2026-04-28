@@ -1,0 +1,63 @@
+## Stack: React + Vite + Node API
+
+Esta sección la mantiene `skipper`. Editar con `/skipper:stack:apply react-vite-node`.
+
+### Estructura obligatoria (features-first)
+
+```
+src/
+├── features/<dominio>/        # cada feature self-contained
+│   ├── api.ts                 # endpoints HTTP del dominio
+│   ├── hooks.ts               # TanStack Query + Zustand selectors
+│   ├── types.ts               # Zod + TS types
+│   ├── components/
+│   └── index.ts               # exports públicos
+├── shared/
+│   ├── ui/                    # shadcn/ui
+│   ├── lib/api.ts             # cliente HTTP (ky con interceptors)
+│   └── hooks/
+└── app/
+    ├── routes/                # react-router config
+    ├── layouts/               # Protected, Public
+    └── providers.tsx
+```
+
+**Imports**: features no se importan entre sí — comparten vía `shared/`.
+
+### Convenciones obligatorias
+
+- Named exports. `import * as React`. TS strict.
+- Path alias `@/features`, `@/shared`, `@/app`.
+- Server state: TanStack Query.
+- UI state: Zustand.
+- Validación Zod en API responses + forms.
+- HTTP: `ky` con interceptors para JWT refresh.
+- Auth: cookies httpOnly (recomendado) o JWT en memory + refresh en localStorage.
+
+### Reglas SOLID
+
+- Hooks no llaman `fetch()` — pasan por `features/<x>/api.ts`.
+- Componente < 200 líneas. Hook custom si reusa 2+ veces.
+- API responses validadas con Zod ANTES de pasar al state.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Build | Vite 5+ |
+| Server state | TanStack Query |
+| Client state | Zustand |
+| HTTP | ky |
+| Routing | React Router v6+ |
+| Validación | Zod |
+| Styling | Tailwind + shadcn/ui |
+| Forms | react-hook-form + Zod |
+
+### Anti-patterns
+
+- ❌ Cross-imports entre features.
+- ❌ `fetch()` directo en componentes.
+- ❌ Tokens en localStorage sin httpOnly cookies.
+- ❌ Validar APIs sólo con TS (sin Zod) — la API puede cambiar.
+
+@docs/architecture/stack.md

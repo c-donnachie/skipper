@@ -1,0 +1,22 @@
+{
+  "id": "nextjs-fullstack",
+  "name": "Next.js Full-stack",
+  "description": "Next.js 14+ con App Router, RSC y Server Actions. Sin backend separado — la lógica server vive en route handlers y server actions.",
+  "frontend": "nextjs-app-router",
+  "backend": "nextjs-server-actions",
+  "core_libs": [
+    "next",
+    "react",
+    "zod",
+    "drizzle-orm"
+  ],
+  "recommended_libs": [
+    "tailwindcss",
+    "shadcn/ui",
+    "react-hook-form",
+    "next-auth",
+    "lucide-react"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

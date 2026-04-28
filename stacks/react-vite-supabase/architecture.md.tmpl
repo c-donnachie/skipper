@@ -1,0 +1,86 @@
+# Stack: {{PROJECT_NAME}} — React + Vite + Supabase
+
+> Generado por skipper {{DATE}}. Detalle expandido del stack.
+
+## Resumen
+
+SPA web con React + Vite. Backend completamente Supabase (Postgres + Auth + Storage + Realtime).
+
+## Estructura features-first
+
+Cada feature en `src/features/<dominio>/` es **self-contained**: tiene su API, hooks, types y components. La regla de oro: **un feature no importa de otro feature** — comparten vía `src/shared/`.
+
+```
+features/auth/
+├── api.ts          # signIn, signUp, signOut → Supabase
+├── hooks.ts        # useAuth, useSignIn (TanStack Query mutations)
+├── types.ts        # Zod schemas
+├── components/
+│   ├── LoginForm.tsx
+│   └── SignUpForm.tsx
+└── index.ts        # exports públicos
+```
+
+## State management
+
+- **Server state**: TanStack Query. Cache + retries + invalidation builtin.
+- **UI state**: Zustand stores por feature (modales, filtros, etc.).
+- **URL state**: search params via React Router. Validados con Zod.
+
+## Auth flow
+
+1. Usuario completa form → `useSignIn` mutation.
+2. Mutation llama `supabase.auth.signInWithPassword()` (en `features/auth/api.ts`).
+3. Sesión persistida automáticamente por Supabase (localStorage).
+4. `useAuth` hook (top-level) suscrito a `onAuthStateChange`.
+5. Rutas protegidas: layout en `app/layouts/Protected.tsx` que redirige si no hay sesión.
+
+## RLS (Row Level Security)
+
+Toda tabla con datos de usuario:
+
+```sql
+ALTER TABLE <tabla> ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "user_owns_row" ON <tabla>
+  FOR ALL USING (auth.uid() = user_id);
+```
+
+Sin RLS habilitada → la tabla es pública. **Verificar siempre antes de mergear migraciones.**
+
+## TanStack Query — convenciones
+
+```typescript
+// features/budgets/hooks.ts
+export const useBudgets = () => useQuery({
+    queryKey: ['budgets'],
+    queryFn: () => budgetsApi.list(),
+});
+
+export const useCreateBudget = () => {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: budgetsApi.create,
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['budgets'] }),
+    });
+};
+```
+
+Query keys: array `[<dominio>, ...filters]`. Convención por feature.
+
+## Decisiones técnicas
+
+Ver `docs/decisions/` (ADRs).
+
+## Gotchas conocidos
+
+- Vite SSR no es trivial — esta config es SPA only. Para SSR cambiar a Next.js.
+- Path alias: configurar en `vite.config.ts` Y en `tsconfig.json`.
+- Supabase types: `npx supabase gen types typescript --project-id <id> > src/shared/lib/database.types.ts`.
+
+## TODO inicial al adoptar el stack
+
+- [ ] Configurar path alias `@/` en vite.config + tsconfig
+- [ ] Generar tipos Supabase
+- [ ] Habilitar RLS en todas las tablas
+- [ ] Setup TanStack Query devtools en dev
+- [ ] Definir layout `Protected` con redirect a /login

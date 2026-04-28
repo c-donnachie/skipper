@@ -1,0 +1,23 @@
+{
+  "id": "expo-node",
+  "name": "React Native Expo + Node API",
+  "description": "App móvil Expo conectada a backend Node propio (Fastify/Express/Hono). REST o GraphQL. Auth con JWT custom.",
+  "frontend": "react-native-expo",
+  "backend": "node-api",
+  "core_libs": [
+    "expo",
+    "react-native",
+    "@tanstack/react-query",
+    "zustand",
+    "zod",
+    "expo-router"
+  ],
+  "recommended_libs": [
+    "nativewind",
+    "ky",
+    "react-hook-form",
+    "expo-secure-store"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

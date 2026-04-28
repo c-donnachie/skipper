@@ -1,0 +1,23 @@
+{
+  "id": "expo-supabase",
+  "name": "React Native Expo + Supabase",
+  "description": "App móvil con Expo SDK 54+ y backend Supabase (Postgres + Auth + Storage + RLS).",
+  "frontend": "react-native-expo",
+  "backend": "supabase",
+  "core_libs": [
+    "expo",
+    "react-native",
+    "@supabase/supabase-js",
+    "zustand",
+    "zod",
+    "expo-router"
+  ],
+  "recommended_libs": [
+    "nativewind",
+    "react-hook-form",
+    "expo-secure-store",
+    "@react-native-async-storage/async-storage"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

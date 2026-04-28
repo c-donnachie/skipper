@@ -1,0 +1,61 @@
+## Stack: Next.js + Supabase
+
+Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply nextjs-supabase`.
+
+### Estructura obligatoria
+
+```
+src/
+├── app/                       # App Router
+│   ├── (public)/              # rutas públicas
+│   ├── (app)/                 # rutas protegidas
+│   ├── auth/callback/route.ts # OAuth callback
+│   └── layout.tsx
+├── features/<dominio>/
+│   ├── actions.ts             # 'use server' actions
+│   ├── queries.ts             # server queries (RSC)
+│   ├── schema.ts              # Zod schemas
+│   └── components/
+├── shared/
+│   ├── ui/                    # shadcn/ui
+│   ├── supabase/              # clients (server, client, middleware)
+│   └── lib/
+└── middleware.ts              # session refresh + auth guard
+```
+
+### Convenciones obligatorias
+
+- **Por defecto: Server Components**.
+- 3 clientes Supabase: `server.ts` (RSC + actions), `client.ts` (browser), `middleware.ts` (refresh).
+- Validación Zod en TODA server action ANTES de tocar Supabase.
+- RLS policies obligatorias en Postgres. Las queries server-side usan JWT del usuario.
+- Named exports siempre. TypeScript strict. Path alias `@/`.
+
+### Reglas SOLID
+
+- Server actions: validar → llamar Supabase → revalidar.
+- Componente client < 200 líneas.
+- Lógica DB sólo en `queries.ts` y `actions.ts` — nunca en componentes.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | Next.js 14+ App Router |
+| Auth | `@supabase/ssr` con cookies |
+| DB | Supabase Postgres + RLS |
+| Validación | Zod |
+| Styling | Tailwind + shadcn/ui |
+
+### Anti-patterns
+
+- ❌ Usar service role key en client.
+- ❌ Server action sin Zod.
+- ❌ Tablas sin RLS.
+- ❌ Cliente browser para queries que requieren auth (usa server).
+
+### Documentación viva
+
+- Decisiones → `docs/decisions/`, PRDs → `docs/prds/`, planes → `docs/plans/`.
+
+@docs/architecture/stack.md

@@ -1,0 +1,23 @@
+{
+  "id": "react-vite-supabase",
+  "name": "React + Vite + Supabase",
+  "description": "SPA web con React + Vite y backend Supabase (Postgres + Auth + Storage + RLS).",
+  "frontend": "react-vite",
+  "backend": "supabase",
+  "core_libs": [
+    "react",
+    "vite",
+    "@supabase/supabase-js",
+    "@tanstack/react-query",
+    "zustand",
+    "zod"
+  ],
+  "recommended_libs": [
+    "react-router-dom",
+    "tailwindcss",
+    "shadcn/ui",
+    "react-hook-form"
+  ],
+  "claude_md": "claude.md.tmpl",
+  "arch_doc": "architecture.md.tmpl"
+}

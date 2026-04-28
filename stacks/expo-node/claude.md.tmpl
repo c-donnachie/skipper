@@ -1,0 +1,60 @@
+## Stack: React Native Expo + Node API
+
+Esta sección la mantiene `skipper` — no editar manual.
+
+### Estructura obligatoria
+
+```
+src/
+├── data/
+│   ├── api/                   # cliente HTTP (ky/axios) + endpoints por dominio
+│   │   ├── client.ts          # baseURL, auth header, error handling
+│   │   └── <dominio>.ts       # funciones específicas
+│   └── types/                 # Zod + TS types
+├── domain/
+│   └── hooks/<dominio>.ts     # TanStack Query hooks
+├── global/                    # config, theme
+└── presentation/
+    ├── screens/<flow>/
+    └── components/{shared,<flow>}/
+```
+
+**Capas**: presentation → domain → data → API. Nunca al revés.
+
+### Convenciones obligatorias
+
+- Named exports siempre. `import * as React`. TS strict.
+- Path alias: `@/data`, `@/domain`, `@/global`, `@/presentation`.
+- Server state: **TanStack Query**.
+- UI state: Zustand.
+- Validación: Zod en boundaries (forms, API responses, deep links).
+- Storage: `expo-secure-store` (tokens) + AsyncStorage (no sensible).
+- HTTP: `ky` (más liviano que axios, soporta hooks).
+
+### Reglas SOLID
+
+- Componente < 200 líneas. Hook custom si reusa 2+ veces.
+- Hooks de `domain/` no llaman a `fetch()` directo — pasan por `data/api/`.
+- Endpoints en `data/api/<dominio>.ts` retornan promesas tipadas con Zod parse.
+
+### Stack base
+
+| Capa | Librería |
+|---|---|
+| Framework | Expo SDK 54+ |
+| Server state | TanStack Query |
+| Client state | Zustand |
+| HTTP | ky (con interceptors para JWT refresh) |
+| Validación | Zod |
+| Routing | Expo Router |
+| Auth | JWT custom + expo-secure-store |
+| Styling | NativeWind (recomendado) |
+
+### Anti-patterns
+
+- ❌ `fetch()` directo en componentes/hooks de UI.
+- ❌ Tokens en AsyncStorage (usa SecureStore).
+- ❌ Lógica de negocio en componentes.
+- ❌ `useEffect` para fetch (usa TanStack Query).
+
+@docs/architecture/stack.md

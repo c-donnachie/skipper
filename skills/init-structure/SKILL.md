@@ -1,6 +1,6 @@
 ---
-description: Crea la estructura inicial docs/ (architecture, business, decisions, prds, plans, legal) con README.md de protocolo en cada carpeta. Úsalo una sola vez al adoptar el plugin en un proyecto.
-allowed-tools: Read Write Edit Bash(mkdir *) Bash(ls *)
+description: Crea la estructura inicial docs/ (architecture, business, decisions, prds, plans, legal) con README.md de protocolo en cada carpeta, después detecta el stack del proyecto y ofrece aplicar un perfil opinado. Úsalo una sola vez al adoptar el plugin en un proyecto.
+allowed-tools: Read Write Edit Bash(mkdir *) Bash(ls *) Bash(${CLAUDE_PLUGIN_ROOT}/lib/detect.sh *)
 ---
 
 # Init estructura de docs
@@ -153,8 +153,26 @@ Si existe `CLAUDE.md` en la raíz, sugiere al usuario agregar:
 Estructura mantenida por plugin `skipper`. Ver [docs/README.md](docs/README.md).
 ```
 
+### 6. Detectar stack y ofrecer aplicar perfil
+
+Una vez creada la estructura `docs/`, corre el detector:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT}/lib/detect.sh" "$(pwd)"
+```
+
+Parsea el JSON resultante y procede según `confidence`:
+
+- **`high` + no ambiguo**: reporta el stack detectado y dile al usuario "Para aplicar el perfil opinado al CLAUDE.md, corre `/skipper:stack:apply <stack>`".
+- **`medium` o `low`**: reporta el stack candidato y las señales — pregunta al usuario si quiere aplicarlo o prefiere uno diferente.
+- **`ambiguous: true`** (≥2 frontends): lista los frontends detectados y pregunta cuál es el principal antes de sugerir.
+- **`none`**: reporta "No detecté stack soportado" y lista los stacks disponibles. El usuario puede correr `/skipper:stack:apply <stack>` manualmente si quiere uno.
+
+NO ejecutes `stack:apply` directamente — sólo reporta al usuario el siguiente paso.
+
 ## Reglas
 
 - Si las carpetas ya existen, NO sobreescribas — sólo reporta y termina.
 - Si CLAUDE.md ya tiene una sección "Documentación", no la dupliques.
-- Reporta al final qué creaste y qué saltaste.
+- Reporta al final qué creaste, qué saltaste y qué stack se detectó.
+- Si el detector retorna error o el repo no es soportado, sigue normalmente — la detección es opcional, no obligatoria.
