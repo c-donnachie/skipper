@@ -1,7 +1,7 @@
 {
   "name": "skipper",
   "description": "El capitán de tu documentación. Mantiene automáticamente docs/architecture, docs/business, docs/decisions (ADR), docs/prds y docs/plans. Detecta cambios en el código y sugiere qué documentar.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Cristian Donnachie",
     "email": "cristianu@dropout.cl"

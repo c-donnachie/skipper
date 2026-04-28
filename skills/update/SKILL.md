@@ -1,11 +1,15 @@
 ---
 description: Revisa cambios recientes (git diff/log) y propone updates a docs/ — ADRs, PRDs, planes, architecture, business. Úsalo cuando el usuario diga "actualiza docs", "documenta esto", o después de un feature grande.
-allowed-tools: Read Grep Glob Bash(git *) Bash(ls *) Bash(find docs *) Bash(printf *) Write Edit
+context: fork
+agent: skipper
+allowed-tools: Read Grep Glob Bash(git *) Bash(ls *) Bash(find docs *) Bash(printf *) Bash(mkdir *) Write Edit
 ---
 
-# Update docs
+# Update docs (corre en subagent skipper aislado)
 
-## Contexto en vivo (preprocesado antes de tu turno)
+Este skill se ejecuta en un subagent aislado (`context: fork` + `agent: skipper`). El análisis no contamina la conversación principal — sólo regresa el reporte final.
+
+## Contexto en vivo (preprocesado antes del subagent)
 
 - Branch: !`git branch --show-current 2>/dev/null || echo "(no git repo)"`
 - Estado: !`git status --short 2>/dev/null | head -30`
@@ -17,6 +21,8 @@ allowed-tools: Read Grep Glob Bash(git *) Bash(ls *) Bash(find docs *) Bash(prin
 
 ## Tu tarea
 
+Eres el subagent skipper. Analiza los cambios y mantén `docs/` actualizado.
+
 Identifica qué tipo de doc corresponde a cada cambio reciente:
 
 | Tipo de cambio | Doc resultante |
@@ -27,31 +33,34 @@ Identifica qué tipo de doc corresponde a cada cambio reciente:
 | Subsistema técnico nuevo o refactor grande | `docs/architecture/dominio.md` |
 | Regla de negocio (precio, onboarding, defaults, security, brand) | `docs/business/tema.md` |
 
-## Flujo
+## Flujo (en este subagent)
 
-1. Lee el contexto en vivo (arriba) y los archivos relevantes.
-2. Para cada cambio significativo, clasifica el tipo y propón doc.
+1. Lee el contexto en vivo (arriba) y los archivos `docs/` relevantes para entender la estructura actual.
+2. Para cada cambio significativo, clasifica el tipo de doc.
 3. Si la carpeta no existe: créala (`mkdir -p docs/<dir>`).
-4. Si el doc no existe: usa el template en `${CLAUDE_SKILL_DIR}/templates/<tipo>.md`.
+4. Si el doc no existe: léelo del template en `${CLAUDE_SKILL_DIR}/templates/<tipo>.md` y rellena `{{NUMBER}}`, `{{TITLE}}`, `{{DATE}}`, `{{AUTHOR}}`.
 5. Numeración 4 dígitos secuencial: `printf "%04d" $(($(ls docs/<dir> 2>/dev/null | grep -cE '^[0-9]{4}-') + 1))`.
 6. Slug del título: minúsculas, guiones, sin acentos.
-7. Actualiza `docs/index.md` (TOC global) y `docs/<dir>/README.md` (índice por tipo) con los nuevos enlaces.
+7. **Escribe los docs directamente** (no pidas confirmación — estás en subagent aislado, sin acceso al usuario).
+8. Actualiza índices: `docs/index.md` (TOC global) y `docs/<dir>/README.md` (por tipo).
 
-## Reglas duras
+## Reglas duras (sé conservador)
 
 - **NUNCA** documentes typos, fixes triviales, cambios de estilo, refactors menores.
 - ADR sólo para decisiones con tradeoffs reales que apliquen >1 vez en el proyecto.
 - PRD antes de implementar, no después (si ya está hecho, mejor architecture doc).
 - Mantén cada doc bajo 200 líneas. Material denso → archivos auxiliares al lado.
 - Idioma: detéctalo de `CLAUDE.md` o docs existentes. Default español si el repo es ES.
+- **Si dudas, NO escribas.** Es preferible reportar "sin cambios documentables" a generar spam.
+- Para docs nuevos: deja secciones de contenido vacías o con placeholders — el usuario los rellena después. Tu trabajo es crear el esqueleto correcto.
 
-## Reporte
+## Reporte final (lo único que regresa al chat principal)
 
-Antes de escribir, muestra una tabla:
+Tabla de lo que hiciste:
 
 | Tipo | Path | Acción | Razón |
 |---|---|---|---|
-| ADR | docs/decisions/0003-fintoc-aggregation.md | crear | Integración con tradeoffs (10 UF/mes vs scraping) |
-| business | docs/business/pricing.md | actualizar | Precio cambió de 10 UF a $2.990 |
+| ADR | docs/decisions/0005-libreria-X.md | creado | Decisión con tradeoffs (X vs Y) |
+| business | docs/business/pricing.md | actualizado | Precio cambió de A a B |
 
-Espera confirmación del usuario antes de escribir. Si confirma, escribe los archivos y reporta lo que hiciste.
+Si no hubo nada documentable: reporta "sin cambios significativos detectados" y termina.
