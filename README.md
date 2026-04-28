@@ -64,11 +64,12 @@ docs/
 
 ## Instalación
 
-### Opción A: vía marketplace (recomendado)
+### Opción A: vía marketplace madagascar (recomendado)
 
 ```
-/plugin marketplace add cristiandonnachie/skipper-marketplace
-/plugin install skipper@cristiandonnachie
+/plugin marketplace add c-donnachie/madagascar
+/plugin install skipper@madagascar
+/reload-plugins
 ```
 
 ### Opción B: cargar desde directorio local (dev/test)
@@ -99,11 +100,29 @@ Luego, cuando hagas cambios significativos:
 - **Numeración secuencial**: ADR/PRD/plan llevan prefijo de 4 dígitos (`0001-`, `0002-`...).
 - **Idioma del proyecto**: detecta español/inglés desde `CLAUDE.md` o docs existentes.
 
-## Componentes
+## El universo Madagascar
 
-- **5 skills**: `update`, `new-adr`, `new-prd`, `new-plan`, `init`
-- **1 subagent**: `skipper` (capitán que coordina razonamiento complejo)
-- **1 hook**: `Stop` con script bash que sugiere acción
+Skipper vive en el marketplace [Madagascar](https://github.com/c-donnachie/madagascar). Internamente, el plugin coordina varios "pingüinos" como subagents especializados:
+
+| Pingüino | Rol | Cuándo aparece |
+|---|---|---|
+| 🐧 **Skipper** | Capitán/router. Lee contexto y decide qué especialista invocar. | `/skipper:ask`, `/skipper:review` |
+| 🐧 **Kowalski** | Analista. Revisa diff y propone documentación. | `/skipper:update` |
+| 🐧 Rico (futuro) | Demoliciones / refactor agresivo. | v0.5+ |
+| 🐧 Private (futuro) | Aprendiz / tutoriales / lookups web. | Futuro |
+
+Aparte de los pingüinos, hay **especialistas técnicos** (NO son pingüinos, son los expertos contratados):
+
+- 🛠 `architect` — estructura, capas, dependencias
+- 🛠 `solid-coach` — Clean Code, SOLID, refactor de unidades
+- 🛠 `react-vite`, `react-native`, `nextjs`, `node-backend`, `supabase` — stack-agents
+
+## Componentes técnicos
+
+- **17 skills** (`scan`, `stack-apply`, `init-structure`, `update`, `new-adr/prd/plan`, 7 wrappers de especialistas, 3 routers inteligentes)
+- **9 subagents** (skipper, kowalski + 7 técnicos)
+- **8 stack profiles** (react-vite-supabase/node, nextjs-fullstack/supabase, expo-supabase/node, node-api, python-fastapi)
+- **1 hook Stop** con script bash que sugiere `/skipper:update` tras cambios
 
 ## Configuración
 

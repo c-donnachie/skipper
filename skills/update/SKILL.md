@@ -1,13 +1,13 @@
 ---
 description: Revisa cambios recientes (git diff/log) y propone updates a docs/ — ADRs, PRDs, planes, architecture, business. Úsalo cuando el usuario diga "actualiza docs", "documenta esto", o después de un feature grande.
 context: fork
-agent: skipper
+agent: kowalski
 allowed-tools: Read Grep Glob Bash(git *) Bash(ls *) Bash(find docs *) Bash(printf *) Bash(mkdir *) Write Edit
 ---
 
-# Update docs (corre en subagent skipper aislado)
+# Update docs (corre en subagent kowalski aislado)
 
-Este skill se ejecuta en un subagent aislado (`context: fork` + `agent: skipper`). El análisis no contamina la conversación principal — sólo regresa el reporte final.
+Este skill se ejecuta en un subagent aislado (`context: fork` + `agent: kowalski`). El análisis no contamina la conversación principal — sólo regresa el reporte final.
 
 ## Contexto en vivo (preprocesado antes del subagent)
 
@@ -21,7 +21,7 @@ Este skill se ejecuta en un subagent aislado (`context: fork` + `agent: skipper`
 
 ## Tu tarea
 
-Eres el subagent skipper. Analiza los cambios y mantén `docs/` actualizado.
+Eres Kowalski, el analista. Analiza los cambios y mantén `docs/` actualizado.
 
 Identifica qué tipo de doc corresponde a cada cambio reciente:
 
