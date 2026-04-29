@@ -119,10 +119,12 @@ Aparte de los pingüinos, hay **especialistas técnicos** (NO son pingüinos, so
 
 ## Componentes técnicos
 
-- **18 skills** (`scan`, `stack-apply`, `init-structure`, `update`, `new-adr/prd/plan`, 7 wrappers de especialistas, 3 routers inteligentes, `lib-lookup`)
+- **20 skills** (`scan`, `stack-apply`, `stack-add`, `stack-doctor`, `init-structure`, `update`, `new-adr/prd/plan`, 7 wrappers de especialistas, 3 routers inteligentes, `lib-lookup`)
 - **9 subagents** (skipper, kowalski + 7 técnicos)
 - **8 stack profiles** (react-vite-supabase/node, nextjs-fullstack/supabase, expo-supabase/node, node-api, python-fastapi)
-- **2 hooks**:
+- **6 layers componibles** (tailwind, shadcn-ui, tanstack-query, zustand, zod, nativewind)
+- **3 hooks**:
+  - `SessionStart` → banner con stack, layers y estado de docs al abrir el proyecto
   - `Stop` → sugiere `/skipper:update` 1×/24h tras cambios en código
   - `PostToolUse` (Edit/Write) → sugiere especialista cuando edita ≥3 archivos del mismo dominio
 

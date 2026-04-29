@@ -1,0 +1,7 @@
+{
+  "id": "tanstack-query",
+  "name": "TanStack Query",
+  "description": "Server state management con cache, invalidation, retries. Stack web y mobile.",
+  "compatible_with": ["react-vite-supabase", "react-vite-node", "expo-supabase", "expo-node", "nextjs-supabase"],
+  "fragment": "fragment.md"
+}

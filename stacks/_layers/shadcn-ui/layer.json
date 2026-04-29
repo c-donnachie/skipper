@@ -1,0 +1,8 @@
+{
+  "id": "shadcn-ui",
+  "name": "shadcn/ui",
+  "description": "Componentes base copiables (no es lib). Stack web. Requiere Tailwind como prerequisito.",
+  "compatible_with": ["react-vite-supabase", "react-vite-node", "nextjs-fullstack", "nextjs-supabase"],
+  "requires": ["tailwind"],
+  "fragment": "fragment.md"
+}

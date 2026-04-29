@@ -1,0 +1,7 @@
+{
+  "id": "zustand",
+  "name": "Zustand",
+  "description": "Client/UI state management ligero. Compatible con web y mobile.",
+  "compatible_with": ["react-vite-supabase", "react-vite-node", "expo-supabase", "expo-node", "nextjs-supabase", "nextjs-fullstack"],
+  "fragment": "fragment.md"
+}

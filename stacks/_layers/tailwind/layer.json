@@ -1,0 +1,7 @@
+{
+  "id": "tailwind",
+  "name": "Tailwind CSS",
+  "description": "Utility-first CSS framework. Layer válido para stacks web (react-vite-*, nextjs-*).",
+  "compatible_with": ["react-vite-supabase", "react-vite-node", "nextjs-fullstack", "nextjs-supabase"],
+  "fragment": "fragment.md"
+}

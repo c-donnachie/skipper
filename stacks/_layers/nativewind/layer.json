@@ -1,0 +1,7 @@
+{
+  "id": "nativewind",
+  "name": "NativeWind",
+  "description": "Tailwind para React Native. Layer válido para stacks Expo.",
+  "compatible_with": ["expo-supabase", "expo-node"],
+  "fragment": "fragment.md"
+}

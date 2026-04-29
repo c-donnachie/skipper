@@ -1,0 +1,7 @@
+{
+  "id": "zod",
+  "name": "Zod",
+  "description": "Validación + inferencia de tipos en boundaries. Stack-agnostic.",
+  "compatible_with": ["react-vite-supabase", "react-vite-node", "expo-supabase", "expo-node", "nextjs-fullstack", "nextjs-supabase", "node-api"],
+  "fragment": "fragment.md"
+}
