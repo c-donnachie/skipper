@@ -116,14 +116,18 @@ case "$fe" in
     [[ "$be" == "supabase" ]] && stack="nextjs-supabase" || stack="nextjs-fullstack"
     ;;
   react-vite)
-    [[ "$be" == "supabase" ]] && stack="react-vite-supabase"
-    [[ "$be" == "node" ]] && stack="react-vite-node"
-    [[ -z "$be" ]] && stack="react-vite-supabase"  # default si solo es react-vite
+    if [[ "$be" == "supabase" ]]; then
+      stack="react-vite-supabase"
+    else
+      stack="react-vite-node"  # default cuando no hay supabase explícito
+    fi
     ;;
   expo)
-    [[ "$be" == "supabase" ]] && stack="expo-supabase"
-    [[ "$be" == "node" ]] && stack="expo-node"
-    [[ -z "$be" ]] && stack="expo-supabase"  # default
+    if [[ "$be" == "supabase" ]]; then
+      stack="expo-supabase"
+    else
+      stack="expo-node"  # default cuando no hay supabase explícito
+    fi
     ;;
 esac
 

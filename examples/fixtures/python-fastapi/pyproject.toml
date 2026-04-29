@@ -1,0 +1,14 @@
+[project]
+name = "fixture-python-fastapi"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "pydantic>=2.9.0",
+    "sqlalchemy>=2.0.0",
+    "asyncpg>=0.29.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
