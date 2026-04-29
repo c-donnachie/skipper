@@ -1,8 +1,8 @@
 ---
-description: Pregunta libre que el capitán Skipper enruta al especialista correcto según paths editados, intención (keywords) y stack del proyecto. Atajo cuando no estás seguro qué especialista invocar manualmente. Úsalo para "¿está bien esta estructura?", "esto huele mal", preguntas abiertas.
+description: Free-form question that captain Skipper routes to the right specialist based on edited paths, intent (keywords) and project stack. Shortcut when you're not sure which specialist to invoke manually. Use for "is this structure ok?", "this smells bad", open questions.
 context: fork
 agent: skipper
-argument-hint: [pregunta libre]
+argument-hint: [free-form question]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *)
 ---
 

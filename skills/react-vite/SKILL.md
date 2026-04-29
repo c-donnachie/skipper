@@ -1,8 +1,8 @@
 ---
-description: Invoca al especialista React + Vite. Conoce features-first, TanStack Query, Zustand, Tailwind/shadcn, Zod. Aplica las leyes del CLAUDE.md de stack react-vite-*. Puede escribir. Úsalo para preguntas/refactors de SPA web React.
+description: Invokes the React + Vite specialist. Knows features-first, TanStack Query, Zustand, Tailwind/shadcn, Zod. Applies the laws from a react-vite-* stack CLAUDE.md. Can write. Use for React SPA questions/refactors.
 context: fork
 agent: react-vite
-argument-hint: [pregunta o tarea]
+argument-hint: [question or task]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) WebFetch Write Edit
 ---
 

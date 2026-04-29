@@ -1,61 +1,61 @@
 # Privacy Policy — skipper
 
-**Última actualización**: 2026-04-29
+**Last updated**: 2026-04-29
 
-## Resumen rápido
+## TL;DR
 
-**skipper no recolecta, almacena, ni transmite datos del usuario.** Punto.
+**skipper does not collect, store, or transmit user data.** Period.
 
-Todo lo que el plugin hace ocurre localmente en tu máquina, dentro de tu sesión de Claude Code.
+Everything the plugin does happens locally on your machine, inside your Claude Code session.
 
-## Qué hace skipper con tus archivos
+## What skipper does with your files
 
-skipper lee y escribe archivos **únicamente en el directorio del proyecto donde lo invocas**:
+skipper reads and writes files **only inside the project directory where you invoke it**:
 
-- **Lee**: `package.json`, `app.json`, `vite.config.*`, `next.config.*`, `pyproject.toml`, `supabase/config.toml`, `CLAUDE.md`, archivos en `docs/`, archivos en `src/`, output de `git diff`/`git log`/`git status`.
-- **Escribe**: `CLAUDE.md` (sólo dentro de marcadores `<!-- skipper:* -->`), `docs/architecture/stack.md`, archivos numerados en `docs/decisions/`, `docs/prds/`, `docs/plans/`.
-- **Crea estado de sesión** en `.claude/.skipper-*` (markers de throttle de hooks).
+- **Reads**: `package.json`, `app.json`, `vite.config.*`, `next.config.*`, `pyproject.toml`, `supabase/config.toml`, `CLAUDE.md`, files in `docs/`, files in `src/`, output of `git diff`/`git log`/`git status`.
+- **Writes**: `CLAUDE.md` (only inside `<!-- skipper:* -->` markers), `docs/architecture/stack.md`, numbered files in `docs/decisions/`, `docs/prds/`, `docs/plans/`.
+- **Creates session state** in `.claude/.skipper-*` (hook throttle markers).
 
-skipper **nunca**:
+skipper **never**:
 
-- Lee archivos fuera del proyecto.
-- Lee variables de entorno con secretos (`.env`, `.env.local`).
-- Lee `~/.ssh/`, `~/.aws/`, `~/.config/`, ni similares.
-- Conecta a backends propios.
-- Envía telemetría.
+- Reads files outside the project.
+- Reads environment variables containing secrets (`.env`, `.env.local`).
+- Reads `~/.ssh/`, `~/.aws/`, `~/.config/`, or similar.
+- Connects to its own backends.
+- Sends telemetry.
 
-## Servicios externos opcionales
+## Optional external services
 
-El skill `/skipper:lib-lookup` usa las herramientas `WebSearch` y `WebFetch` de Claude Code para consultar documentación oficial pública (`react.dev`, `nextjs.org`, `docs.expo.dev`, `supabase.com/docs`, `fastify.dev`, etc.). Esas consultas:
+The `/skipper:lib-lookup` skill uses Claude Code's `WebSearch` and `WebFetch` tools to query public official documentation (`react.dev`, `nextjs.org`, `docs.expo.dev`, `supabase.com/docs`, `fastify.dev`, etc.). Those queries:
 
-- Son **opt-in** (sólo cuando tú invocas explícitamente `/skipper:lib-lookup`).
-- Pasan por el motor de Claude Code, no por servidores propios de skipper.
-- No incluyen información de tu proyecto, sólo el query que escribiste.
+- Are **opt-in** (only when you explicitly invoke `/skipper:lib-lookup`).
+- Go through the Claude Code engine, not skipper-owned servers.
+- Don't include your project information — only the query you typed.
 
-Si no quieres que skipper haga lookups web, simplemente no uses ese skill.
+If you don't want skipper to make web lookups, simply don't use that skill.
 
-## Datos que NO controlamos
+## Data we don't control
 
-skipper se ejecuta dentro de Claude Code, que sí tiene su propia política de privacidad de Anthropic. Para entender cómo Claude/Anthropic procesa los prompts y outputs:
+skipper runs inside Claude Code, which has its own Anthropic privacy policy. To understand how Claude/Anthropic processes prompts and outputs:
 
 - https://www.anthropic.com/legal/privacy
 
-skipper como plugin no tiene visibilidad sobre esos flujos. Toda recolección de datos relativa a usar Claude Code es responsabilidad de Anthropic, no de skipper.
+skipper as a plugin has no visibility into those flows. Any data collection related to using Claude Code is Anthropic's responsibility, not skipper's.
 
-## Servicios de terceros embebidos
+## Embedded third-party services
 
-**Ninguno.** skipper no integra Google Analytics, Sentry, Mixpanel, ni servicios similares.
+**None.** skipper does not integrate Google Analytics, Sentry, Mixpanel, or similar services.
 
 ## Open source
 
-skipper es open source bajo licencia MIT. Puedes auditar el código completo:
+skipper is open source under the MIT license. You can audit the full code:
 
 - https://github.com/c-donnachie/skipper
 
-Si encuentras algo que contradiga este documento, abre un issue.
+If you find anything that contradicts this document, open an issue.
 
-## Contacto
+## Contact
 
-Preguntas o reportes: cristianu@dropout.cl
+Questions or reports: cristianu@dropout.cl
 
-Cambios a esta política se anunciarán en el [CHANGELOG.md](./CHANGELOG.md) del repo.
+Changes to this policy will be announced in the repo's [CHANGELOG.md](./CHANGELOG.md).

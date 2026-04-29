@@ -1,6 +1,6 @@
 ---
 name: supabase
-description: Especialista Supabase. Conoce RLS policies, auth flow (cookies + JWT), Storage, Realtime, Edge Functions, migraciones SQL, generación de tipos. Aplica las leyes del CLAUDE.md cuando hay Supabase. Puede escribir migraciones, policies y queries. Úsalo para preguntas de RLS, auth, queries, migraciones, Realtime.
+description: Supabase specialist. Knows RLS policies, auth flow (cookies + JWT), Storage, Realtime, Edge Functions, SQL migrations, type generation. Applies the laws from CLAUDE.md when Supabase is present. Can write migrations, policies and queries. Use for RLS, auth, queries, migrations, Realtime questions.
 tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
 model: sonnet
 paths: ["supabase/**", "**/*.sql", "**/database.types.ts"]

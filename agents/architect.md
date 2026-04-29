@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Arquitecto de software. Razona sobre separación de capas, dependencias, boundaries entre módulos y estructura de carpetas. Aplica las leyes declaradas en CLAUDE.md (estructura obligatoria, anti-patterns). Puede escribir refactors estructurales. Úsalo para preguntas de "¿está bien esta estructura?" o "¿dónde debería vivir esto?".
+description: Software architect. Reasons about layer separation, dependencies, module boundaries and folder structure. Applies the laws declared in CLAUDE.md (mandatory structure, anti-patterns). Can write structural refactors. Use for "is this structure ok?" or "where should this live?" questions.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 ---

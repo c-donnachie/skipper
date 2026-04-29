@@ -1,5 +1,5 @@
 ---
-description: Revisa cambios recientes (git diff/log) y propone updates a docs/ — ADRs, PRDs, planes, architecture, business. Úsalo cuando el usuario diga "actualiza docs", "documenta esto", o después de un feature grande.
+description: Reviews recent changes (git diff/log) and proposes updates to docs/ — ADRs, PRDs, plans, architecture, business. Use when the user says "update docs", "document this", or after a large feature.
 context: fork
 agent: kowalski
 allowed-tools: Read Grep Glob Bash(git *) Bash(ls *) Bash(find docs *) Bash(printf *) Bash(mkdir *) Write Edit

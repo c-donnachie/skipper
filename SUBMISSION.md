@@ -1,125 +1,118 @@
-# Submission al marketplace oficial de Anthropic
+# Submission to Anthropic's official marketplace
 
-Guía paso a paso para enviar skipper al marketplace oficial de Claude Code.
+Step-by-step guide to submit skipper to the official Claude Code marketplace.
 
-## Pre-requisitos antes del submit
+## Pre-submission checklist
 
-### Checklist técnico
+### Technical checklist
 
-- [x] Plugin público en GitHub: https://github.com/c-donnachie/skipper
-- [x] Marketplace público en GitHub: https://github.com/c-donnachie/madagascar
-- [x] `plugin.json` con `name`, `version`, `description`, `author`, `license`, `keywords`, `homepage`, `repository`.
-- [x] `LICENSE` en el repo (MIT).
-- [x] `README.md` con sección "Why" + demo + instalación + comandos completos.
-- [x] `CHANGELOG.md` con histórico semver desde v0.1.
-- [x] `lib/test-detect.sh` corre y pasa (8/8 fixtures).
-- [x] Versión semver actual: `1.0.0`.
+- [x] Public plugin on GitHub: https://github.com/c-donnachie/skipper
+- [x] Public marketplace on GitHub: https://github.com/c-donnachie/madagascar
+- [x] `plugin.json` with `name`, `version`, `description`, `author`, `license`, `keywords`, `homepage`, `repository`.
+- [x] `LICENSE` in the repo (MIT).
+- [x] `README.md` with "Why" section + demo + installation + complete commands.
+- [x] `CHANGELOG.md` with semver history since v0.1.
+- [x] `lib/test-detect.sh` runs and passes (8/8 fixtures).
+- [x] Current semver version: `1.0.1`.
 
-### Checklist visual (faltan)
+### Visual checklist (still pending)
 
-Estos hay que **capturar manualmente** porque requieren la app real:
+These need to be **captured manually** because they require the actual app:
 
-- [ ] **Screenshot 1**: SessionStart banner abriendo un proyecto con stack aplicado.
+- [ ] **Screenshot 1**: SessionStart banner when opening a project with stack applied.
   ```
   ╭─ 🐧 skipper ──────────────────────────────────────────╮
   │ Stack:  React Native Expo + Supabase                 │
   │ Layers: tanstack-query zustand zod                   │
-  │ Docs:   4 ADR · 1 PRD · 0 plan · update al día       │
+  │ Docs:   4 ADR · 1 PRD · 0 plan · update up to date   │
   ╰───────────────────────────────────────────────────────╯
   ```
-  **Cómo capturar**: en `not-pato` con CLAUDE.md aplicado, abrir Claude Code y screenshot del banner inicial.
+  **How to capture**: in any project with applied CLAUDE.md, open Claude Code and screenshot the initial banner.
 
-- [ ] **Screenshot 2**: Output de `/skipper:scan` con confidence high.
-  **Cómo capturar**: correr el comando en cualquier proyecto soportado, capturar el reporte.
+- [ ] **Screenshot 2**: Output of `/skipper:scan` with high confidence.
+  **How to capture**: run the command in any supported project, capture the report.
 
-- [ ] **Screenshot 3**: Tabla de violaciones de `/skipper:stack-doctor`.
-  **Cómo capturar**: en proyecto con CLAUDE.md aplicado, correr stack-doctor, capturar la tabla.
+- [ ] **Screenshot 3**: `/skipper:stack-doctor` violations table.
+  **How to capture**: in a project with applied CLAUDE.md, run stack-doctor, capture the table.
 
-- [ ] **GIF (opcional)**: Una sesión de `/skipper:ask "¿está bien esta estructura?"` que enruta a `/skipper:react-native`.
-  **Cómo capturar**: usar Kap o LICEcap. ~15 segundos de duración.
+- [ ] **GIF (optional)**: a `/skipper:ask "is this structure ok?"` session that routes to `/skipper:react-native`.
+  **How to capture**: use Kap or LICEcap. ~15 seconds.
 
-**Ubicación sugerida**: `examples/screenshots/` (crear carpeta).
+**Suggested location**: `examples/screenshots/` (create folder).
 
-Después de capturar, agregar al README en los placeholders `<!-- TODO screenshot: ... -->`.
+After capturing, replace the `<!-- TODO screenshot: ... -->` placeholders in README with `![desc](examples/screenshots/foo.png)`.
 
-## Form de submission
+## Submission form
 
 URL: **https://claude.ai/settings/plugins/submit**
 
-(Alternativa: https://platform.claude.com/plugins/submit)
+(Alternative: https://platform.claude.com/plugins/submit)
 
-### Datos a llenar
+### Fields to fill
 
-| Campo | Valor |
+| Field | Value |
 |---|---|
 | Plugin name | `skipper` |
-| Version | `1.0.0` |
+| Version | `1.0.1` |
 | Repository URL | `https://github.com/c-donnachie/skipper` |
-| Marketplace URL | `https://github.com/c-donnachie/madagascar` |
+| Marketplace URL (if asked) | `https://github.com/c-donnachie/madagascar` |
 | Author | Cristian Donnachie (cristianu@dropout.cl) |
 | License | MIT |
-| Description | "Framework de Claude Code que arma, documenta y mantiene tu proyecto siguiendo Clean Code y SOLID. Detecta el stack, genera CLAUDE.md opinado, mantiene docs vivos, y trae 7 sub-agentes especialistas." |
+| Privacy URL | `https://github.com/c-donnachie/skipper/blob/main/PRIVACY.md` |
+| Description | "A Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID principles. Detects the stack, generates an opinionated CLAUDE.md, keeps living docs, and ships 7 specialist subagents." |
 | Keywords | framework, documentation, adr, prd, architecture, solid, clean-code |
-| Categories | (elegir según opciones del form: probablemente "Framework", "Documentation", "Code Review") |
+| Categories | (pick from form: probably "Framework", "Documentation", "Code Review") |
 
-### Texto sugerido para descripción larga
+### Suggested long description
 
 ```
-Skipper es un framework completo para Claude Code que reemplaza la necesidad
-de instalar varios plugins separados (boilerplate generators, ADR-tools,
-plugins de doc-gen, reglas pegadas a mano).
+skipper is a complete framework for Claude Code that replaces the need to install several separate plugins (boilerplate generators, ADR-tools, doc-gen plugins, hand-pasted rules).
 
-Con un solo comando:
+With a single command:
 
-1. Detecta tu stack (8 stacks: React Vite, Next.js, Expo, Node API, Python
-   FastAPI, todos con/sin Supabase).
-2. Aplica un CLAUDE.md opinado fuerte (estructura obligatoria, naming, libs
-   recomendadas, anti-patterns, reglas SOLID validables).
-3. Mantiene docs vivos: ADRs, PRDs, planes de implementación con templates.
-4. Trae 7 sub-agentes especialistas que pueden refactorizar respetando las
-   leyes del proyecto: architect, solid-coach, react-vite, react-native,
-   nextjs, node-backend, supabase.
-5. Sugiere proactivamente vía hooks: SessionStart banner, PostToolUse que
-   detecta dominios editados, Stop que sugiere actualizar docs.
+1. Detects your stack (8 stacks: React Vite, Next.js, Expo, Node API, Python FastAPI, all with/without Supabase).
+2. Applies an opinionated CLAUDE.md (mandatory structure, naming, recommended libs, anti-patterns, validatable SOLID rules).
+3. Keeps living docs: ADRs, PRDs, implementation plans with templates.
+4. Ships 7 specialist subagents that refactor while respecting the project's laws: architect, solid-coach, react-vite, react-native, nextjs, node-backend, supabase.
+5. Suggests proactively via hooks: SessionStart banner, PostToolUse that detects edited domains, Stop that nudges you to update docs.
 
-20 skills, 9 subagents, 8 stack profiles, 6 layers componibles, 3 hooks.
-Token cost en contexto: ~355 (0.18% de la ventana).
+20 skills, 9 subagents, 8 stack profiles, 6 composable layers, 3 hooks. Token cost in context: ~355 (0.18% of the window).
 ```
 
-### Categorías sugeridas
+### Suggested categories
 
 - Framework
 - Documentation
 - Code Review
 - Architecture
 
-## Después del submit
+## After submission
 
-1. Anthropic revisa manualmente. Tiempo estimado de aprobación: 1–2 semanas (no documentado, varía).
-2. Recibirás un email con resultado.
-3. Si aprobado: skipper aparece en `/plugin marketplace browse` para todos los usuarios de Claude Code.
-4. Si rechazado: feedback con qué corregir. Itera y resubmite.
+1. Anthropic reviews manually. Estimated approval time: 1–2 weeks (not documented, varies).
+2. You'll receive an email with the result.
+3. If approved: skipper appears in `/plugin marketplace browse` for all Claude Code users.
+4. If rejected: feedback with what to fix. Iterate and resubmit.
 
-## Mantener marketplace propio en paralelo
+## Keep your own marketplace in parallel
 
-Aunque skipper esté en el marketplace oficial, mantener `c-donnachie/madagascar` activo permite:
+Even if skipper lands in the official marketplace, keeping `c-donnachie/madagascar` active allows:
 
-- Distribuir versiones beta antes del submit oficial.
-- Tener add-ons opcionales (`private`, `rico`) sin pasar por revisión Anthropic.
-- Control total sobre updates.
+- Distributing beta versions before official submission.
+- Hosting optional add-ons (`private`, `rico`) without going through Anthropic review.
+- Full control over updates.
 
-## Comandos útiles
+## Useful commands
 
 ```bash
-# Validar antes de submit
-bash lib/test-detect.sh                    # tests del detector
-bash -n hooks/*.sh                         # syntax check de scripts
-python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"  # plugin.json válido
+# Validate before submit
+bash lib/test-detect.sh                    # detector tests
+bash -n hooks/*.sh                         # syntax check of scripts
+python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))"  # valid plugin.json
 
-# Ver versión actual
+# View current version
 grep version .claude-plugin/plugin.json
 
-# Crear release tag en GitHub (después del submit)
-git tag v1.0.0
-git push origin v1.0.0
+# Create release tag on GitHub (after submit)
+git tag v1.0.1
+git push origin v1.0.1
 ```

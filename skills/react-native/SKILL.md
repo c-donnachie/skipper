@@ -1,8 +1,8 @@
 ---
-description: Invoca al especialista React Native + Expo. Conoce expo-router, capas data/domain/presentation, Zustand, NativeWind, expo-secure-store, Supabase Auth en mobile. Aplica las leyes del stack expo-*. Puede escribir. Úsalo para preguntas/refactors de RN/Expo.
+description: Invokes the React Native + Expo specialist. Knows expo-router, data/domain/presentation layers, Zustand, NativeWind, expo-secure-store, Supabase Auth on mobile. Applies the laws from an expo-* stack. Can write. Use for RN/Expo questions/refactors.
 context: fork
 agent: react-native
-argument-hint: [pregunta o tarea]
+argument-hint: [question or task]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) WebFetch Write Edit
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: nextjs
-description: Especialista Next.js 14+ App Router. Conoce RSC, Server Actions, route handlers, middleware, next-auth/Auth.js, streaming con Suspense, revalidateTag. Aplica las leyes del CLAUDE.md de stack nextjs-fullstack o nextjs-supabase. Puede escribir refactors. Úsalo para preguntas de Next.
+description: Next.js 14+ App Router specialist. Knows RSC, Server Actions, route handlers, middleware, next-auth/Auth.js, streaming with Suspense, revalidateTag. Applies the laws from a nextjs-fullstack or nextjs-supabase stack CLAUDE.md. Can write refactors. Use for Next.js questions.
 tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
 model: sonnet
 paths: ["app/**/*.tsx", "app/**/*.ts", "src/app/**/*.tsx", "src/features/**/actions.ts", "src/features/**/queries.ts", "middleware.ts", "next.config.*"]

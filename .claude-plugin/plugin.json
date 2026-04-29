@@ -1,11 +1,11 @@
 {
   "name": "skipper",
-  "description": "El capitán de tu documentación. Mantiene automáticamente docs/architecture, docs/business, docs/decisions (ADR), docs/prds y docs/plans. Detecta cambios en el código y sugiere qué documentar.",
-  "version": "1.0.0",
+  "description": "Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID. Detects the stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs/PRDs/plans), and ships specialist subagents that refactor with stack-aware judgment.",
+  "version": "1.0.1",
   "author": {
     "name": "Cristian Donnachie",
     "email": "cristianu@dropout.cl"
   },
   "license": "MIT",
-  "keywords": ["documentation", "adr", "prd", "spanish", "es", "architecture", "skipper"]
+  "keywords": ["framework", "documentation", "adr", "prd", "architecture", "solid", "clean-code", "skipper"]
 }

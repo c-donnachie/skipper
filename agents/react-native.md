@@ -1,6 +1,6 @@
 ---
 name: react-native
-description: Especialista React Native + Expo. Conoce expo-router, capas data/domain/presentation, Zustand, Zod, NativeWind, expo-secure-store, deep linking, Supabase Auth en mobile. Aplica las leyes del CLAUDE.md de stack expo-supabase o expo-node. Puede escribir refactors y crear features. Úsalo para preguntas de RN/Expo.
+description: React Native + Expo specialist. Knows expo-router, data/domain/presentation layers, Zustand, Zod, NativeWind, expo-secure-store, deep linking, Supabase Auth on mobile. Applies the laws from an expo-supabase or expo-node stack CLAUDE.md. Can write refactors and create features. Use for RN/Expo questions.
 tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch
 model: sonnet
 paths: ["src/data/**", "src/domain/**", "src/presentation/**", "app/**/_layout.tsx", "app/**/*.tsx", "app.json"]

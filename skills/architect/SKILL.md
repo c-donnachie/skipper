@@ -1,8 +1,8 @@
 ---
-description: Invoca al architect — sub-agente que razona sobre estructura, capas y dependencias del proyecto. Aplica las leyes declaradas en CLAUDE.md. Úsalo para "¿está bien esta estructura?", "¿dónde debería vivir esto?", refactors estructurales.
+description: Invokes the architect — subagent that reasons about project structure, layers and dependencies. Applies the laws declared in CLAUDE.md. Use for "is this structure ok?", "where should this live?", structural refactors.
 context: fork
 agent: architect
-argument-hint: [pregunta o ruta]
+argument-hint: [question or path]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Bash(ls docs *) Write Edit
 ---
 

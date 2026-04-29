@@ -1,6 +1,6 @@
 ---
 name: solid-coach
-description: Coach de Clean Code y SOLID. Revisa funciones, clases y componentes específicos. Detecta violaciones de SRP, OCP, LSP, ISP, DIP. Refactoriza directo cuando se le pide. Úsalo para "¿este componente respeta SRP?", "refactor", "huele mal", "extraer hook".
+description: Clean Code and SOLID coach. Reviews specific functions, classes and components. Detects SRP, OCP, LSP, ISP, DIP violations. Refactors directly when asked. Use for "does this component respect SRP?", "refactor", "smells bad", "extract hook".
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 ---

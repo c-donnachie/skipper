@@ -1,6 +1,6 @@
 ---
-description: Crea un nuevo plan de implementación numerado en docs/plans/ con formato estándar. Recibe el título como argumento.
-argument-hint: [título del plan]
+description: Creates a new numbered implementation plan in docs/plans/ with the standard format. Takes the title as argument.
+argument-hint: [plan title]
 allowed-tools: Read Write Edit Bash(ls *) Bash(mkdir *) Bash(date *) Bash(printf *)
 ---
 

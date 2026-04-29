@@ -1,8 +1,8 @@
 ---
-description: Invoca al especialista Node.js backend (Fastify + Zod + Drizzle). Conoce capas routes/services/repositories, JWT, error handling global. Aplica las leyes del stack node-api. Puede escribir. Úsalo para preguntas/refactors de backend Node.
+description: Invokes the Node.js backend specialist (Fastify + Zod + Drizzle). Knows routes/services/repositories layers, JWT, global error handling. Applies the laws from a node-api stack. Can write. Use for Node API questions/refactors.
 context: fork
 agent: node-backend
-argument-hint: [pregunta o tarea]
+argument-hint: [question or task]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Write Edit
 ---
 

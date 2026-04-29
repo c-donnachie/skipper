@@ -1,5 +1,5 @@
 ---
-description: Agrega un layer (tailwind, shadcn-ui, tanstack-query, zustand, zod, nativewind) al CLAUDE.md del proyecto. Inserta un fragmento opinado con reglas y anti-patterns dentro de marcadores HTML idempotentes. Layers se acumulan sin pisar al stack ni a otros layers.
+description: Adds a layer (tailwind, shadcn-ui, tanstack-query, zustand, zod, nativewind) to the project's CLAUDE.md. Inserts an opinionated fragment with rules and anti-patterns inside idempotent HTML markers. Layers stack without overwriting the stack or other layers.
 argument-hint: [layer-id]
 allowed-tools: Read Write Edit Bash(ls *) Bash(cat *)
 ---

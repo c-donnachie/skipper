@@ -4,70 +4,70 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.0.0-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.0.1-green)](./CHANGELOG.md)
 
-**Framework de Claude Code que arma, documenta y mantiene tu proyecto siguiendo Clean Code y SOLID.**
+**A Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID principles.**
 
-Detecta tu stack, genera un CLAUDE.md opinado fuerte, mantiene docs vivos (ADRs, PRDs, planes), y trae sub-agentes especialistas que pueden refactorizar con criterio del stack.
+Detects your stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs, PRDs, plans), and ships specialist sub-agents that can refactor with stack-aware judgment.
 
 ---
 
 ## Why skipper
 
-### El problema
+### The problem
 
-Cuando empiezas un proyecto nuevo en Claude Code:
+When you start a new project in Claude Code:
 
-- Pegas las mismas reglas de Cursor/CLAUDE.md proyecto tras proyecto.
-- Te peleas con Claude porque "no sigue la arquitectura" — pero nunca le explicaste cuál es.
-- Las decisiones técnicas (¿por qué Supabase y no Firebase?) viven en un Slack que ya nadie lee.
-- Sumas 5 plugins separados: uno para ADRs, uno para boilerplate, uno para review, uno para reglas, uno para…
+- You paste the same Cursor/CLAUDE.md rules over and over.
+- You fight with Claude because "it doesn't follow the architecture" — but you never told it which one.
+- Technical decisions (why Supabase and not Firebase?) live in a Slack thread no one reads anymore.
+- You end up installing 5 separate plugins: one for ADRs, one for boilerplate, one for review, one for rules, one for…
 
-### La solución
+### The solution
 
-**Un solo plugin** que conoce 8 stacks comunes (React Vite, Next.js, Expo, Node API, Python FastAPI, todos con/sin Supabase) y:
+**A single plugin** that knows 8 common stacks (React Vite, Next.js, Expo, Node API, Python FastAPI, all with/without Supabase) and:
 
-1. **Detecta** tu stack con `/skipper:scan`.
-2. **Aplica** un CLAUDE.md opinado (estructura obligatoria, naming, libs, anti-patterns).
-3. **Mantiene docs vivos** — ADRs/PRDs/planes con templates y numeración automática.
-4. **Trae especialistas** — `/skipper:react-vite`, `/skipper:nextjs`, `/skipper:supabase`, etc. que refactorizan respetando las leyes del proyecto.
-5. **Sugiere proactivamente** — hooks que detectan cuándo deberías documentar o invocar al especialista correcto.
+1. **Detects** your stack with `/skipper:scan`.
+2. **Applies** an opinionated CLAUDE.md (mandatory structure, naming, libs, anti-patterns).
+3. **Keeps living docs** — ADRs/PRDs/plans with templates and automatic numbering.
+4. **Ships specialists** — `/skipper:react-vite`, `/skipper:nextjs`, `/skipper:supabase`, etc. that refactor while respecting the project's laws.
+5. **Suggests proactively** — hooks that detect when you should document or invoke the right specialist.
 
 ---
 
-## Demo en 30 segundos
+## 30-second demo
 
 ```bash
-# Instalar
+# Install
 /plugin marketplace add c-donnachie/madagascar
 /plugin install skipper@madagascar
 /reload-plugins
 
-# En tu proyecto:
-/skipper:init-structure       # 🐧 detecta stack + arma docs/
-/skipper:scan                 # 🐧 ¿qué stack tengo?
-/skipper:stack-apply expo-supabase   # 🐧 aplica CLAUDE.md opinado
+# In your project:
+/skipper:init-structure       # 🐧 detect stack + scaffold docs/
+/skipper:scan                 # 🐧 what stack do I have?
+/skipper:stack-apply expo-supabase   # 🐧 apply opinionated CLAUDE.md
 
-# Trabajar:
-/skipper:ask "¿este componente está bien organizado?"     # capitán enruta
-/skipper:react-native "extrae este hook a domain/"         # especialista refactoriza
-/skipper:update                                            # kowalski actualiza docs
+# Working:
+/skipper:ask "is this component well organized?"     # captain routes
+/skipper:react-native "extract this hook to domain/"  # specialist refactors
+/skipper:update                                       # kowalski updates docs
 
-# Validar antes de PR:
-/skipper:stack-doctor          # tabla de violaciones de las leyes del CLAUDE.md
-/skipper:review                # especialista revisa el diff
+# Validate before PR:
+/skipper:stack-doctor          # table of CLAUDE.md violations
+/skipper:review                # specialist reviews the diff
 ```
 
-<!-- TODO screenshot: SessionStart banner mostrando stack + layers + docs -->
-<!-- TODO screenshot: output de /skipper:scan con confidence high -->
-<!-- TODO screenshot: tabla de stack-doctor con violaciones por severidad -->
-<!-- TODO gif: una sesión de /skipper:ask enrutando al especialista -->
+<!-- TODO screenshot: SessionStart banner showing stack + layers + docs -->
+<!-- TODO screenshot: /skipper:scan output with high confidence -->
+<!-- TODO screenshot: stack-doctor table with violations by severity -->
+<!-- TODO gif: a /skipper:ask session routing to the specialist -->
 
 ---
 
-## Instalación
+## Installation
 
-### Opción A: vía marketplace madagascar (recomendado)
+### Option A: via madagascar marketplace (recommended)
 
 ```
 /plugin marketplace add c-donnachie/madagascar
@@ -75,7 +75,7 @@ Cuando empiezas un proyecto nuevo en Claude Code:
 /reload-plugins
 ```
 
-### Opción B: cargar desde directorio local (dev/test)
+### Option B: load from local directory (dev/test)
 
 ```bash
 cd /path/to/your/project
@@ -84,56 +84,56 @@ claude --plugin-dir /path/to/skipper
 
 ---
 
-## Comandos
+## Commands
 
-### Bootstrap (skipper coordina init)
+### Bootstrap (skipper coordinates init)
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `/skipper:scan` | Detecta el stack del proyecto. No escribe. |
-| `/skipper:stack-apply <id>` | Aplica perfil opinado: CLAUDE.md + docs/architecture/stack.md. |
-| `/skipper:stack-add <layer>` | Agrega un layer (tailwind, shadcn-ui, tanstack-query, etc.). |
-| `/skipper:init-structure` | Crea `docs/` + invoca scan + sugiere stack-apply. |
+| `/skipper:scan` | Detects the project stack. Doesn't write. |
+| `/skipper:stack-apply <id>` | Applies opinionated profile: CLAUDE.md + docs/architecture/stack.md. |
+| `/skipper:stack-add <layer>` | Adds a layer (tailwind, shadcn-ui, tanstack-query, etc.). |
+| `/skipper:init-structure` | Creates `docs/` + invokes scan + suggests stack-apply. |
 
-### Documentación (kowalski analiza)
+### Documentation (kowalski analyzes)
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `/skipper:update` | Lee diff y propone ADRs/PRDs/architecture/business. |
-| `/skipper:new-adr "título"` | Crea ADR numerado con template. |
-| `/skipper:new-prd "título"` | Crea PRD numerado. |
-| `/skipper:new-plan "título"` | Crea plan de implementación. |
+| `/skipper:update` | Reads diff and proposes ADRs/PRDs/architecture/business docs. |
+| `/skipper:new-adr "title"` | Creates numbered ADR with template. |
+| `/skipper:new-prd "title"` | Creates numbered PRD. |
+| `/skipper:new-plan "title"` | Creates implementation plan. |
 
-### Especialistas (técnicos contratados)
+### Specialists (technical experts)
 
-| Comando | Especialista |
+| Command | Specialist |
 |---|---|
-| `/skipper:architect` | Estructura, capas, dependencias |
+| `/skipper:architect` | Structure, layers, dependencies |
 | `/skipper:solid-coach` | Clean Code, SOLID |
 | `/skipper:react-vite` | React + Vite (features-first, TanStack Query) |
-| `/skipper:react-native` | RN + Expo (capas data/domain/presentation) |
+| `/skipper:react-native` | RN + Expo (data/domain/presentation layers) |
 | `/skipper:nextjs` | Next.js (RSC, Server Actions) |
 | `/skipper:node-backend` | Node API (Fastify + Zod + Drizzle) |
-| `/skipper:supabase` | RLS, auth, migraciones, Realtime |
+| `/skipper:supabase` | RLS, auth, migrations, Realtime |
 
-### Routers inteligentes (skipper enruta)
+### Smart routers (skipper routes)
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `/skipper:ask "pregunta libre"` | Skipper decide qué especialista invocar. |
-| `/skipper:refactor <archivo>` | Refactor SOLID con solid-coach. |
-| `/skipper:review` | Especialista del stack revisa diff vs origin/main. |
-| `/skipper:lib-lookup "query"` | WebSearch acotado a docs oficiales del stack. |
+| `/skipper:ask "free question"` | Skipper picks the right specialist for you. |
+| `/skipper:refactor <file>` | SOLID refactor with solid-coach. |
+| `/skipper:review` | Stack specialist reviews diff vs origin/main. |
+| `/skipper:lib-lookup "query"` | WebSearch scoped to official docs of your stack. |
 
-### Validación
+### Validation
 
-| Comando | Qué hace |
+| Command | What it does |
 |---|---|
-| `/skipper:stack-doctor` | Tabla de violaciones del CLAUDE.md por severidad. |
+| `/skipper:stack-doctor` | Table of CLAUDE.md violations by severity. |
 
 ---
 
-## Stacks soportados
+## Supported stacks
 
 | ID | Frontend | Backend |
 |---|---|---|
@@ -143,81 +143,87 @@ claude --plugin-dir /path/to/skipper
 | `nextjs-supabase` | Next.js | Supabase SSR |
 | `expo-supabase` | RN + Expo | Supabase |
 | `expo-node` | RN + Expo | Node API |
-| `node-api` | (sin frontend) | Fastify + Zod + Drizzle |
-| `python-fastapi` | (sin frontend) | FastAPI + Pydantic + SQLAlchemy |
+| `node-api` | (no frontend) | Fastify + Zod + Drizzle |
+| `python-fastapi` | (no frontend) | FastAPI + Pydantic + SQLAlchemy |
 
-Cada stack incluye **CLAUDE.md opinado fuerte**: estructura obligatoria de carpetas, naming, libs recomendadas, reglas SOLID validables y anti-patterns explícitos.
+Each stack ships an **opinionated CLAUDE.md**: mandatory folder structure, naming, recommended libs, validatable SOLID rules, and explicit anti-patterns.
 
 ---
 
-## Layers componibles
+## Composable layers
 
-Agregables a cualquier stack compatible con `/skipper:stack-add <layer>`:
+Add on top of any compatible stack with `/skipper:stack-add <layer>`:
 
 - `tailwind` — Tailwind CSS (web)
-- `shadcn-ui` — shadcn/ui (requiere tailwind)
+- `shadcn-ui` — shadcn/ui (requires tailwind)
 - `tanstack-query` — TanStack Query (web + mobile)
 - `zustand` — Zustand stores
-- `zod` — Validación de boundaries
-- `nativewind` — Tailwind para RN (Expo only)
+- `zod` — Boundary validation
+- `nativewind` — Tailwind for RN (Expo only)
 
 ---
 
-## El universo Madagascar
+## The Madagascar universe
 
-Skipper vive en el [marketplace madagascar](https://github.com/c-donnachie/madagascar). Internamente coordina varios "pingüinos" como subagents especializados:
+skipper lives in the [madagascar marketplace](https://github.com/c-donnachie/madagascar). Internally it coordinates several "penguins" as specialized subagents:
 
-| Pingüino | Rol | Estado |
+| Penguin | Role | Status |
 |---|---|---|
-| 🐧 **Skipper** | Capitán/router. Lee contexto y enruta. | v0.4+ |
-| 🐧 **Kowalski** | Analista. Lee diff y propone documentación. | v0.4+ |
-| 🐧 Rico | Demoliciones / refactor agresivo. | Reservado v1.x |
-| 🐧 Private | Aprendiz / tutoriales / lookups web. | Reservado futuro |
+| 🐧 **Skipper** | Captain/router. Reads context and routes. | v0.4+ |
+| 🐧 **Kowalski** | Analyst. Reads diff and proposes documentation. | v0.4+ |
+| 🐧 Rico | Demolition / aggressive refactor. | Reserved v1.x |
+| 🐧 Private | Apprentice / tutorials / web lookups. | Reserved future |
 
-Aparte de los pingüinos, hay **especialistas técnicos** (no son pingüinos, son los expertos contratados):
+Aside from penguins, there are **technical specialists** (not penguins, the contracted experts):
 
 🛠 `architect`, `solid-coach`, `react-vite`, `react-native`, `nextjs`, `node-backend`, `supabase`.
 
 ---
 
-## Componentes
+## Components
 
-- **20 skills** (bootstrap, docs, especialistas, routers, validación, lib-lookup)
-- **9 subagents** (skipper, kowalski + 7 técnicos)
-- **8 stack profiles** + **6 layers componibles**
+- **20 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup)
+- **9 subagents** (skipper, kowalski + 7 technicals)
+- **8 stack profiles** + **6 composable layers**
 - **3 hooks**:
-  - `SessionStart` → banner con stack/layers/docs al abrir el proyecto
-  - `Stop` → sugiere `/skipper:update` 1×/24h tras cambios en código
-  - `PostToolUse` (Edit/Write) → sugiere especialista cuando edita ≥3 archivos del mismo dominio
+  - `SessionStart` → banner with stack/layers/docs when opening the project
+  - `Stop` → suggests `/skipper:update` 1×/24h after code changes
+  - `PostToolUse` (Edit/Write) → suggests specialist when ≥3 files of the same domain are edited
 
-Token cost: ~355 tokens en descripciones (≈0.18% de tu ventana de contexto).
+Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
 
 ---
 
-## Filosofía
+## Built on Claude Code Plugins
 
-- **Skipper es el arnés, no la fábrica de plantillas.** Genera lo mínimo necesario para que Claude entienda tu stack — no inunda el repo con boilerplate.
-- **Conservadurismo.** Hooks throttled, sub-agentes en `context: fork`, marcadores HTML para idempotencia. Si dudas, no escribas.
-- **Convenciones, no reglas duras.** El CLAUDE.md generado guía a Claude pero no bloquea — para validación dura, usa `/skipper:stack-doctor`.
+For the technical reference of how plugins, hooks, skills, and subagents work in Claude Code, see the [official docs](https://code.claude.com/docs/en/plugins).
+
+---
+
+## Philosophy
+
+- **skipper is the harness, not a template factory.** It generates the bare minimum needed for Claude to understand your stack — it doesn't flood the repo with boilerplate.
+- **Conservatism.** Throttled hooks, subagents in `context: fork`, HTML markers for idempotency. When in doubt, don't write.
+- **Conventions, not hard rules.** The generated CLAUDE.md guides Claude but doesn't block — for hard validation, use `/skipper:stack-doctor`.
 
 ---
 
 ## Roadmap
 
-- ✅ **v1.0** — Submit al marketplace oficial de Anthropic.
-- 🔜 **v1.1+** — Más stacks (Astro, SvelteKit, Tauri, Remix) según demanda real.
-- 🔜 **add-ons opcionales** — `private` (tutoriales onboarding), `rico` (refactor agresivo automatizado).
+- ✅ **v1.0** — Submission to Anthropic's official marketplace.
+- 🔜 **v1.1+** — More stacks (Astro, SvelteKit, Tauri, Remix) based on real demand.
+- 🔜 **optional add-ons** — `private` (onboarding tutorials), `rico` (automated aggressive refactor).
 
-Ver [CHANGELOG.md](./CHANGELOG.md) para histórico completo.
-
----
-
-## Contribuir
-
-Bug reports y feedback: https://github.com/c-donnachie/skipper/issues
+See [CHANGELOG.md](./CHANGELOG.md) for full history.
 
 ---
 
-## Licencia
+## Contributing
+
+Bug reports and feedback: https://github.com/c-donnachie/skipper/issues
+
+---
+
+## License
 
 MIT

@@ -1,8 +1,8 @@
 ---
-description: Revisa el diff actual (vs origin/main) usando el especialista del stack del proyecto. El capitán Skipper analiza el diff y enruta al especialista correcto. Detecta violaciones de las leyes del CLAUDE.md y anti-patterns específicos del stack. Úsalo antes de commit/PR.
+description: Reviews the current diff (vs origin/main) using the project's stack specialist. Captain Skipper analyzes the diff and routes to the right specialist. Detects CLAUDE.md violations and stack-specific anti-patterns. Use before commit/PR.
 context: fork
 agent: skipper
-argument-hint: [opcional: rama base, default origin/main]
+argument-hint: [optional: base branch, default origin/main]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *)
 ---
 

@@ -1,5 +1,5 @@
 ---
-description: Crea la estructura inicial docs/ (architecture, business, decisions, prds, plans, legal) con README.md de protocolo en cada carpeta, después detecta el stack del proyecto y ofrece aplicar un perfil opinado. Úsalo una sola vez al adoptar el plugin en un proyecto.
+description: Creates the initial docs/ structure (architecture, business, decisions, prds, plans, legal) with a protocol README.md in each folder, then detects the project stack and offers to apply an opinionated profile. Use once when adopting the plugin in a project.
 allowed-tools: Read Write Edit Bash(mkdir *) Bash(ls *) Bash(${CLAUDE_PLUGIN_ROOT}/lib/detect.sh *)
 ---
 

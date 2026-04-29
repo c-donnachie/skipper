@@ -1,8 +1,8 @@
 ---
-description: Invoca al especialista Next.js 14+ App Router. Conoce RSC, Server Actions, route handlers, middleware, next-auth, Supabase SSR. Aplica las leyes del stack nextjs-*. Puede escribir. Úsalo para preguntas/refactors de Next.
+description: Invokes the Next.js 14+ App Router specialist. Knows RSC, Server Actions, route handlers, middleware, next-auth, Supabase SSR. Applies the laws from an nextjs-* stack. Can write. Use for Next.js questions/refactors.
 context: fork
 agent: nextjs
-argument-hint: [pregunta o tarea]
+argument-hint: [question or task]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) WebFetch Write Edit
 ---
 

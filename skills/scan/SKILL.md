@@ -1,5 +1,5 @@
 ---
-description: Detecta el stack del proyecto actual (React Vite, Next.js, Expo, Supabase, Node API, Python FastAPI). Reporta candidato, confianza y señales. NO escribe nada — sólo análisis. Úsalo cuando el usuario pregunte "¿qué stack tengo?", "detecta mi stack" o antes de aplicar un perfil.
+description: Detects the current project stack (React Vite, Next.js, Expo, Supabase, Node API, Python FastAPI). Reports candidate, confidence and signals. Does NOT write — analysis only. Use when the user asks "what stack do I have?", "detect my stack", or before applying a profile.
 allowed-tools: Bash(${CLAUDE_PLUGIN_ROOT}/lib/detect.sh *) Read
 ---
 

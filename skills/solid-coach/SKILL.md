@@ -1,8 +1,8 @@
 ---
-description: Invoca al solid-coach — sub-agente que revisa Clean Code y SOLID en funciones/clases/componentes específicos. Refactoriza directo. Úsalo para "¿este componente respeta SRP?", "huele mal", "extraer hook", "refactor".
+description: Invokes solid-coach — subagent that reviews Clean Code and SOLID in specific functions/classes/components. Refactors directly. Use for "does this component respect SRP?", "smells bad", "extract hook", "refactor".
 context: fork
 agent: solid-coach
-argument-hint: [archivo o pregunta]
+argument-hint: [file or question]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Write Edit
 ---
 

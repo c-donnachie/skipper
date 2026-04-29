@@ -1,6 +1,6 @@
 ---
-description: Crea un nuevo ADR numerado en docs/decisions/ con formato estándar. Recibe el título como argumento.
-argument-hint: [título del ADR]
+description: Creates a new numbered ADR in docs/decisions/ with the standard format. Takes the title as argument.
+argument-hint: [ADR title]
 allowed-tools: Read Write Edit Bash(ls *) Bash(mkdir *) Bash(date *) Bash(printf *) Bash(git config *)
 ---
 

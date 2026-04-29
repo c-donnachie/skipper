@@ -1,6 +1,6 @@
 ---
-description: Busca librerías/patrones en docs oficiales (WebSearch + WebFetch) acotado al stack actual. Útil para "¿qué lib uso para X?", "¿shadcn o radix?", "última API de TanStack Query". El especialista del stack hace la búsqueda y resume con criterio.
-argument-hint: [pregunta sobre libs]
+description: Looks up libraries/patterns in official docs (WebSearch + WebFetch) scoped to the current stack. Useful for "what lib should I use for X?", "shadcn or radix?", "latest TanStack Query API". The stack specialist performs the search and summarizes with judgment.
+argument-hint: [question about libs]
 allowed-tools: Read Grep Bash(cat CLAUDE.md *) WebSearch WebFetch
 ---
 

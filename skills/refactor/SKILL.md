@@ -1,8 +1,8 @@
 ---
-description: Refactoriza un archivo aplicando Clean Code y SOLID. Siempre delega al solid-coach en subagent aislado. El subagent lee el archivo, propone tabla de cambios, espera confirmación y aplica con Edit. Úsalo con la ruta del archivo a refactorizar.
+description: Refactors a file applying Clean Code and SOLID. Always delegates to solid-coach in an isolated subagent. The subagent reads the file, proposes a change table, waits for confirmation and applies with Edit. Use with the path of the file to refactor.
 context: fork
 agent: solid-coach
-argument-hint: [ruta del archivo]
+argument-hint: [file path]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Write Edit
 ---
 

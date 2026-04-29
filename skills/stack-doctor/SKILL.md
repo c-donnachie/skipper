@@ -1,5 +1,5 @@
 ---
-description: Valida que el código del proyecto sigue las leyes declaradas en CLAUDE.md (estructura, naming, anti-patterns). Reporta tabla de violaciones por severidad. Delega al agent architect en context fork. Úsalo periódicamente o antes de PRs grandes.
+description: Validates that the project code follows the laws declared in CLAUDE.md (structure, naming, anti-patterns). Reports a violations table by severity. Delegates to the architect agent in context fork. Use periodically or before large PRs.
 context: fork
 agent: architect
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Bash(find *)

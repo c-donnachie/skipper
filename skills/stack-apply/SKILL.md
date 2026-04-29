@@ -1,5 +1,5 @@
 ---
-description: Aplica un perfil de stack al proyecto actual. Genera/actualiza CLAUDE.md (sección skipper:stack delimitada por marcadores HTML) y crea docs/architecture/stack.md. Usa templates opinados de stacks/<id>/. Recibe el id del stack como argumento.
+description: Applies a stack profile to the current project. Generates/updates CLAUDE.md (skipper:stack section bounded by HTML markers) and creates docs/architecture/stack.md. Uses opinionated templates from stacks/<id>/. Takes the stack id as argument.
 argument-hint: [stack-id]
 allowed-tools: Read Write Edit Bash(date *) Bash(git config *) Bash(ls *) Bash(mkdir *) Bash(cat *)
 ---

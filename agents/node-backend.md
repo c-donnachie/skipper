@@ -1,6 +1,6 @@
 ---
 name: node-backend
-description: Especialista Node.js backend (Fastify + Zod + Drizzle). Conoce arquitectura por capas (routes → services → repositories), JWT con @fastify/jwt, error handling global, OpenAPI con fastify-type-provider-zod. Aplica las leyes del stack node-api. Puede escribir refactors y nuevos endpoints. Úsalo para Node API.
+description: Node.js backend specialist (Fastify + Zod + Drizzle). Knows layered architecture (routes → services → repositories), JWT with @fastify/jwt, global error handling, OpenAPI with fastify-type-provider-zod. Applies the laws from the node-api stack. Can write refactors and new endpoints. Use for Node API.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 paths: ["src/routes/**", "src/services/**", "src/repositories/**", "src/schemas/**", "src/lib/**", "src/server.ts"]

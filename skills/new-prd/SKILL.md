@@ -1,6 +1,6 @@
 ---
-description: Crea un nuevo PRD numerado en docs/prds/ con formato estándar. Recibe el título como argumento.
-argument-hint: [título del PRD]
+description: Creates a new numbered PRD in docs/prds/ with the standard format. Takes the title as argument.
+argument-hint: [PRD title]
 allowed-tools: Read Write Edit Bash(ls *) Bash(mkdir *) Bash(date *) Bash(printf *) Bash(git config *)
 ---
 

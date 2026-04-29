@@ -1,8 +1,8 @@
 ---
-description: Invoca al especialista Supabase. Conoce RLS policies, auth flow, Storage, Realtime, Edge Functions, migraciones SQL. Aplica reglas de seguridad (toda tabla con RLS habilitada). Puede escribir migraciones, policies y queries. Úsalo para RLS, auth, queries, migraciones, Realtime.
+description: Invokes the Supabase specialist. Knows RLS policies, auth flow, Storage, Realtime, Edge Functions, SQL migrations. Enforces security rules (every table with RLS enabled). Can write migrations, policies and queries. Use for RLS, auth, queries, migrations, Realtime.
 context: fork
 agent: supabase
-argument-hint: [pregunta o tarea]
+argument-hint: [question or task]
 allowed-tools: Read Grep Glob Bash(git *) Bash(cat CLAUDE.md *) Bash(ls supabase*) WebFetch Write Edit
 ---
 
