@@ -119,10 +119,12 @@ Aparte de los pingüinos, hay **especialistas técnicos** (NO son pingüinos, so
 
 ## Componentes técnicos
 
-- **17 skills** (`scan`, `stack-apply`, `init-structure`, `update`, `new-adr/prd/plan`, 7 wrappers de especialistas, 3 routers inteligentes)
+- **18 skills** (`scan`, `stack-apply`, `init-structure`, `update`, `new-adr/prd/plan`, 7 wrappers de especialistas, 3 routers inteligentes, `lib-lookup`)
 - **9 subagents** (skipper, kowalski + 7 técnicos)
 - **8 stack profiles** (react-vite-supabase/node, nextjs-fullstack/supabase, expo-supabase/node, node-api, python-fastapi)
-- **1 hook Stop** con script bash que sugiere `/skipper:update` tras cambios
+- **2 hooks**:
+  - `Stop` → sugiere `/skipper:update` 1×/24h tras cambios en código
+  - `PostToolUse` (Edit/Write) → sugiere especialista cuando edita ≥3 archivos del mismo dominio
 
 ## Configuración
 
