@@ -22,3 +22,4 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0007 | [Madagascar marketplace expandable for future add-ons](0007-marketplace-expandable.md) | Accepted (v0.4.0) |
 | 0008 | [Health checks for doc/code drift (stack-sync + docs-doctor)](0008-doc-code-drift-health-checks.md) | Accepted (v1.1.0) |
 | 0009 | [Proactive hooks via additionalContext + Stop enforcer](0009-proactive-hooks-via-additional-context.md) | Accepted (v1.1.0) |
+| 0010 | [Plan-mode architecture guard](0010-plan-mode-architecture-guard.md) | Accepted (v1.1.0) |

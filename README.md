@@ -187,8 +187,9 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 - **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
-- **3 hook events / 4 scripts** (proactive by default — see below):
+- **4 hook events / 5 scripts** (proactive by default — see below):
   - `SessionStart` → banner + injects the standing "keep docs in sync" directive into Claude's context
+  - `UserPromptSubmit` → `plan-guard`: in **plan mode**, injects the architecture protocol so every plan applies CLAUDE.md laws, reuses existing code, and references existing docs/ADRs
   - `PostToolUse` (Edit/Write) → `docs-sync` injects context so Claude keeps the relevant doc/ADR in sync as you code; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain
   - `Stop` → if the turn changed code in a documented area without touching `docs/`, instructs Claude to sync docs **before yielding** (loop-safe, 30-min throttle)
 
@@ -196,7 +197,7 @@ Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
 
 ### Proactive mode
 
-After initial setup you shouldn't have to run commands. skipper's hooks inject **directives Claude acts on** (via `additionalContext` and `Stop` continuation) — not just messages for you to read. So as you code, Claude keeps `docs/` and the stack block in sync on its own.
+After initial setup you shouldn't have to run commands. skipper's hooks inject **directives Claude acts on** (via `additionalContext` and `Stop` continuation) — not just messages for you to read. So as you code, Claude keeps `docs/` and the stack block in sync on its own, and **when you enter plan mode it plans within your architecture** — applying the declared layers/laws, checking whether the feature already exists before building it, and referencing the relevant existing docs.
 
 - **On by default.** Disable per project (or globally) by setting `SKIPPER_PROACTIVE=off` in your environment / `settings.json` `env`.
 - **Loop-safe & quiet.** Edits to `docs/`/`*.md` never trigger it; the `Stop` enforcer fires at most once per 30 min and stays silent if you already touched `docs/`.
