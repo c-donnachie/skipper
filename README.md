@@ -187,10 +187,11 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 - **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
-- **4 hook events / 5 scripts** (proactive by default — see below):
+- **5 hook events / 7 scripts** (proactive by default — see below):
   - `SessionStart` → banner + injects the standing "keep docs in sync" directive into Claude's context
   - `UserPromptSubmit` → `plan-guard`: in **plan mode**, injects the architecture protocol so every plan applies CLAUDE.md laws, reuses existing code, and references existing docs/ADRs
-  - `PostToolUse` (Edit/Write) → `docs-sync` injects context so Claude keeps the relevant doc/ADR in sync as you code; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain
+  - `PreToolUse` (ExitPlanMode) → `plan-exit-guard`: best-effort checklist before a plan is presented (no-op if the matcher isn't supported)
+  - `PostToolUse` (Edit/Write) → `docs-sync` points Claude at the **specific** `docs/architecture` doc for the subsystem you edited; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain; (Bash/Edit/Write) → `stack-watch` reminds to keep the `skipper:stack` block in sync when dependencies change
   - `Stop` → if the turn changed code in a documented area without touching `docs/`, instructs Claude to sync docs **before yielding** (loop-safe, 30-min throttle)
 
 Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
