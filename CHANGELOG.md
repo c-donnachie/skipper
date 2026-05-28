@@ -2,6 +2,18 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-05-28
+
+### Added
+- **`/skipper:stack-sync`** — diffs `package.json` against the declared `skipper:stack` block and flags drift: `undocumented` (installed but not declared) and `phantom` (declared but not installed). Backed by `lib/stack-sync.sh` with a curated dictionary of opinionated libraries. Read-only by default; offers to update the block on confirmation.
+- **`/skipper:docs-doctor`** — health check for `docs/`: detects **stale** docs (code kept moving while the doc didn't, measured in code commits since the doc's last touch), **stub** ADRs/PRDs/plans (unfilled template placeholders vs. merely thin), **broken** intra-doc links, and **empty** folders. Backed by `lib/docs-doctor.sh`. Read-only; routes fixes to `/skipper:update`.
+- **`/skipper:init-structure [app|service|library]`** — project-type-aware scaffolding. `service` adds `api/`, `integrations/`, `runbooks/`; `library` adds `api/`, `references/`; `app` keeps the original set (`business/`, `legal/`). READMEs modeled on real-world service docs.
+
+### Why
+- Real-world audit of two sibling projects (an Expo app on skipper, a B2B API documented by hand) surfaced two recurring failures: the declared stack froze while `package.json` evolved, and `docs/` drifted out of sync with code (~3.5% of commits touched docs). The hand-built API project also needed `api/`/`integrations/`/`runbooks/` folders skipper didn't offer — hence project types.
+
+---
+
 ## [1.0.1] — 2026-04-29
 
 ### Changed

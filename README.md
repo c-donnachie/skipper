@@ -93,7 +93,7 @@ claude --plugin-dir /path/to/skipper
 | `/skipper:scan` | Detects the project stack. Doesn't write. |
 | `/skipper:stack-apply <id>` | Applies opinionated profile: CLAUDE.md + docs/architecture/stack.md. |
 | `/skipper:stack-add <layer>` | Adds a layer (tailwind, shadcn-ui, tanstack-query, etc.). |
-| `/skipper:init-structure` | Creates `docs/` + invokes scan + suggests stack-apply. |
+| `/skipper:init-structure [app\|service\|library]` | Creates `docs/` for the project type + invokes scan + suggests stack-apply. |
 
 ### Documentation (kowalski analyzes)
 
@@ -130,6 +130,8 @@ claude --plugin-dir /path/to/skipper
 | Command | What it does |
 |---|---|
 | `/skipper:stack-doctor` | Table of CLAUDE.md violations by severity. |
+| `/skipper:stack-sync` | Diffs `package.json` vs the declared stack — flags undocumented and phantom (declared-but-uninstalled) libraries. |
+| `/skipper:docs-doctor` | Health check of `docs/` — stale docs (code moved, doc didn't), stub ADRs/PRDs, broken links, empty folders. |
 
 ---
 
@@ -182,7 +184,7 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 
 ## Components
 
-- **20 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup)
+- **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
 - **3 hooks**:

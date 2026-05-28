@@ -20,3 +20,4 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0005 | [Monolithic stack profiles in v0.2, composable layers in v0.6](0005-monolithic-then-layers.md) | Accepted |
 | 0006 | [Public docs in English, internal prompts in Spanish](0006-i18n-public-vs-internal.md) | Accepted (v1.0.1) |
 | 0007 | [Madagascar marketplace expandable for future add-ons](0007-marketplace-expandable.md) | Accepted (v0.4.0) |
+| 0008 | [Health checks for doc/code drift (stack-sync + docs-doctor)](0008-doc-code-drift-health-checks.md) | Accepted (v1.1.0) |

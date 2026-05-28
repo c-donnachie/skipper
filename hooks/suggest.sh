@@ -35,4 +35,5 @@ touch "$marker"
 cat <<EOF
 🐧 skipper reportándose: detecté cambios en código fuente desde el último update.
    Capitán, considera correr /skipper:update para revisar si hay ADRs, PRDs o docs de business que actualizar.
+   O /skipper:docs-doctor para ver qué docs quedaron atrás respecto al código.
 EOF

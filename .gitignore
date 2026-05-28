@@ -4,3 +4,8 @@
 .idea/
 .vscode/
 node_modules/
+
+# skipper hook scratch (session/marker files written by its own hooks)
+.claude/.skipper-session
+.claude/.skipper-suggested
+.claude/.skipper-last
