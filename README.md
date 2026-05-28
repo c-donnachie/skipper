@@ -187,12 +187,20 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 - **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
-- **3 hooks**:
-  - `SessionStart` → banner with stack/layers/docs when opening the project
-  - `Stop` → suggests `/skipper:update` 1×/24h after code changes
-  - `PostToolUse` (Edit/Write) → suggests specialist when ≥3 files of the same domain are edited
+- **3 hook events / 4 scripts** (proactive by default — see below):
+  - `SessionStart` → banner + injects the standing "keep docs in sync" directive into Claude's context
+  - `PostToolUse` (Edit/Write) → `docs-sync` injects context so Claude keeps the relevant doc/ADR in sync as you code; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain
+  - `Stop` → if the turn changed code in a documented area without touching `docs/`, instructs Claude to sync docs **before yielding** (loop-safe, 30-min throttle)
 
 Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
+
+### Proactive mode
+
+After initial setup you shouldn't have to run commands. skipper's hooks inject **directives Claude acts on** (via `additionalContext` and `Stop` continuation) — not just messages for you to read. So as you code, Claude keeps `docs/` and the stack block in sync on its own.
+
+- **On by default.** Disable per project (or globally) by setting `SKIPPER_PROACTIVE=off` in your environment / `settings.json` `env`.
+- **Loop-safe & quiet.** Edits to `docs/`/`*.md` never trigger it; the `Stop` enforcer fires at most once per 30 min and stays silent if you already touched `docs/`.
+- **Conservative.** It never documents trivial changes, and the `Stop` directive lets Claude say "nothing to document" and finish.
 
 ---
 
