@@ -2,6 +2,31 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-05-28
+
+### Added
+- **`/skipper:stack-sync`** — diffs `package.json` against the declared `skipper:stack` block and flags drift: `undocumented` (installed but not declared) and `phantom` (declared but not installed). Backed by `lib/stack-sync.sh` with a curated dictionary of opinionated libraries. Read-only by default; offers to update the block on confirmation.
+- **`/skipper:docs-doctor`** — health check for `docs/`: detects **stale** docs (code kept moving while the doc didn't, measured in code commits since the doc's last touch), **stub** ADRs/PRDs/plans (unfilled template placeholders vs. merely thin), **broken** intra-doc links, and **empty** folders. Backed by `lib/docs-doctor.sh`. Read-only; routes fixes to `/skipper:update`.
+- **`/skipper:init-structure [app|service|library]`** — project-type-aware scaffolding. `service` adds `api/`, `integrations/`, `runbooks/`; `library` adds `api/`, `references/`; `app` keeps the original set (`business/`, `legal/`). READMEs modeled on real-world service docs.
+- **Proactive mode (on by default).** Hooks now inject *directives Claude acts on* instead of messages for the user to read manually:
+  - `SessionStart` injects the standing "keep docs in sync as you code" directive.
+  - `UserPromptSubmit` `hooks/plan-guard.sh`: detects **plan mode** (`permission_mode == "plan"`) and injects the architecture protocol — apply CLAUDE.md laws/layers, search for existing functionality before building (reuse > rebuild), and reference relevant existing docs/ADRs (the hook lists the available `docs/architecture` files and ADRs). Throttled 5 min/session.
+  - `PreToolUse` (ExitPlanMode) `hooks/plan-exit-guard.sh`: best-effort checklist before a plan is presented (layer placement, reuse, doc references, ADR flags). No-op if the matcher isn't supported by the running Claude Code build.
+  - `PostToolUse` `hooks/stack-watch.sh` (Bash/Edit/Write): on dependency changes (`npm/pnpm/yarn/bun add|install|remove`, or editing `package.json`) reminds Claude to keep the `skipper:stack` block aligned. Only fires when a `skipper:stack` block exists. Throttled 10 min/session.
+  - `hooks/docs-sync.sh` is now **subsystem-aware**: it maps the edited path to the matching `docs/architecture/<domain>.md` and points Claude at that exact doc (throttled per subsystem), instead of a generic reminder.
+  - `PostToolUse` `hooks/docs-sync.sh` injects `additionalContext` when you edit app code, so Claude updates the matching doc/ADR in the same turn (ignores `docs/`/`*.md`, throttled per session).
+  - `Stop` `hooks/suggest.sh` becomes an enforcer: if the turn changed code in a documented area without touching `docs/`, it exits 2 to instruct Claude to sync docs **before yielding** (loop-safe via `stop_hook_active` + 30-min marker; silent if `docs/` was already touched).
+  - Opt-out with `SKIPPER_PROACTIVE=off` (falls back to the prior 1×/24h user suggestion).
+
+### Changed
+- `hooks/hooks.json`: `Stop` timeout 5→10s; `PostToolUse` now runs `docs-sync.sh` before `specialist-suggest.sh`.
+- `.gitignore` covers skipper's own hook scratch files (`.claude/.skipper-*`).
+
+### Why
+- Real-world audit of two sibling projects (an Expo app on skipper, a B2B API documented by hand) surfaced two recurring failures: the declared stack froze while `package.json` evolved, and `docs/` drifted out of sync with code (~3.5% of commits touched docs). The hand-built API project also needed `api/`/`integrations/`/`runbooks/` folders skipper didn't offer — hence project types.
+
+---
+
 ## [1.0.1] — 2026-04-29
 
 ### Changed

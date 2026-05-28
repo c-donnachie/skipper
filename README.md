@@ -4,11 +4,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.0.1-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-green)](./CHANGELOG.md)
 
 **A Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID principles.**
 
-Detects your stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs, PRDs, plans), and ships specialist sub-agents that can refactor with stack-aware judgment.
+skipper makes Claude understand *your* project — its stack, its layers, its decisions — and keeps the living docs in sync **on its own** while you code. Detects your stack, generates an opinionated CLAUDE.md, ships specialist sub-agents that refactor with stack-aware judgment, and proactively keeps ADRs/PRDs/architecture from rotting.
+
+> Other plugins give you templates. skipper gives you a crew member that knows the ship, enforces the rules, and keeps the logbook up to date — so you just sail.
 
 ---
 
@@ -31,7 +33,7 @@ When you start a new project in Claude Code:
 2. **Applies** an opinionated CLAUDE.md (mandatory structure, naming, libs, anti-patterns).
 3. **Keeps living docs** — ADRs/PRDs/plans with templates and automatic numbering.
 4. **Ships specialists** — `/skipper:react-vite`, `/skipper:nextjs`, `/skipper:supabase`, etc. that refactor while respecting the project's laws.
-5. **Suggests proactively** — hooks that detect when you should document or invoke the right specialist.
+5. **Acts proactively** — after initial setup you don't run commands. Hooks inject directives Claude follows: in **plan mode** it plans within your architecture (applies the laws, reuses existing code, references your docs), and as you code it keeps docs and the stack block in sync — syncing before it hands control back. All loop-safe, throttled, and opt-out (`SKIPPER_PROACTIVE=off`).
 
 ---
 
@@ -93,7 +95,7 @@ claude --plugin-dir /path/to/skipper
 | `/skipper:scan` | Detects the project stack. Doesn't write. |
 | `/skipper:stack-apply <id>` | Applies opinionated profile: CLAUDE.md + docs/architecture/stack.md. |
 | `/skipper:stack-add <layer>` | Adds a layer (tailwind, shadcn-ui, tanstack-query, etc.). |
-| `/skipper:init-structure` | Creates `docs/` + invokes scan + suggests stack-apply. |
+| `/skipper:init-structure [app\|service\|library]` | Creates `docs/` for the project type + invokes scan + suggests stack-apply. |
 
 ### Documentation (kowalski analyzes)
 
@@ -130,6 +132,8 @@ claude --plugin-dir /path/to/skipper
 | Command | What it does |
 |---|---|
 | `/skipper:stack-doctor` | Table of CLAUDE.md violations by severity. |
+| `/skipper:stack-sync` | Diffs `package.json` vs the declared stack — flags undocumented and phantom (declared-but-uninstalled) libraries. |
+| `/skipper:docs-doctor` | Health check of `docs/` — stale docs (code moved, doc didn't), stub ADRs/PRDs, broken links, empty folders. |
 
 ---
 
@@ -182,15 +186,25 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 
 ## Components
 
-- **20 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup)
+- **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
-- **3 hooks**:
-  - `SessionStart` → banner with stack/layers/docs when opening the project
-  - `Stop` → suggests `/skipper:update` 1×/24h after code changes
-  - `PostToolUse` (Edit/Write) → suggests specialist when ≥3 files of the same domain are edited
+- **5 hook events / 7 scripts** (proactive by default — see below):
+  - `SessionStart` → banner + injects the standing "keep docs in sync" directive into Claude's context
+  - `UserPromptSubmit` → `plan-guard`: in **plan mode**, injects the architecture protocol so every plan applies CLAUDE.md laws, reuses existing code, and references existing docs/ADRs
+  - `PreToolUse` (ExitPlanMode) → `plan-exit-guard`: best-effort checklist before a plan is presented (no-op if the matcher isn't supported)
+  - `PostToolUse` (Edit/Write) → `docs-sync` points Claude at the **specific** `docs/architecture` doc for the subsystem you edited; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain; (Bash/Edit/Write) → `stack-watch` reminds to keep the `skipper:stack` block in sync when dependencies change
+  - `Stop` → if the turn changed code in a documented area without touching `docs/`, instructs Claude to sync docs **before yielding** (loop-safe, 30-min throttle)
 
 Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
+
+### Proactive mode
+
+After initial setup you shouldn't have to run commands. skipper's hooks inject **directives Claude acts on** (via `additionalContext` and `Stop` continuation) — not just messages for you to read. So as you code, Claude keeps `docs/` and the stack block in sync on its own, and **when you enter plan mode it plans within your architecture** — applying the declared layers/laws, checking whether the feature already exists before building it, and referencing the relevant existing docs.
+
+- **On by default.** Disable per project (or globally) by setting `SKIPPER_PROACTIVE=off` in your environment / `settings.json` `env`.
+- **Loop-safe & quiet.** Edits to `docs/`/`*.md` never trigger it; the `Stop` enforcer fires at most once per 30 min and stays silent if you already touched `docs/`.
+- **Conservative.** It never documents trivial changes, and the `Stop` directive lets Claude say "nothing to document" and finish.
 
 ---
 

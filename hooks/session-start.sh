@@ -46,3 +46,20 @@ cat <<EOF
 │ Docs:   $adr_count ADR · $prd_count PRD · $plan_count plan · update $docs_status
 ╰───────────────────────────────────────────────────────╯
 EOF
+
+# Directiva proactiva (Tier 2). stdout en SessionStart llega a Claude como contexto de
+# sesión: establece el comportamiento estándar sin que el usuario tipee comandos.
+case "${SKIPPER_PROACTIVE:-on}" in
+  off|0|false|no|OFF|FALSE|NO) : ;;
+  *)
+    cat <<'EOF'
+
+🐧 skipper — modo proactivo ON. Durante esta sesión, sin que el usuario lo pida:
+  • Si editas código de un subsistema documentado en docs/architecture/, mantén ese doc en sync en el mismo turno.
+  • Si tomas una decisión con tradeoffs (lib, patrón, integración, deprecación), registra un ADR en docs/decisions/.
+  • Mantén el bloque skipper:stack de CLAUDE.md alineado con package.json cuando agregues/quites dependencias relevantes.
+  • No documentes cambios triviales. Sé conciso (< 200 líneas por doc).
+  (Para apagarlo: exporta SKIPPER_PROACTIVE=off.)
+EOF
+    ;;
+esac
