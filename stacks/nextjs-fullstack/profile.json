@@ -14,7 +14,9 @@
     "tailwindcss",
     "shadcn/ui",
     "react-hook-form",
+    "@hookform/resolvers",
     "next-auth",
+    "zustand",
     "lucide-react"
   ],
   "claude_md": "claude.md.tmpl",

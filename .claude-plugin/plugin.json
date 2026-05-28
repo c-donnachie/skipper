@@ -1,7 +1,7 @@
 {
   "name": "skipper",
   "description": "Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID. Detects the stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs/PRDs/plans), and ships specialist subagents that refactor with stack-aware judgment.",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "author": {
     "name": "Cristian Donnachie",
     "email": "cristianu@dropout.cl"

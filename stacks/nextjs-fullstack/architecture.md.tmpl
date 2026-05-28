@@ -4,76 +4,95 @@
 
 ## Resumen
 
-App Next.js 14+ con App Router. Server Components por defecto, Server Actions para mutations, Drizzle ORM para data layer. Sin backend separado.
+App Next.js 14+ con App Router, arquitectura por capas (`app → actions → data → domain → presentation → global`) y Container Pattern. Server Components por defecto, Server Actions para mutations, Drizzle ORM en `data/`. Sin backend separado.
 
-## Server vs Client — la división mental
+## Capas y división Server/Client
 
 ```
 ┌─────────────────────────────────────────────────┐
 │  Server (RSC + Server Actions)                  │
-│  - app/**/page.tsx (default)                    │
-│  - features/<x>/queries.ts                      │
-│  - features/<x>/actions.ts ('use server')       │
+│  - app/**/page.tsx (Server Components SIEMPRE)  │
+│  - actions/<x>.ts ('use server' → ServerActionResponse) │
+│  - data/services/<x>/*.service.ts (acceso DB)   │
 ├─────────────────────────────────────────────────┤
-│  Client (interactivity)                          │
-│  - 'use client' components                      │
-│  - features/<x>/hooks.ts                        │
-│  - forms, modals, dropdowns                     │
+│  Client (interactividad)                         │
+│  - presentation/features/<x>/<X>Container.tsx   │
+│  - domain/hooks/use*.ts (useTransition/optimistic) │
+│  - presentation/.../components (puros, sin hooks) │
 ├─────────────────────────────────────────────────┤
 │  DB (Postgres + Drizzle)                        │
-│  - shared/db/schema.ts                          │
-│  - shared/db/index.ts (client)                  │
+│  - data/db/schema.ts                            │
+│  - data/db/index.ts (client)                    │
 └─────────────────────────────────────────────────┘
 ```
 
 **Regla mental**: empieza Server. Marca `"use client"` sólo cuando lo necesites (hooks, eventos, browser APIs).
 
+## Container Pattern
+
+```
+app/<route>/page.tsx          # Server: fetch en servidor, pasa props
+  └─ presentation/features/<feature>/<Feature>Container.tsx   # 'use client': orquesta hooks/estado
+       └─ components/*.tsx     # presentacional puro: sólo props, sin hooks
+```
+
+El Container es el único que maneja estado, y vive a nivel del feature (no dentro de `components/`).
+
+## Tipos estandarizados (`data/types/api.types.ts`)
+
+```typescript
+export type ServerActionResponse<T = null> = { success: boolean; data?: T; error?: string };
+export interface ApiResponse<T> { data?: T | null; error?: string | null }
+```
+
 ## Server Actions — patrón canónico
 
 ```typescript
-// features/budgets/actions.ts
+// actions/budgets.ts
 "use server";
 import { z } from "zod";
-import { db } from "@/shared/db";
-import { auth } from "@/shared/auth";
-import { revalidateTag } from "next/cache";
+import { db } from "@/data/db";
+import { auth } from "@/data/auth";
+import { revalidatePath } from "next/cache";
+import type { ServerActionResponse } from "@/data/types/api.types";
 
-const CreateBudgetSchema = z.object({
-    name: z.string().min(1).max(100),
-    amount: z.number().positive(),
-});
+const CreateBudgetSchema = z.object({ name: z.string().min(1).max(100), amount: z.number().positive() });
 
-export async function createBudget(input: unknown) {
-    const session = await auth();
-    if (!session?.user) throw new Error("Unauthorized");
+export async function createBudget(input: unknown): Promise<ServerActionResponse> {
+    try {
+        const session = await auth();
+        if (!session?.user) return { success: false, error: "No autorizado" };
 
-    const data = CreateBudgetSchema.parse(input);
+        const data = CreateBudgetSchema.parse(input);
+        await db.insert(budgets).values({ ...data, userId: session.user.id });
 
-    const result = await db.insert(budgets).values({
-        ...data,
-        userId: session.user.id,
-    }).returning();
-
-    revalidateTag("budgets");
-    return result[0];
+        revalidatePath("/(app)/budgets", "page");          // granular, o revalidateTag
+        return { success: true };
+    } catch {
+        return { success: false, error: "Error inesperado del servidor" };
+    }
 }
 ```
 
-Pattern: `auth → validate → mutate → revalidate → return`.
+Pattern: `auth → validate → mutate → revalidate → return ServerActionResponse`. **Nunca lanza al cliente.**
+
+## Service layer (`data/services/<dominio>/*.service.ts`)
+
+Acceso a DB/API. **Nunca lanzan** — retornan estructura válida y hacen type narrowing (`unknown` + chequeo), nunca `any`.
 
 ## Auth flow (next-auth v5)
 
-1. Provider config en `shared/auth/index.ts` exporta `auth()`.
+1. Provider config en `data/auth/index.ts` exporta `auth()`.
 2. `middleware.ts` redirige a /login si no hay sesión en rutas `(app)`.
-3. Server actions y queries llaman `await auth()` para obtener `session.user.id`.
+3. Server actions y services llaman `await auth()` para obtener `session.user.id`.
 4. Client components usan `useSession()` (next-auth/react).
 
 ## Data fetching patterns
 
-- **RSC**: `await query()` directo en `page.tsx` o sub-server-component.
+- **RSC**: `await service()` en `page.tsx` (Server).
 - **Streaming**: `<Suspense fallback={...}>` para queries que tardan.
-- **Mutation**: form action + `useTransition` en client.
-- **Re-fetch**: `revalidateTag('budgets')` o `revalidatePath('/dashboard')`.
+- **Mutation**: Server Action + `useTransition` en el Container/hook.
+- **Re-fetch**: `revalidatePath(path, 'page')` granular o `revalidateTag('budgets')`.
 
 ## Decisiones técnicas
 
@@ -82,14 +101,14 @@ Ver `docs/decisions/` (ADRs).
 ## Gotchas conocidos
 
 - `"use client"` se propaga: si un componente client importa otro, el segundo también es client.
-- `revalidatePath` invalida agresivamente — preferir `revalidateTag` con cache tags específicos.
+- `revalidatePath` invalida agresivamente — preferir granular o `revalidateTag` con cache tags.
 - Drizzle migraciones: usa `drizzle-kit` y commitea las generadas.
-- Server action error: tira → componente cliente catch con `try/catch` o `useFormState`.
+- Errores de form: `useActionState` (React 19) leyendo el `ServerActionResponse`.
 
 ## TODO inicial al adoptar el stack
 
-- [ ] Configurar Drizzle: `drizzle.config.ts` + `npm run db:push`
-- [ ] Setup next-auth v5 con provider (Google/email)
+- [ ] Configurar Drizzle en `data/db/`: `drizzle.config.ts` + `npm run db:push`
+- [ ] Setup next-auth v5 en `data/auth/` con provider (Google/email)
 - [ ] Definir middleware para rutas protegidas
-- [ ] Configurar tags de cache (`unstable_cache` para queries pesadas)
+- [ ] Crear `data/types/api.types.ts` con `ServerActionResponse`/`ApiResponse`
 - [ ] shadcn/ui init: `npx shadcn@latest init`

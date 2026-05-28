@@ -2,60 +2,123 @@
 
 Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply nextjs-supabase`.
 
-### Estructura obligatoria
+### Estructura obligatoria (capas: app → actions → data → domain → presentation → global)
 
 ```
 src/
-├── app/                       # App Router
+├── app/                       # ROUTING — Server Components SIEMPRE (fetch + props downstream)
 │   ├── (public)/              # rutas públicas
-│   ├── (app)/                 # rutas protegidas
+│   ├── (app)/<flow>/page.tsx  # rutas protegidas
 │   ├── auth/callback/route.ts # OAuth callback
-│   └── layout.tsx
-├── features/<dominio>/
-│   ├── actions.ts             # 'use server' actions
-│   ├── queries.ts             # server queries (RSC)
-│   ├── schema.ts              # Zod schemas
-│   └── components/
-├── shared/
-│   ├── ui/                    # shadcn/ui
-│   ├── supabase/              # clients (server, client, middleware)
-│   └── lib/
-└── middleware.ts              # session refresh + auth guard
+│   └── layout.tsx             # generateMetadata async
+├── actions/<dominio>.ts       # 'use server' — retornan ServerActionResponse<T>
+├── data/
+│   ├── supabase/              # clientes: server.ts, client.ts, middleware.ts (+ admin.ts si webhooks)
+│   ├── services/<dominio>/*.service.ts   # fetch a DB/API — NUNCA throw, retornan estructura válida
+│   └── types/*.types.ts       # ApiResponse<T>, ServerActionResponse<T>, tipos DB
+├── domain/
+│   └── hooks/use*.ts          # orquestación client (useTransition/useOptimistic, llaman actions)
+├── presentation/
+│   ├── features/<feature>/
+│   │   ├── <Feature>Container.tsx   # 'use client' — ÚNICO que maneja estado/hooks
+│   │   ├── components/              # presentacionales PUROS (sólo props, sin hooks)
+│   │   └── types/
+│   └── components/ui/         # shadcn/ui + compartidos
+├── global/
+│   ├── store/                 # Zustand (estado efímero: carrito, UI)
+│   ├── constants/
+│   └── utils/
+└── middleware.ts              # refresh de sesión Supabase + guard
 ```
+
+**Reglas de capas (Claude debe respetar):**
+- `presentation/` importa de `domain/` y `global/`. NUNCA de `data/`.
+- `domain/` importa de `data/` y `global/`. NUNCA de `presentation/`.
+- `data/` sólo importa de `global/` y libs externas.
+- **NO existe carpeta `lib/`** — la lógica vive en `domain/hooks/` o `data/services/`.
+
+### Container Pattern (obligatorio)
+
+```
+app/<route>/page.tsx          → Server Component: fetch en servidor, pasa props
+  └─ presentation/features/<feature>/<Feature>Container.tsx  → 'use client': orquesta hooks/estado
+       └─ components/*.tsx     → presentacional puro: recibe props, sin hooks, React.memo si aplica
+```
+
+- El Container vive a nivel del feature (NO dentro de `components/`) para distinguirse como orquestador.
+- Los componentes atómicos **NO llaman hooks** — sólo renderizan props.
+
+### Server Actions canónicas
+
+```typescript
+'use server'
+export async function updateProfile(input: unknown): Promise<ServerActionResponse> {
+  try {
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()   // getUser, NO getSession
+    if (!user) return { success: false, error: 'No autorizado' }
+
+    const data = Schema.parse(input)                           // Zod ANTES de tocar DB
+    const { error } = await supabase.from('profiles').update(data).eq('id', user.id)
+    if (error) return { success: false, error: 'Error al actualizar' }
+
+    revalidatePath('/(app)/profile', 'page')                   // granular: 'page' | 'layout'
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Error inesperado del servidor' }
+  }
+}
+```
+
+Patrón: `auth → validate (Zod) → mutate → revalidate → return ServerActionResponse`. **Nunca lanzan al cliente** — retornan `{ success, data?, error? }`.
+
+### Decisión: dónde vive cada cosa
+
+| Situación | Patrón | Ubicación |
+|---|---|---|
+| Datos iniciales de página | Server Component (`await`) | `app/*/page.tsx` |
+| Mutación (crear/editar) | Server Action | `actions/` |
+| Submit de formulario | `useActionState` + RHF + Zod | Container |
+| Acción por click | `useTransition` | `domain/hooks/` |
+| Update optimista | `useOptimistic` | `domain/hooks/` |
+| Tiempo real | Supabase subscription | `domain/hooks/` (client) |
+| Estado efímero (carrito, UI) | Zustand | `global/store/` |
 
 ### Convenciones obligatorias
 
-- **Por defecto: Server Components**.
-- 3 clientes Supabase: `server.ts` (RSC + actions), `client.ts` (browser), `middleware.ts` (refresh).
-- Validación Zod en TODA server action ANTES de tocar Supabase.
-- RLS policies obligatorias en Postgres. Las queries server-side usan JWT del usuario.
-- Named exports siempre. TypeScript strict. Path alias `@/`.
-
-### Reglas SOLID
-
-- Server actions: validar → llamar Supabase → revalidar.
-- Componente client < 200 líneas.
-- Lógica DB sólo en `queries.ts` y `actions.ts` — nunca en componentes.
+- **Por defecto: Server Components.** `'use client'` SÓLO en Containers/hooks/componentes con interactividad.
+- 3 clientes Supabase (`server.ts` RSC+actions, `client.ts` browser, `middleware.ts` refresh). **Nunca mezclar** auth y datos si hay DBs separadas.
+- Validación Zod en TODA server action ANTES de tocar Supabase. RLS obligatoria en Postgres.
+- Services nunca lanzan: retornan estructura válida (`[]`, `null`) y hacen type narrowing (`unknown` + chequeo), nunca `any`.
+- Named exports (excepto `page.tsx`/`layout.tsx`). TypeScript strict. Path alias `@/`.
 
 ### Stack base
 
 | Capa | Librería |
 |---|---|
 | Framework | Next.js 14+ App Router |
-| Auth | `@supabase/ssr` con cookies |
+| Auth | `@supabase/ssr` (cookies) |
 | DB | Supabase Postgres + RLS |
+| Estado server | RSC + Server Actions |
+| Estado cliente | Zustand (efímero) |
 | Validación | Zod |
+| Forms | react-hook-form + Zod resolver |
 | Styling | Tailwind + shadcn/ui |
 
-### Anti-patterns
+### Anti-patterns (NUNCA hacer)
 
-- ❌ Usar service role key en client.
-- ❌ Server action sin Zod.
-- ❌ Tablas sin RLS.
-- ❌ Cliente browser para queries que requieren auth (usa server).
+- ❌ `'use client'` en archivos sin interactividad.
+- ❌ Componentes que llaman a Supabase/API directo (van por `actions/` o `data/services/`).
+- ❌ Services que tocan React state (son funciones puras).
+- ❌ Server action sin Zod, o que lanza al cliente en vez de retornar `ServerActionResponse`.
+- ❌ `getSession()` en server (usa `getUser()`, valida con Supabase).
+- ❌ Service role key en el cliente. Tablas sin RLS.
+- ❌ `onClick + router.push()` para navegación → usar `<Link>` (router.push sólo acciones programáticas).
+- ❌ Hooks en componentes atómicos (van en el Container o `domain/hooks/`).
+- ❌ `revalidatePath('/')` global cuando basta granular.
 
 ### Documentación viva
 
-- Decisiones → `docs/decisions/`, PRDs → `docs/prds/`, planes → `docs/plans/`.
+- Decisiones → `docs/decisions/`, PRDs → `docs/prds/`, planes → `docs/plans/`, subsistemas → `docs/architecture/`.
 
 @docs/architecture/stack.md

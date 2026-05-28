@@ -14,7 +14,9 @@
   "recommended_libs": [
     "tailwindcss",
     "shadcn/ui",
-    "react-hook-form"
+    "react-hook-form",
+    "@hookform/resolvers",
+    "zustand"
   ],
   "claude_md": "claude.md.tmpl",
   "arch_doc": "architecture.md.tmpl"

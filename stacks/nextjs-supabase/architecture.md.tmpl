@@ -9,7 +9,7 @@ Next.js 14+ App Router con Supabase como backend (Auth + Postgres + Storage). Au
 ## Los 3 clientes Supabase
 
 ```
-shared/supabase/
+data/supabase/
 ├── server.ts        # createServerClient → para RSC y actions
 ├── client.ts        # createBrowserClient → 'use client' components
 └── middleware.ts    # createMiddlewareClient → refresh session
@@ -25,30 +25,71 @@ shared/supabase/
 4. RSC y server actions: `const supabase = createServerClient(); const { data: { user } } = await supabase.auth.getUser();`
 5. Si no hay user → redirect a `/login`.
 
+## Container Pattern
+
+```
+app/<route>/page.tsx          # Server Component: fetch en servidor, pasa props
+  └─ presentation/features/<feature>/<Feature>Container.tsx   # 'use client': orquesta hooks/estado
+       └─ components/*.tsx     # presentacional puro: sólo props, sin hooks
+```
+
+- El Container es el único que maneja estado (hooks, eventos). Vive a nivel del feature, no dentro de `components/`.
+- Los componentes atómicos no llaman hooks — facilita test, memoización y refactor.
+
+## Tipos estandarizados (`data/types/api.types.ts`)
+
+```typescript
+export type ServerActionResponse<T = null> = { success: boolean; data?: T; error?: string };
+export interface ApiResponse<T> { data?: T | null; error?: string | null }
+```
+
 ## Server Actions canónicas
 
 ```typescript
 "use server";
 import { z } from "zod";
-import { createServerClient } from "@/shared/supabase/server";
+import { createServerClient } from "@/data/supabase/server";
 import { revalidatePath } from "next/cache";
+import type { ServerActionResponse } from "@/data/types/api.types";
 
 const Schema = z.object({ name: z.string().min(1) });
 
-export async function createBudget(input: unknown) {
-    const supabase = createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Unauthorized");
+export async function createBudget(input: unknown): Promise<ServerActionResponse> {
+    try {
+        const supabase = await createServerClient();
+        const { data: { user } } = await supabase.auth.getUser();   // getUser, NO getSession
+        if (!user) return { success: false, error: "No autorizado" };
 
-    const data = Schema.parse(input);
-    const { error } = await supabase.from("budgets").insert({ ...data, user_id: user.id });
-    if (error) throw error;
+        const data = Schema.parse(input);                           // Zod ANTES de tocar DB
+        const { error } = await supabase.from("budgets").insert({ ...data, user_id: user.id });
+        if (error) return { success: false, error: "Error al crear" };
 
-    revalidatePath("/budgets");
+        revalidatePath("/(app)/budgets", "page");                   // granular
+        return { success: true };
+    } catch {
+        return { success: false, error: "Error inesperado del servidor" };
+    }
 }
 ```
 
-Patrón: `client server → auth → validate → mutate → revalidate`.
+Patrón: `auth → validate → mutate → revalidate → return ServerActionResponse`. **Nunca lanza al cliente.**
+
+## Service layer (`data/services/<dominio>/*.service.ts`)
+
+Fetch a DB/API. **Nunca lanzan** — retornan estructura válida y hacen type narrowing:
+
+```typescript
+export async function getBudgets(userId: string): Promise<Budget[]> {
+    try {
+        const res = await fetch(`${API_URL}/budgets?user=${userId}`, { cache: "no-store" });
+        if (!res.ok) return [];                          // fallback seguro, no throw
+        const data = (await res.json()) as unknown;      // narrowing, nunca `any`
+        return Array.isArray(data) ? (data as Budget[]) : [];
+    } catch {
+        return [];
+    }
+}
+```
 
 ## RLS policies
 
@@ -75,7 +116,7 @@ Ver `docs/decisions/`.
 ## TODO inicial
 
 - [ ] Configurar `.env.local` con `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] Crear los 3 clientes en `shared/supabase/`
+- [ ] Crear los 3 clientes en `data/supabase/`
 - [ ] Configurar middleware para refresh
 - [ ] Habilitar RLS en todas las tablas
 - [ ] Generar tipos: `npx supabase gen types`

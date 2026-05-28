@@ -2,6 +2,17 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-05-28
+
+### Changed
+- **Next.js profiles + specialist upgraded to layered + Container architecture** (ADR 0012), distilled from a mature production Next.js 16 app:
+  - `nextjs-supabase` and `nextjs-fullstack` `claude.md.tmpl`/`architecture.md.tmpl` now mandate the layered structure (`app → actions → data → domain → presentation → global`, same as the Expo profile), the **Container Pattern** (Page→Container→pure components), standardized `ServerActionResponse<T>`/`ApiResponse<T>`, a service layer that never throws (type narrowing, no `any`), and a data-fetching decision table (RSC / Server Action / useActionState / useTransition / useOptimistic / Zustand / realtime).
+  - `agents/nextjs.md` rewritten with the same laws + enriched anti-patterns (hooks-in-atomics, container placement, `getSession`→`getUser`, `<Link>` vs `router.push`, `any`→narrowing); `paths` updated to the layered folders.
+  - Supabase clients moved from `shared/supabase/` to `data/supabase/`.
+  - Added `@hookform/resolvers` and `zustand` to both profiles' recommended libs.
+
+---
+
 ## [1.1.0] — 2026-05-28
 
 ### Added

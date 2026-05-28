@@ -24,3 +24,4 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0009 | [Proactive hooks via additionalContext + Stop enforcer](0009-proactive-hooks-via-additional-context.md) | Accepted (v1.1.0) |
 | 0010 | [Plan-mode architecture guard](0010-plan-mode-architecture-guard.md) | Accepted (v1.1.0) |
 | 0011 | [Dependency-change & subsystem-aware proactive hooks](0011-dependency-and-subsystem-proactive-hooks.md) | Accepted (v1.1.0) |
+| 0012 | [Next.js profiles adopt layered + Container architecture](0012-nextjs-layered-container-architecture.md) | Accepted (v1.2.0) |

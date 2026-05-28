@@ -2,72 +2,108 @@
 
 Esta sección la mantiene `skipper`. No editar manualmente — usar `/skipper:stack:apply nextjs-fullstack`.
 
-### Estructura obligatoria
+### Estructura obligatoria (capas: app → actions → data → domain → presentation → global)
 
 ```
 src/
-├── app/                       # App Router (Next 14+)
-│   ├── (public)/              # rutas públicas (sin auth)
-│   ├── (app)/                 # rutas protegidas
-│   │   └── <flow>/page.tsx
+├── app/                       # ROUTING — Server Components SIEMPRE (fetch + props downstream)
+│   ├── (public)/              # rutas públicas
+│   ├── (app)/<flow>/page.tsx  # rutas protegidas
 │   ├── api/                   # route handlers (REST/webhook)
-│   ├── layout.tsx             # root layout
-│   └── globals.css
-├── features/<dominio>/        # features self-contained
-│   ├── actions.ts             # 'use server' actions
-│   ├── queries.ts             # server queries (RSC)
-│   ├── schema.ts              # Zod + Drizzle schemas
-│   ├── components/            # mezcla server/client components
-│   └── hooks.ts               # client hooks (use<X>)
-├── shared/
-│   ├── ui/                    # shadcn/ui components
+│   └── layout.tsx             # generateMetadata async
+├── actions/<dominio>.ts       # 'use server' — retornan ServerActionResponse<T>
+├── data/
 │   ├── db/                    # drizzle client + migrations
-│   ├── auth/                  # next-auth config
-│   └── lib/                   # utils
+│   ├── auth/                  # next-auth (Auth.js) config
+│   ├── services/<dominio>/*.service.ts   # acceso a DB — NUNCA throw, retornan estructura válida
+│   └── types/*.types.ts       # ApiResponse<T>, ServerActionResponse<T>, schemas Zod/Drizzle
+├── domain/
+│   └── hooks/use*.ts          # orquestación client (useTransition/useOptimistic, llaman actions)
+├── presentation/
+│   ├── features/<feature>/
+│   │   ├── <Feature>Container.tsx   # 'use client' — ÚNICO que maneja estado/hooks
+│   │   ├── components/              # presentacionales PUROS (sólo props, sin hooks)
+│   │   └── types/
+│   └── components/ui/         # shadcn/ui + compartidos
+├── global/
+│   ├── store/                 # Zustand (estado efímero)
+│   ├── constants/
+│   └── utils/
 └── middleware.ts              # auth guard
 ```
 
-**Reglas de capas:**
-- Server components y server actions usan `features/*/queries.ts` y `actions.ts`.
-- Client components usan `features/*/hooks.ts` (que llaman a server actions vía `useTransition`).
-- NUNCA pongas lógica de DB en client components.
+**Reglas de capas:** `presentation/` → `domain/` → `data/` → `global/`. Nunca al revés. **No existe `lib/`** (lógica en `domain/hooks/` o `data/services/`).
+
+### Container Pattern (obligatorio)
+
+```
+app/<route>/page.tsx  (Server, fetch)  →  <Feature>Container.tsx ('use client', orquesta)  →  components/*.tsx (puros, sin hooks)
+```
+El Container vive a nivel del feature (no dentro de `components/`). Los atómicos no llaman hooks.
+
+### Server Actions canónicas
+
+```typescript
+'use server'
+export async function createX(input: unknown): Promise<ServerActionResponse> {
+  try {
+    const session = await auth()                       // next-auth v5
+    if (!session?.user) return { success: false, error: 'No autorizado' }
+
+    const data = Schema.parse(input)                   // Zod ANTES de tocar DB
+    await db.insert(xs).values({ ...data, userId: session.user.id })
+
+    revalidatePath('/(app)/x', 'page')                 // granular, o revalidateTag
+    return { success: true }
+  } catch {
+    return { success: false, error: 'Error inesperado del servidor' }
+  }
+}
+```
+
+Patrón: `auth → validate (Zod) → mutate → revalidate → return ServerActionResponse`. **Nunca lanzan al cliente.**
+
+### Decisión: dónde vive cada cosa
+
+| Situación | Patrón | Ubicación |
+|---|---|---|
+| Datos iniciales de página | Server Component (`await`) | `app/*/page.tsx` |
+| Mutación | Server Action | `actions/` |
+| Submit de formulario | `useActionState` + RHF + Zod | Container |
+| Acción por click | `useTransition` | `domain/hooks/` |
+| Update optimista | `useOptimistic` | `domain/hooks/` |
+| Estado efímero (UI) | Zustand | `global/store/` |
 
 ### Convenciones obligatorias
 
-- **Por defecto: Server Components**. Marca `"use client"` sólo cuando uses hooks/event handlers.
-- **Server Actions** para mutations: directiva `"use server"` arriba del archivo o de la función.
-- **Validación**: TODA server action valida input con Zod ANTES de tocar DB. No-negociable.
-- **Named exports** siempre. Excepción: `page.tsx` y `layout.tsx` (Next requiere default export).
-- TypeScript strict.
-- Path alias `@/`.
-
-### Reglas SOLID que aplico
-
-- **SRP**: server action hace 1 cosa (validar → mutar → revalidar). Si crece, extraer helpers en `features/<x>/lib.ts`.
-- **DIP**: actions no llaman a `db` directo — pasan por `features/<x>/queries.ts` o `repository.ts`.
-- Componente client < 200 líneas. Si crece, extraer custom hooks o sub-componentes.
-- Server queries en `queries.ts`, NO inline en server components (testeable).
+- **Por defecto: Server Components.** `'use client'` SÓLO en Containers/hooks/componentes interactivos.
+- Validación Zod en TODA server action ANTES de tocar DB. Tipos estandarizados (`ServerActionResponse<T>`, `ApiResponse<T>`) en `data/types/`.
+- Services nunca lanzan: retornan estructura válida y hacen type narrowing (`unknown` + chequeo), nunca `any`.
+- Named exports (excepto `page.tsx`/`layout.tsx`). TypeScript strict. Path alias `@/`.
 
 ### Stack base
 
 | Capa | Librería |
 |---|---|
-| Framework | Next.js 14+ (App Router) |
-| Lenguaje | TypeScript strict |
-| DB | Drizzle ORM + Postgres (recomendado: Neon o Supabase) |
+| Framework | Next.js 14+ App Router |
+| DB | Drizzle ORM + Postgres (Neon/Supabase) |
 | Auth | next-auth v5 (Auth.js) |
+| Estado server | RSC + Server Actions |
+| Estado cliente | Zustand (efímero) |
 | Validación | Zod |
+| Forms | react-hook-form + Zod resolver |
 | Styling | Tailwind + shadcn/ui |
-| Forms | react-hook-form + Zod (en client components) |
 
 ### Anti-patterns (NUNCA hacer)
 
-- ❌ `"use client"` en archivos que no necesitan interactividad.
-- ❌ `fetch()` desde client component a tu propia API (mejor server action).
-- ❌ Server action sin Zod validation.
-- ❌ Lógica de DB en client components.
-- ❌ Cookies/sessions tocadas desde client (siempre server-side).
-- ❌ `revalidatePath` global cuando basta `revalidateTag` específico.
+- ❌ `'use client'` en archivos sin interactividad.
+- ❌ Componentes que llaman a la DB/API directo (van por `actions/` o `data/services/`).
+- ❌ Services que tocan React state, o que lanzan en vez de retornar fallback.
+- ❌ Server action sin Zod, o que lanza en vez de retornar `ServerActionResponse`.
+- ❌ Hooks en componentes atómicos (van en el Container o `domain/hooks/`).
+- ❌ `any` → usar `unknown` + narrowing.
+- ❌ `onClick + router.push()` para navegar → usar `<Link>`.
+- ❌ `revalidatePath('/')` global cuando basta granular o `revalidateTag`.
 
 ### Documentación viva
 
