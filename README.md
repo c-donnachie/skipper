@@ -4,11 +4,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.0.1-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-green)](./CHANGELOG.md)
 
 **A Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID principles.**
 
-Detects your stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs, PRDs, plans), and ships specialist sub-agents that can refactor with stack-aware judgment.
+skipper makes Claude understand *your* project — its stack, its layers, its decisions — and keeps the living docs in sync **on its own** while you code. Detects your stack, generates an opinionated CLAUDE.md, ships specialist sub-agents that refactor with stack-aware judgment, and proactively keeps ADRs/PRDs/architecture from rotting.
+
+> Other plugins give you templates. skipper gives you a crew member that knows the ship, enforces the rules, and keeps the logbook up to date — so you just sail.
 
 ---
 
@@ -31,7 +33,7 @@ When you start a new project in Claude Code:
 2. **Applies** an opinionated CLAUDE.md (mandatory structure, naming, libs, anti-patterns).
 3. **Keeps living docs** — ADRs/PRDs/plans with templates and automatic numbering.
 4. **Ships specialists** — `/skipper:react-vite`, `/skipper:nextjs`, `/skipper:supabase`, etc. that refactor while respecting the project's laws.
-5. **Suggests proactively** — hooks that detect when you should document or invoke the right specialist.
+5. **Acts proactively** — after initial setup you don't run commands. Hooks inject directives Claude follows: in **plan mode** it plans within your architecture (applies the laws, reuses existing code, references your docs), and as you code it keeps docs and the stack block in sync — syncing before it hands control back. All loop-safe, throttled, and opt-out (`SKIPPER_PROACTIVE=off`).
 
 ---
 
