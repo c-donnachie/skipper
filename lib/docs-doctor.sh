@@ -19,7 +19,7 @@ target="${1:-$(pwd)}"
 cd "$target" 2>/dev/null || { echo '{"error":"path not found"}'; exit 1; }
 
 if [[ ! -d docs ]]; then
-  echo '{"has_docs":false,"stubs":[],"stale":[],"broken_links":[],"empty_dirs":[],"counts":{"stubs":0,"stale":0,"broken_links":0,"empty_dirs":0}}'
+  echo '{"has_docs":false,"stubs":[],"stale":[],"broken_links":[],"empty_dirs":[],"adr_issues":[],"counts":{"stubs":0,"stale":0,"broken_links":0,"empty_dirs":0,"adr_issues":0}}'
   exit 0
 fi
 
@@ -133,6 +133,45 @@ for d in docs/*/; do
   fi
 done
 
+# ============ 5. ADR HYGIENE ============
+# Ciclo de vida: stuck en Proposed mucho tiempo, links de supersede rotos, status faltante.
+ADR_PROPOSED_DAYS=30
+adr_rows=()
+if [[ -d docs/decisions ]]; then
+  for f in docs/decisions/[0-9][0-9][0-9][0-9]-*.md; do
+    [[ -e "$f" ]] || continue
+    status_line=$(grep -iE '^\s*-?\s*\*\*?Status\*\*?\s*:' "$f" | head -1)
+
+    # a) status faltante
+    if [[ -z "$status_line" ]]; then
+      adr_rows+=("{\"path\":\"$f\",\"issue\":\"missing-status\",\"detail\":\"el ADR no declara Status\"}")
+      continue
+    fi
+
+    # b) stuck en Proposed > N días (por último commit del archivo)
+    if echo "$status_line" | grep -qiE '\bproposed\b'; then
+      if [[ "$is_git" == "1" ]]; then
+        ct=$(git log -1 --format=%ct -- "$f" 2>/dev/null)
+        if [[ -n "$ct" ]]; then
+          now=$(git log -1 --format=%ct HEAD 2>/dev/null || echo "$ct")
+          days=$(( (now - ct) / 86400 ))
+          if [[ "$days" -ge "$ADR_PROPOSED_DAYS" ]]; then
+            adr_rows+=("{\"path\":\"$f\",\"issue\":\"stuck-proposed\",\"detail\":\"Proposed hace ${days}d — ratificar (Accepted) o rechazar\"}")
+          fi
+        fi
+      fi
+    fi
+
+    # c) supersede roto: menciona ADR-NNNN (Supersedes/Superseded by) que no existe
+    for ref in $(echo "$status_line $(grep -iE 'supersed' "$f")" | grep -oE 'ADR-[0-9]{4}' | sort -u); do
+      num="${ref#ADR-}"
+      if ! ls docs/decisions/${num}-*.md >/dev/null 2>&1; then
+        adr_rows+=("{\"path\":\"$f\",\"issue\":\"broken-supersede\",\"detail\":\"referencia ${ref} que no existe\"}")
+      fi
+    done
+  done
+fi
+
 # ============ EMIT ============
 join() { local IFS=,; echo "$*"; }
 cat <<EOF
@@ -142,11 +181,13 @@ cat <<EOF
   "stale": [$(join "${stale_rows[@]:-}")],
   "broken_links": [$(join "${broken_rows[@]:-}")],
   "empty_dirs": [$(join "${empty_rows[@]:-}")],
+  "adr_issues": [$(join "${adr_rows[@]:-}")],
   "counts": {
     "stubs": ${#stub_rows[@]},
     "stale": ${#stale_rows[@]},
     "broken_links": ${#broken_rows[@]},
-    "empty_dirs": ${#empty_rows[@]}
+    "empty_dirs": ${#empty_rows[@]},
+    "adr_issues": ${#adr_rows[@]}
   }
 }
 EOF

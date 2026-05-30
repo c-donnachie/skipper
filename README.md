@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.2.0-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-green)](./CHANGELOG.md)
 
 **A Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID principles.**
 
@@ -102,7 +102,8 @@ claude --plugin-dir /path/to/skipper
 | Command | What it does |
 |---|---|
 | `/skipper:update` | Reads diff and proposes ADRs/PRDs/architecture/business docs. |
-| `/skipper:new-adr "title"` | Creates numbered ADR with template. |
+| `/skipper:new-adr "title"` | Creates numbered ADR (MADR-aligned template). |
+| `/skipper:supersede-adr N "title"` | Supersedes ADR N with a new one — marks the old `Superseded by`, links both (ADRs are immutable). |
 | `/skipper:new-prd "title"` | Creates numbered PRD. |
 | `/skipper:new-plan "title"` | Creates implementation plan. |
 
@@ -186,7 +187,7 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 
 ## Components
 
-- **22 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks
+- **23 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks, `supersede-adr`
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
 - **5 hook events / 7 scripts** (proactive by default — see below):

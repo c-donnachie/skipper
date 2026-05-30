@@ -28,6 +28,7 @@ Crea un ADR nuevo con título "$ARGUMENTS".
 
 ## Reglas
 
-- Status siempre arranca como "Proposed".
-- Deja Decision/Consequences vacíos para que el usuario los complete.
+- Status siempre arranca como **Proposed**. Ciclo de vida: `Proposed → Accepted | Rejected → (luego) Deprecated | Superseded by ADR-NNNN`.
+- Deja Decision/Consequences/Confirmation vacíos para que el usuario los complete; sí intenta poblar "Context and problem statement" y "Decision drivers" con lo que sepas.
+- **Inmutabilidad**: un ADR Accepted no se reescribe. Si esto reemplaza una decisión previa, NO crees un ADR suelto — usa `/skipper:supersede-adr <número-viejo> "título"` para enlazar ambos.
 - Si "$ARGUMENTS" está vacío, pregunta al usuario por el título antes de crear nada.

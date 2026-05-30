@@ -2,6 +2,18 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-05-30
+
+### Added
+- **`/skipper:supersede-adr <old> "title"`** — the missing ADR lifecycle operation. ADRs are immutable: instead of editing an Accepted decision, this marks the old one `Superseded by ADR-NNNN` (status only), creates the replacement with `Supersedes ADR-MMMM`, links both bidirectionally, and updates the index. (ADR 0013)
+- **`docs-doctor` ADR hygiene** — new `adr_issues` check: `broken-supersede` (link to a nonexistent ADR), `stuck-proposed` (Proposed > 30 days), `missing-status`.
+
+### Changed
+- **ADR template aligned to MADR 4.0** (`skills/update/templates/adr.md`): adds the lifecycle vocabulary to Status (`Proposed → Accepted | Rejected → Deprecated | Superseded by ADR-NNNN`), `Decision drivers`, `Confirmation`, and optional `Supersedes`/`Consulted`/`Informed`. Existing ADRs stay valid (superset).
+- `new-adr` and the `decisions/` protocol now document the lifecycle and the immutability rule (supersede, don't rewrite).
+
+---
+
 ## [1.2.0] — 2026-05-28
 
 ### Changed

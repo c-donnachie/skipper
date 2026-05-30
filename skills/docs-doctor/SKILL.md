@@ -17,7 +17,7 @@ Acabas de recibir el JSON del diagnóstico. Interprétalo con juicio y arma una 
 ### 1. Validación previa
 
 - Si `has_docs: false` → "No hay carpeta `docs/`. Corre `/skipper:init-structure` primero." y termina.
-- Si los 4 contadores son 0 → "✅ docs/ saludable. Cero hallazgos." y termina.
+- Si los 5 contadores (`stubs`, `stale`, `broken_links`, `empty_dirs`, `adr_issues`) son 0 → "✅ docs/ saludable. Cero hallazgos." y termina.
 
 ### 2. Tabla de hallazgos
 
@@ -30,6 +30,9 @@ Mapea cada hallazgo a una severidad y arma UNA tabla ordenada por severidad:
 | 🟡 medium | broken-link | docs/decisions/0007-*.md | link a `../../.claude/...` no resuelve | corregir o quitar el link |
 | 🟢 low | thin | docs/decisions/0004-*.md | 55 palabras — verifica si está completo | confirmar que no es un stub |
 | 🟢 low | empty-dir | docs/legal | sólo README, sin contenido | poblar o quitar la carpeta |
+| 🔴 high | adr: broken-supersede | docs/decisions/0007-*.md | referencia ADR-0099 que no existe | corregir el link de supersede |
+| 🟡 medium | adr: stuck-proposed | docs/decisions/0003-*.md | Proposed hace 40d — ratificar o rechazar | mover a Accepted/Rejected |
+| 🟡 medium | adr: missing-status | docs/decisions/0009-*.md | el ADR no declara Status | agregar línea Status |
 
 Reglas de severidad (calíbralas con criterio, no son rígidas):
 
@@ -42,6 +45,10 @@ Reglas de severidad (calíbralas con criterio, no son rígidas):
 - **stub** con `kind: thin` → 🟢 low (puede ser un ADR legítimamente conciso — pídele al usuario que confirme, no afirmes que está incompleto).
 - **broken_links** → 🟡 medium (links relativos que no resuelven; los externos/URIs ya se filtraron).
 - **empty_dirs** → 🟢 low.
+- **adr_issues** (`issue`):
+  - `broken-supersede` → 🔴 high (la cadena de decisiones está rota; un Supersedes/Superseded-by apunta a la nada).
+  - `missing-status` → 🟡 medium (todo ADR debe declarar Status del ciclo de vida).
+  - `stuck-proposed` → 🟡 medium (decisión nunca ratificada; sugiere mover a Accepted/Rejected, o `/skipper:supersede-adr` si fue reemplazada).
 
 ### 3. Resumen y siguiente paso
 

@@ -25,3 +25,4 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0010 | [Plan-mode architecture guard](0010-plan-mode-architecture-guard.md) | Accepted (v1.1.0) |
 | 0011 | [Dependency-change & subsystem-aware proactive hooks](0011-dependency-and-subsystem-proactive-hooks.md) | Accepted (v1.1.0) |
 | 0012 | [Next.js profiles adopt layered + Container architecture](0012-nextjs-layered-container-architecture.md) | Accepted (v1.2.0) |
+| 0013 | [MADR-aligned ADR lifecycle + supersede workflow](0013-madr-aligned-adr-lifecycle.md) | Accepted (v1.3.0) |

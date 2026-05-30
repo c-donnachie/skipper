@@ -73,11 +73,19 @@ Decisiones técnicas con tradeoffs reales que aplican >1 vez en el proyecto.
 
 ## Formato
 
-Numeración 4 dígitos secuencial: `0001-titulo-en-kebab.md`. Status: Proposed → Accepted → Superseded.
+Numeración 4 dígitos secuencial: `0001-titulo-en-kebab.md` (convención MADR). Campos: Status · Date · Deciders · Context and problem statement · Decision drivers · Decision · Alternatives considered · Consequences · Confirmation.
+
+## Ciclo de vida (Status)
+
+`Proposed → Accepted | Rejected → (luego) Deprecated | Superseded by ADR-NNNN`
+
+## Inmutabilidad
+
+Un ADR **Accepted no se reescribe** — es historia. Si la decisión cambia, **supersédelo**: `/skipper:supersede-adr <número-viejo> "título nuevo"` marca el viejo como `Superseded by`, crea el reemplazo con `Supersedes`, y enlaza ambos. Para retirar sin reemplazo, cambia su Status a `Deprecated`.
 
 ## Índice
 
-(Se completa automáticamente con `/skipper:new-adr`)
+(Se completa automáticamente con `/skipper:new-adr` y `/skipper:supersede-adr`)
 ```
 
 **`docs/prds/README.md`**:
