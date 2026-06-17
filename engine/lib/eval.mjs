@@ -63,6 +63,10 @@ export function runGold(root, db) {
         const { citations } = render(root, b);
         const v = verifyCitations(root, citations);
         add(c.id, v.failures.length === 0, `${v.ok}/${v.checked} citations valid`);
+      } else if (c.kind === 'node_field_number') {
+        const n = db.prepare('SELECT * FROM nodes WHERE id=?').get(c.node);
+        const v = n ? n[c.field] : null;
+        add(c.id, typeof v === 'number', `${c.node}.${c.field}=${v}`);
       } else {
         add(c.id, false, `unknown kind: ${c.kind}`);
       }

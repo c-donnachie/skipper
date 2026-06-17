@@ -14,5 +14,7 @@
   { "id": "fresh-hooks",        "kind": "context_stale", "path": "hooks/",        "doc": "docs/architecture/hooks.md",     "stale": false },
   { "id": "govern-hooks",       "kind": "governing_includes", "path": "hooks/", "includes": ["ADR:0009", "ADR:0010", "ADR:0011", "ADR:0018"] },
 
-  { "id": "citations-valid",    "kind": "ask_citations_valid", "query": "open core boundary OSS vs SaaS" }
+  { "id": "citations-valid",    "kind": "ask_citations_valid", "query": "open core boundary OSS vs SaaS" },
+
+  { "id": "gitdelta-detection", "kind": "node_field_number", "node": "ARCH:detection", "field": "code_commits_since" }
 ]

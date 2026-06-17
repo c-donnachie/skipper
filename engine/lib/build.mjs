@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { openDb, applySchema, SCHEMA_VERSION } from './db.mjs';
 import { repoRoot, headSha } from './repo.mjs';
 import { parseRepo } from './parse.mjs';
+import { docGitStats } from './subsystem.mjs';
 
 export function indexDir(root) {
   return join(root, '.skipper', 'index');
@@ -32,6 +33,7 @@ export function build({ cwd = process.cwd() } = {}) {
 
   // === M1: parse the corpus into typed nodes + directed edges ===
   const { nodes, edges } = parseRepo(root);
+  for (const n of nodes) Object.assign(n, docGitStats(root, n)); // M2: git-delta freshness
   const insNode = db.prepare(
     `INSERT INTO nodes (id,type,title,path,number,status,version_tag,date,self_freshness,reflects_version,git_last_sha,git_last_ts,code_commits_since,h1_line)
      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
@@ -40,7 +42,7 @@ export function build({ cwd = process.cwd() } = {}) {
     insNode.run(
       n.id, n.type, n.title ?? null, n.path, n.number ?? null, n.status ?? null,
       n.version_tag ?? null, n.date ?? null, n.self_freshness ?? null, n.reflects_version ?? null,
-      null, null, null, n.h1_line ?? null,
+      n.git_last_sha ?? null, n.git_last_ts ?? null, n.code_commits_since ?? null, n.h1_line ?? null,
     );
   }
   const insEdge = db.prepare(

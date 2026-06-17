@@ -3,6 +3,7 @@
 // for the seed are M2-remainder — noted in plan-0004.)
 import { readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
+import { git } from './repo.mjs';
 
 // Seed: code-path prefix -> governing ADR ids. Graph edges are too sparse for code
 // modules to derive this, so it is curated for Phase B (critic must-fix #3).
@@ -44,13 +45,44 @@ export function pluginVersion(root) {
   }
 }
 
-// Version-drift half of the freshness signal (#2): doc-declared "Reflects vX" vs plugin.json.
-// (The git-delta half — code_commits_since — is M2-remainder.)
+export const STALE_CODE_COMMITS = 12;
+
+// Arch docs → the code dir they document, for the git-delta freshness signal.
+const DOC_SUBSYSTEM = {
+  'docs/architecture/hooks.md': 'hooks',
+  'docs/architecture/agents.md': 'agents',
+  'docs/architecture/detection.md': 'lib',
+  'docs/architecture/platform-memory.md': 'engine',
+};
+
+// git-delta: when was the doc last edited, and how many commits touched its code since.
+// Computed at build time and stored on the node (query stays fast). Deterministic for a HEAD.
+export function docGitStats(root, node) {
+  const dir = DOC_SUBSYSTEM[node.path];
+  if (!dir) return {};
+  try {
+    const lastSha = git(['log', '-1', '--format=%H', '--', node.path], root);
+    if (!lastSha) return {};
+    const lastTs = git(['log', '-1', '--format=%aI', '--', node.path], root);
+    const n = parseInt(git(['rev-list', '--count', `${lastSha}..HEAD`, '--', dir], root) || '0', 10);
+    return { git_last_sha: lastSha.slice(0, 7), git_last_ts: lastTs, code_commits_since: Number.isNaN(n) ? null : n };
+  } catch {
+    return {};
+  }
+}
+
+// Freshness signal (#2): version-drift (doc "Reflects vX" vs plugin.json) OR git-delta
+// (>= STALE_CODE_COMMITS commits touched the doc's code since it was last edited).
 export function freshnessFor(root, node) {
   const pv = pluginVersion(root);
   const declared = node.reflects_version ? node.reflects_version.replace(/^v/, '') : null;
-  if (declared && pv && declared !== pv) {
-    return { stale: true, reason: `doc declares v${declared} vs plugin v${pv}` };
+  const versionDrift = !!(declared && pv && declared !== pv);
+  const codeDrift = node.code_commits_since != null && node.code_commits_since >= STALE_CODE_COMMITS;
+  if (versionDrift || codeDrift) {
+    const r = [];
+    if (versionDrift) r.push(`doc declares v${declared} vs plugin v${pv}`);
+    if (codeDrift) r.push(`${node.code_commits_since} code commits since the doc was last touched`);
+    return { stale: true, reason: r.join('; ') };
   }
   return { stale: false };
 }
