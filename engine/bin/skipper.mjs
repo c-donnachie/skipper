@@ -8,6 +8,7 @@ import { ensureGitignore } from '../lib/gitignore.mjs';
 import { ask, contextFor } from '../lib/retrieve.mjs';
 import { render } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
+import { serveMcp } from '../lib/mcp.mjs';
 
 const NOT_YET = { verify: 'M4 (standalone verify)', eval: 'M6 (gold gate)' };
 const argv = process.argv.slice(2);
@@ -43,12 +44,14 @@ if (cmd === 'index') {
   const p = argv[1];
   if (!p) { console.error('usage: skipper context <path>'); process.exit(2); }
   answer((root, db) => contextFor(root, db, p));
+} else if (cmd === 'mcp') {
+  serveMcp(); // stdio MCP server; stays alive on stdin
 } else if (cmd === '--version' || cmd === 'version') {
-  console.log('skipper-memory 0.0.1 (Phase B — M0/M1 + M3 retrieval slice)');
+  console.log('skipper-memory 0.0.1 (Phase B — M0/M1 + M3 retrieval + M5 MCP)');
 } else if (NOT_YET[cmd]) {
   console.error(`'${cmd}' not implemented yet — ${NOT_YET[cmd]}.`);
   process.exit(2);
 } else {
-  console.error('usage: skipper <index|ask|context|--version>');
+  console.error('usage: skipper <index|ask|context|mcp|--version>');
   process.exit(2);
 }

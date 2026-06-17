@@ -8,15 +8,33 @@ Status: **Phase B, M0 (foundations)** — see [plan-0004](../docs/plans/0004-ski
 
 - **Node ≥ 22.5** — uses the built-in `node:sqlite` (no npm/native deps, no database server). The index is a single local file under `.skipper/index/` (gitignored, derived, disposable).
 
-## Usage (M0)
+## Usage
 
 ```bash
-node bin/skipper.mjs index      # build/refresh the local graph index over the repo
-node bin/skipper.mjs --version
-npm test                        # M0 acceptance: idempotent rebuild (identical logical rows at same HEAD)
+node bin/skipper.mjs index                      # build/refresh the local graph index
+node bin/skipper.mjs ask "why proactive hooks?" # cited, graph-expanded answer
+node bin/skipper.mjs context hooks/             # governing decisions + invariants + freshness, before an edit
+node bin/skipper.mjs mcp                        # run the stdio MCP server (for agents)
+npm test                                        # idempotent-rebuild acceptance
+node test/mcp-smoke.mjs                         # MCP protocol smoke test
 ```
 
-`ask` / `context` / `verify` / `eval` are stubbed until later milestones (M3–M6).
+Answers are **deterministic and cited** (no LLM call); LLM synthesis on top is a later milestone.
+`verify` / `eval` are stubbed until M4/M6.
+
+### Register the MCP server (so agents can call it)
+
+Add to your repo's `.mcp.json` (Claude Code / Conductor auto-loads it):
+
+```json
+{
+  "mcpServers": {
+    "skipper-memory": { "command": "node", "args": ["engine/bin/skipper.mjs", "mcp"] }
+  }
+}
+```
+
+Then an agent can call `context_for("src/...")` **before editing** to pull the governing ADRs and risks — making "Conductor = execution, skipper = knowledge" literal at runtime. Tools exposed: `ask(question)`, `context_for(path)`. Synthesis runs on the caller's Claude — the server returns evidence, never a bundled API key (ADR-0014).
 
 ## What M0 ships
 
