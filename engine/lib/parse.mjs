@@ -79,7 +79,7 @@ export function parseRepo(root) {
     // title (first H1)
     for (let i = 0; i < lines.length; i++) {
       const m = lines[i].match(/^#\s+(.*)/);
-      if (m) { node.title = m[1].trim(); node.h1_line = i + 1; break; }
+      if (m) { node.title = m[1].trim().replace(/^\d{4}\s*[—–-]\s*/, ''); node.h1_line = i + 1; break; }
     }
     // frontmatter bullets (comment-safe)
     for (const ln of ncLines.slice(0, 14)) {
@@ -95,7 +95,7 @@ export function parseRepo(root) {
     for (const ln of lines.slice(0, 8)) {
       let m;
       if (node.self_freshness == null && (m = ln.match(/Last updated:\s*([0-9-]+)/i))) node.self_freshness = m[1];
-      if (node.reflects_version == null && (m = ln.match(/Reflects\s+v?([0-9][0-9.]*)/i))) node.reflects_version = 'v' + m[1];
+      if (node.reflects_version == null && (m = ln.match(/Reflects\s+v?(\d+(?:\.\d+)*)/i))) node.reflects_version = 'v' + m[1];
     }
     nodes.push(node);
 
