@@ -2,9 +2,9 @@
 
 > Last updated: 2026-06-17. Reflects v1.3.0.
 
-Since v1.1 skipper's hooks are **proactive**: they don't just message the user, they **inject directives Claude acts on** (`hookSpecificOutput.additionalContext`) and, at `Stop`, **enforce** with `exit 2`. Rationale and design in **ADR-0009** (proactive model), **ADR-0010** (plan-mode guard), **ADR-0011** (dependency + subsystem-aware hooks). All proactive hooks are opt-out via `SKIPPER_PROACTIVE=off`.
+Since v1.1 skipper's hooks are **proactive**: they don't just message the user, they **inject directives Claude acts on** (`hookSpecificOutput.additionalContext`) and, at `Stop`, **enforce** with `exit 2`. Rationale and design in **ADR-0009** (proactive model), **ADR-0010** (plan-mode guard), **ADR-0011** (dependency + subsystem-aware hooks). All proactive hooks are opt-out via `SKIPPER_PROACTIVE=off`. Two hooks marked **⊕** are *engine-dependent*: they bridge to the separately-installed skipper-memory engine (**ADR-0017/0018**) and no-op without it.
 
-## Five events, seven scripts
+## Five events, nine scripts
 
 | Event | Script | Job | Throttle |
 |---|---|---|---|
@@ -13,8 +13,10 @@ Since v1.1 skipper's hooks are **proactive**: they don't just message the user, 
 | `PreToolUse` (ExitPlanMode) | `plan-exit-guard.sh` | Best-effort checklist before a plan is presented (no-op if the matcher isn't supported) | per event |
 | `PostToolUse` (Edit\|Write) | `docs-sync.sh` | **Subsystem-aware**: point Claude at the *specific* `docs/architecture` doc for the edited subsystem and tell it to update it **this turn** | 10 min per subsystem (`.skipper-docsync-<slug>`) |
 | `PostToolUse` (Edit\|Write) | `specialist-suggest.sh` | Suggest a specialist after ≥3 files of one domain (this one **suggests the user** — the exception) | 1× per agent per session, 30-min window |
+| `PostToolUse` (Edit\|Write) | `memory-guard.sh` **⊕** | Inject the ADRs **governing** the edited path (+ drift) via the memory engine — proactive *push* of project memory | 10 min per subsystem (`.skipper-memory-<sub>`) |
 | `PostToolUse` (Bash\|Edit\|Write\|MultiEdit) | `stack-watch.sh` | On dependency changes, remind to keep the `skipper:stack` block in sync | 10 min (`.skipper-stackwatch`) |
 | `Stop` | `suggest.sh` | **Enforcer**: if code changed in a documented area without touching `docs/`, `exit 2` with a directive so Claude syncs **before yielding** | 30-min block (`.skipper-stop-block`) + 24h marker (`.skipper-last`) |
+| `Stop` | `memory-stop.sh` **⊕** | **Enforcer**: if **governed** code changed, `exit 2` with the governing ADRs so Claude self-verifies compliance (fix, or supersede) before yielding | 30-min block (`.skipper-memory-stop`) |
 
 ## SessionStart (`session-start.sh`)
 

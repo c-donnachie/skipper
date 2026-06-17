@@ -41,6 +41,11 @@
             "type": "command",
             "command": "${CLAUDE_PLUGIN_ROOT}/hooks/suggest.sh",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/memory-stop.sh",
+            "timeout": 10
           }
         ]
       }

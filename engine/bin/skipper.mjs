@@ -6,7 +6,7 @@ import { openDb } from '../lib/db.mjs';
 import { existsSync } from 'node:fs';
 import { repoRoot } from '../lib/repo.mjs';
 import { ensureGitignore } from '../lib/gitignore.mjs';
-import { ask, contextFor } from '../lib/retrieve.mjs';
+import { ask, contextFor, guard } from '../lib/retrieve.mjs';
 import { render, renderBrief } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
 import { serveMcp } from '../lib/mcp.mjs';
@@ -57,6 +57,11 @@ if (cmd === 'index') {
   } else {
     answer((root, db) => contextFor(root, db, p));
   }
+} else if (cmd === 'guard') {
+  const root = repoRoot();
+  const db = openIndex(root);
+  try { const t = guard(root, db); if (t) process.stdout.write(t + '\n'); }
+  finally { db.close(); }
 } else if (cmd === 'mcp') {
   serveMcp(); // stdio MCP server; stays alive on stdin
 } else if (cmd === '--version' || cmd === 'version') {
