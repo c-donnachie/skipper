@@ -122,6 +122,7 @@ claude --plugin-dir /path/to/skipper
 |---|---|
 | `/skipper:update` | Reads diff and proposes ADRs/PRDs/architecture/business docs. |
 | `/skipper:new-adr "title"` | Creates numbered ADR (MADR-aligned template). |
+| `/skipper:decide "topic"` | Facilitates a decision (options + tradeoffs + recommendation) and captures it as a complete ADR — brainstorm → decision. |
 | `/skipper:supersede-adr N "title"` | Supersedes ADR N with a new one — marks the old `Superseded by`, links both (ADRs are immutable). |
 | `/skipper:new-prd "title"` | Creates numbered PRD. |
 | `/skipper:new-plan "title"` | Creates implementation plan. |

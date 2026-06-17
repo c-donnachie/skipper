@@ -1,8 +1,10 @@
 # Platform memory layer (Skipper Memory)
 
+> Last updated: 2026-06-17. Reflects v1.4.0.
+
 > Architecture for the queryable, agent-facing memory built on top of the artifacts skipper already produces. Scoped by [PRD-0004](../prds/0004-skipper-memory-mvp.md); boundary/scope/connector decisions in [ADR-0014](../decisions/0014-open-core-boundary.md), [ADR-0015](../decisions/0015-mvp-scope-agent-first.md), [ADR-0016](../decisions/0016-connector-strategy-deferred.md).
 
-This is forward-looking design for the Skipper *platform*, distinct from the current plugin internals documented elsewhere in this folder.
+**Status: Phase B is built and shipping in v1.4** — the engine lives under [`engine/`](../../engine/) (plan-0004). The pipeline below is implemented, with one deliberate deviation: retrieval is **lexical (no vector index yet)** — at this corpus size everything fits in context, so embeddings are deferred until it doesn't (the trigger is documented in the engine). Beyond the original MVP it also ships **who-decided**, **what-touched / recent activity**, **count-mismatch** flags, hub-node **`relate`**, optional **LLM synthesis**, **bilingual (ES/EN)** parsing, and the **proactive layer** (`memory-guard`/`memory-stop` hooks + specialist auto-routing — ADR-0017/0018/0019). The SaaS layer (web, shared DB, connectors) remains deferred (ADR-0014/0015/0016).
 
 ## North star
 
@@ -106,26 +108,23 @@ A design choice with a real trade-off (future privacy ADR), from least to most i
 
 Default aligned with PRIVACY.md: ship **(b) docs + graph + embeddings, not raw source** — or offer **self-hosted**. Minimize what leaves the machine.
 
-## Build order (MVP)
+## Build order — ✅ built in v1.4 (per PRD-0004 / plan-0004)
 
-Per PRD-0004 (M1–M6):
+1. ✅ **ADR/PRD/Plan parser** → typed directed nodes + edges, with `file:line` provenance.
+2. ✅ **git ingest** → commit/person/module nodes + `touches`/`authored-by`/`decided-by` (PR API still deferred).
+3. ✅ **Local index** (SQLite) + retrieval — **lexical, not vector** (sqlite-vec deferred; everything fits in context at this size).
+4. ✅ **MCP server `skipper-memory`** (`ask`, `context_for`).
+5. ✅ **CLI** (`skipper ask`/`context`/`relate`/`index`/`eval`) + optional LLM synthesis.
 
-1. **ADR/PRD/Plan parser** → typed nodes + edges (structure already exists → days, not weeks).
-2. **git + PR ingest** → enrich the graph (`touches`, `authored-by`).
-3. **Local index** (SQLite + sqlite-vec) + **hybrid retrieval** (graph-expand + vector), incremental.
-4. **MCP server `skipper-memory`** (`ask`, `context_for`) — *the demo*.
-5. **CLI** (`skipper ask`, `skipper index`).
+Deferred to SaaS: web viz, timeline, health dashboard, Slack, external connectors, multi-repo/hosted.
 
-Deferred to SaaS: web viz, timeline, health dashboard, Slack, connectors.
+## Open decisions — resolved in Phase B
 
-## Open decisions
-
-Tracked as PRD-0004 open questions; will graduate to their own ADRs as they resolve:
-
-- **Embedding model + who pays** in the OSS path (user's key) → forces incremental indexing.
-- **Freshness mechanism**: git hook vs CI vs extending skipper's existing `PostToolUse`/`Stop` hooks.
-- **Graph/vector store**: confirm SQLite + sqlite-vec for v1.
-- **SaaS privacy posture**: what travels (a/b/c above), self-hosting.
+- **Embeddings**: deferred. Retrieval is lexical (word-boundary match); the engine documents the corpus-size trigger to add vectors later.
+- **Freshness mechanism**: build-time per-doc git-delta (commits touching the subsystem since the doc's last edit) + version-drift, surfaced proactively by `memory-guard`/`memory-stop`.
+- **Graph store**: SQLite via `node:sqlite` (zero deps) — `nodes`/`edges`/`mismatches`/`meta`, **no** vector table (`meta.schema_version` is the migration seam).
+- **Governance config**: per-repo `skipper-memory.config.json` (path→ADRs, doc→code); engine ships with no project defaults (ADR-0017 follow-on).
+- **SaaS privacy posture**: still open — the future SaaS ADR (what travels: a/b/c above, self-hosting).
 
 ## Related
 

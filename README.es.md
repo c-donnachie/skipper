@@ -117,6 +117,7 @@ claude --plugin-dir /ruta/a/skipper
 |---|---|
 | `/skipper:update` | Lee el diff y propone docs de ADRs/PRDs/arquitectura/negocio. |
 | `/skipper:new-adr "título"` | Crea un ADR numerado (plantilla alineada a MADR). |
+| `/skipper:decide "tema"` | Facilita una decisión (opciones + tradeoffs + recomendación) y la captura como un ADR completo — brainstorm → decisión. |
 | `/skipper:supersede-adr N "título"` | Supera el ADR N con uno nuevo — marca el viejo como `Superseded by`, enlaza ambos (los ADRs son inmutables). |
 | `/skipper:new-prd "título"` | Crea un PRD numerado. |
 | `/skipper:new-plan "título"` | Crea un plan de implementación. |
