@@ -9,6 +9,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { openDb, applySchema, SCHEMA_VERSION } from './db.mjs';
 import { repoRoot, headSha } from './repo.mjs';
+import { parseRepo } from './parse.mjs';
 
 export function indexDir(root) {
   return join(root, '.skipper', 'index');
@@ -29,7 +30,26 @@ export function build({ cwd = process.cwd() } = {}) {
   const db = openDb(indexPath(root));
   applySchema(db);
 
-  // === M1 parser populates nodes/edges/mismatches HERE ===
+  // === M1: parse the corpus into typed nodes + directed edges ===
+  const { nodes, edges } = parseRepo(root);
+  const insNode = db.prepare(
+    `INSERT INTO nodes (id,type,title,path,number,status,version_tag,date,self_freshness,reflects_version,git_last_sha,git_last_ts,code_commits_since,h1_line)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+  );
+  for (const n of nodes) {
+    insNode.run(
+      n.id, n.type, n.title ?? null, n.path, n.number ?? null, n.status ?? null,
+      n.version_tag ?? null, n.date ?? null, n.self_freshness ?? null, n.reflects_version ?? null,
+      null, null, null, n.h1_line ?? null,
+    );
+  }
+  const insEdge = db.prepare(
+    `INSERT INTO edges (from_id,to_id,type,edge_class,src_file,src_line,raw_text,resolved)
+     VALUES (?,?,?,?,?,?,?,?)`,
+  );
+  for (const e of edges) {
+    insEdge.run(e.from_id, e.to_id, e.type, e.edge_class, e.src_file ?? null, e.src_line ?? null, e.raw_text ?? null, e.resolved);
+  }
 
   const setMeta = db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)');
   setMeta.run('schema_version', String(SCHEMA_VERSION));

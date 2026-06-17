@@ -21,7 +21,7 @@ if (cmd === 'index') {
   console.log(`indexed: ${r.root}`);
   console.log(`  -> ${r.dbPath}`);
   console.log(
-    `  nodes=${r.counts.nodes} edges=${r.counts.edges} mismatches=${r.counts.mismatches}  (M0: empty until the M1 parser lands)`,
+    `  graph: ${r.counts.nodes} nodes · ${r.counts.edges} edges · ${r.counts.mismatches} mismatches`,
   );
 } else if (cmd === '--version' || cmd === 'version') {
   console.log('skipper-memory 0.0.1 (Phase B / M0 — foundations)');
