@@ -71,6 +71,17 @@ export function contextFor(root, db, path) {
   const b = bundle(root, db, [sub, ...governing], { kind: 'context', path });
   b.subsystemDoc = sub;
   b.governing = governing;
+  const seg = (path.replace(/^\.?\//, '').split('/')[0]) || '';
+  if (seg) {
+    b.recentCommits = db.prepare(
+      `SELECT n.id AS id, n.title AS title, n.date AS date, p.title AS author
+       FROM edges t JOIN nodes n ON n.id = t.from_id
+       LEFT JOIN edges a ON a.from_id = n.id AND a.type = 'authored-by'
+       LEFT JOIN nodes p ON p.id = a.to_id
+       WHERE t.type = 'touches' AND t.to_id = ?
+       ORDER BY n.date DESC LIMIT 3`,
+    ).all(`MODULE:${seg}`);
+  }
   return b;
 }
 

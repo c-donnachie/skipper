@@ -50,6 +50,10 @@ export function render(root, b) {
       const dec = readSection(root, n.path, 'Decision');
       if (dec) L.push(`    > ${trunc(dec.text, 200)}  —[quote] ${cite(n.path, dec.line)}`);
     }
+    if (b.recentCommits && b.recentCommits.length) {
+      L.push('', 'Recent activity:');
+      for (const c of b.recentCommits) L.push(`  • ${c.id.replace('COMMIT:', '')} ${c.title}${c.author ? ` — @${c.author}` : ''}`);
+    }
     const subStale = b.subsystemDoc && b.freshness[b.subsystemDoc.id];
     if (subStale) L.push('', `Risk: subsystem doc may be stale — ${b.freshness[b.subsystemDoc.id].reason}. Verify before relying on it.`);
   }

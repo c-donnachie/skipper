@@ -22,7 +22,7 @@ const DECLARED_SECTIONS = new Set(['more information', 'related']);
 
 // Person canonicalization: collapse known aliases of one human to a single node.
 const PERSON_ALIASES = { 'c-donnachie': 'cristian-donnachie' };
-function personId(name) {
+export function personId(name) {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   return `PERSON:${PERSON_ALIASES[slug] || slug}`;
 }

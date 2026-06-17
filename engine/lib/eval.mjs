@@ -67,6 +67,15 @@ export function runGold(root, db) {
         const n = db.prepare('SELECT * FROM nodes WHERE id=?').get(c.node);
         const v = n ? n[c.field] : null;
         add(c.id, typeof v === 'number', `${c.node}.${c.field}=${v}`);
+      } else if (c.kind === 'node_type_min') {
+        const n = db.prepare('SELECT COUNT(*) AS c FROM nodes WHERE type=?').get(c.type).c;
+        add(c.id, n >= c.min, `${c.type} nodes=${n} (min ${c.min})`);
+      } else if (c.kind === 'edge_type_exists') {
+        let q = 'SELECT COUNT(*) AS c FROM edges WHERE type=?';
+        const args = [c.type];
+        if (c.to) { q += ' AND to_id=?'; args.push(c.to); }
+        const n = db.prepare(q).get(...args).c;
+        add(c.id, n >= 1, `${c.type}${c.to ? `→${c.to}` : ''} count=${n}`);
       } else {
         add(c.id, false, `unknown kind: ${c.kind}`);
       }

@@ -18,5 +18,8 @@
 
   { "id": "gitdelta-detection", "kind": "node_field_number", "node": "ARCH:detection", "field": "code_commits_since" },
 
-  { "id": "decided-by-0014",    "kind": "edge_exists", "from": "ADR:0014", "to": "PERSON:cristian-donnachie", "type": "decided-by" }
+  { "id": "decided-by-0014",    "kind": "edge_exists", "from": "ADR:0014", "to": "PERSON:cristian-donnachie", "type": "decided-by" },
+
+  { "id": "commits-ingested",   "kind": "node_type_min", "type": "commit", "min": 5 },
+  { "id": "touches-hooks",      "kind": "edge_type_exists", "type": "touches", "to": "MODULE:hooks" }
 ]

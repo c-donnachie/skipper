@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { openDb, applySchema, SCHEMA_VERSION } from './db.mjs';
 import { repoRoot, headSha } from './repo.mjs';
 import { parseRepo } from './parse.mjs';
+import { ingestGit } from './gitingest.mjs';
 import { docGitStats } from './subsystem.mjs';
 
 export function indexDir(root) {
@@ -32,7 +33,17 @@ export function build({ cwd = process.cwd() } = {}) {
   applySchema(db);
 
   // === M1: parse the corpus into typed nodes + directed edges ===
-  const { nodes, edges } = parseRepo(root);
+  const doc = parseRepo(root);
+  const gitg = ingestGit(root);
+  // merge nodes, dedup by id (persons appear in both); prefer a full name for display
+  const nodeMap = new Map();
+  for (const n of [...doc.nodes, ...gitg.nodes]) {
+    const ex = nodeMap.get(n.id);
+    if (!ex) nodeMap.set(n.id, n);
+    else if (n.title && n.title.includes(' ') && ex.title && !ex.title.includes(' ')) ex.title = n.title;
+  }
+  const nodes = [...nodeMap.values()];
+  const edges = [...doc.edges, ...gitg.edges];
   for (const n of nodes) Object.assign(n, docGitStats(root, n)); // M2: git-delta freshness
   const insNode = db.prepare(
     `INSERT INTO nodes (id,type,title,path,number,status,version_tag,date,self_freshness,reflects_version,git_last_sha,git_last_ts,code_commits_since,h1_line)
