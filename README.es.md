@@ -139,6 +139,7 @@ claude --plugin-dir /ruta/a/skipper
 | Comando | Qué hace |
 |---|---|
 | `/skipper:ask "pregunta libre"` | Skipper elige el especialista correcto por vos. |
+| `/skipper:goal "qué construir"` | Grilling con memoria: consulta tus decisiones, pregunta sólo los huecos abiertos, y enuncia objetivo + criterios de aceptación antes de construir. |
 | `/skipper:refactor <archivo>` | Refactor SOLID con solid-coach. |
 | `/skipper:review` | El especialista del stack revisa el diff vs origin/main. |
 | `/skipper:lib-lookup "consulta"` | WebSearch acotado a los docs oficiales de tu stack. |

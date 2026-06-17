@@ -73,6 +73,7 @@ EOF
     # Auto-routing de especialistas (sin comando): aplicá el experto por contexto.
     [[ -n "$specs" ]] && echo "  • Especialista del stack: al tocar/revisar código o responder preguntas de \"$stack\", aplicá proactivamente el criterio y las leyes del/los especialista(s) ($specs) — sus reglas están en CLAUDE.md (skipper:stack) y su dominio. NO esperes que el usuario tipee /skipper:<especialista>."
     echo "  • Estructura/capas/dependencias → razoná como 'architect'. Code smells/SOLID/refactor → como 'solid-coach'. Reservá /skipper:<especialista> sólo para un refactor dedicado y profundo."
+    echo "  • Antes de implementar algo no-trivial (o ante un pedido difuso): fijá el OBJETIVO. Consultá la memoria por decisiones/constraints que apliquen, preguntá SÓLO los huecos abiertos (no lo ya decidido), y enunciá objetivo + criterios de aceptación antes de codear. (atajo: /skipper:goal)"
     echo "  (Para apagarlo: exportá SKIPPER_PROACTIVE=off.)"
     ;;
 esac

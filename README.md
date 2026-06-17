@@ -144,6 +144,7 @@ claude --plugin-dir /path/to/skipper
 | Command | What it does |
 |---|---|
 | `/skipper:ask "free question"` | Skipper picks the right specialist for you. |
+| `/skipper:goal "what to build"` | Memory-aware grilling: consults your decisions, asks only the open questions, states an explicit goal + acceptance before building. |
 | `/skipper:refactor <file>` | SOLID refactor with solid-coach. |
 | `/skipper:review` | Stack specialist reviews diff vs origin/main. |
 | `/skipper:lib-lookup "query"` | WebSearch scoped to official docs of your stack. |
