@@ -18,7 +18,8 @@ const DOC_DIRS = [
   ['docs/architecture', 'arch', 'ARCH'],
 ];
 
-const DECLARED_SECTIONS = new Set(['more information', 'related']);
+// Sections whose markdown links become declared edges. EN + ES conventions.
+const DECLARED_SECTIONS = new Set(['more information', 'related', 'referencias', 'más información', 'mas informacion', 'relacionados', 'relacionado']);
 
 // Person canonicalization: collapse known aliases of one human to a single node.
 const PERSON_ALIASES = { 'c-donnachie': 'cristian-donnachie' };
@@ -92,12 +93,13 @@ export function parseRepo(root) {
     // frontmatter bullets (comment-safe)
     for (const ln of ncLines.slice(0, 14)) {
       let m;
-      if (node.status == null && (m = ln.match(/^\s*-\s*\*\*Status\*\*\s*:\s*(.+?)\s*$/))) {
-        const vm = m[1].match(/^([A-Za-z ]+?)\s*\(([^)]+)\)\s*$/);
+      // Status/Date frontmatter — handles both `- **Status**: X` (EN/MADR) and `**Status:** X` (ES), incl. Estado/Fecha.
+      if (node.status == null && (m = ln.match(/^\s*-?\s*\*\*\s*(?:Status|Estado)\s*:?\s*\*\*\s*:?\s*(.+?)\s*$/i))) {
+        const vm = m[1].match(/^([A-Za-zÁÉÍÓÚáéíóúñ ]+?)\s*\(([^)]+)\)\s*$/);
         if (vm) { node.status = vm[1].trim(); node.version_tag = vm[2].trim(); }
         else node.status = m[1].trim();
       }
-      if (node.date == null && (m = ln.match(/^\s*-\s*\*\*(?:Date|Created)\*\*\s*:\s*(.+?)\s*$/))) node.date = m[1].trim();
+      if (node.date == null && (m = ln.match(/^\s*-?\s*\*\*\s*(?:Date|Created|Fecha)\s*:?\s*\*\*\s*:?\s*(.+?)\s*$/i))) node.date = m[1].trim();
     }
     // arch freshness blockquote: "> Last updated: DATE. Reflects vX.Y.Z."
     for (const ln of lines.slice(0, 8)) {
@@ -159,7 +161,7 @@ export function parseRepo(root) {
         push(other, d.id, 'superseded-by', 'declared', d.path, i + 1, lines[i], 1);
       }
       // who decided: ADR `Deciders` frontmatter -> PERSON nodes + decided-by edges (derived)
-      if ((m = ncLines[i].match(/^\s*-\s*\*\*Deciders?\*\*\s*:\s*(.+?)\s*$/)) && (d.type === 'adr' || d.type === 'plan')) {
+      if ((m = ncLines[i].match(/^\s*-?\s*\*\*\s*(?:Deciders?|Decididores?|Autor(?:es)?)\s*:?\s*\*\*\s*:?\s*(.+?)\s*$/i)) && (d.type === 'adr' || d.type === 'plan')) {
         for (const raw of m[1].split(/[,·]/)) {
           const name = raw.trim().replace(/^@/, '').trim();
           if (!name) continue;

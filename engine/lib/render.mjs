@@ -21,7 +21,7 @@ export function render(root, b) {
       return { text: L.join('\n'), citations: cites };
     }
     const a = b.anchors[0];
-    const dec = readSection(root, a.path, 'Decision');
+    const dec = readSection(root, a.path, ['Decision', 'Decisión']);
     L.push(`**${a.id} — ${a.title}** · ${a.status || '?'} · \`${a.path}\``);
     if (dec) L.push('', `> ${trunc(dec.text, 320)}`, `  —[quote] ${cite(a.path, dec.line)}`);
     if (b.freshness[a.id]) L.push('', `⚠ freshness: ${b.freshness[a.id].reason} —[inferred]`);
@@ -51,7 +51,7 @@ export function render(root, b) {
     if (!b.governing.length) L.push('- _none seeded for this path_');
     for (const n of b.governing) {
       L.push(`- **${n.id} — ${n.title}** (${n.status || '?'}) \`${n.path}\``);
-      const dec = readSection(root, n.path, 'Decision');
+      const dec = readSection(root, n.path, ['Decision', 'Decisión']);
       if (dec) L.push(`    > ${trunc(dec.text, 200)}  —[quote] ${cite(n.path, dec.line)}`);
     }
     if (b.recentCommits && b.recentCommits.length) {
