@@ -1,6 +1,6 @@
 # Plugin architecture
 
-> Last updated: 2026-04-30. Reflects v1.0.1.
+> Last updated: 2026-06-17. Reflects v1.3.0.
 
 ## Summary
 
@@ -20,10 +20,14 @@ skipper/
 ├── skills/<name>/SKILL.md       # 17 skills, namespaced as /skipper:<name>
 ├── agents/<name>.md             # 9 subagents (skipper, kowalski, 7 technicals)
 ├── hooks/
-│   ├── hooks.json               # event registry (SessionStart, Stop, PostToolUse)
-│   ├── suggest.sh               # Stop hook — suggests /skipper:update
-│   ├── specialist-suggest.sh    # PostToolUse hook — suggests specialist
-│   └── session-start.sh         # SessionStart hook — banner
+│   ├── hooks.json               # event registry (5 events, 7 scripts)
+│   ├── session-start.sh         # SessionStart — banner + standing sync directive
+│   ├── plan-guard.sh            # UserPromptSubmit — plan-mode architecture protocol
+│   ├── plan-exit-guard.sh       # PreToolUse(ExitPlanMode) — pre-plan checklist
+│   ├── docs-sync.sh             # PostToolUse — inject 'update this subsystem doc'
+│   ├── specialist-suggest.sh    # PostToolUse — suggest specialist (>=3 files)
+│   ├── stack-watch.sh           # PostToolUse — keep skipper:stack block in sync
+│   └── suggest.sh               # Stop — enforcer (exit 2: sync docs before yield)
 ├── lib/
 │   ├── detect.sh                # 3-layer stack detector
 │   └── test-detect.sh           # regression tests
@@ -67,10 +71,11 @@ skipper/
 │  - stacks/_layers/<id>/ — composable layers                    │
 │  - skills/update/templates/ — doc templates (ADR, PRD, etc.)   │
 ├───────────────────────────────────────────────────────────────┤
-│  AUTOMATION  (hooks)                                           │
-│  - SessionStart  → banner with stack/layers/docs status        │
-│  - Stop          → suggests /skipper:update (1×/24h)           │
-│  - PostToolUse   → suggests specialist (≥3 files, 30min)       │
+│  AUTOMATION  (proactive hooks, opt-out SKIPPER_PROACTIVE=off) │
+│  - SessionStart     -> banner + standing docs-sync directive  │
+│  - UserPromptSubmit -> plan-mode architecture guard           │
+│  - PostToolUse      -> docs-sync · specialist · stack-watch   │
+│  - Stop             -> enforcer: exit 2 if code unsynced      │
 ├───────────────────────────────────────────────────────────────┤
 │  INFRASTRUCTURE                                                │
 │  - lib/detect.sh — pure bash, no deps, returns JSON            │
@@ -128,7 +133,7 @@ Claude edits src/features/auth/login.tsx
 
 - **Skills ↔ subagents**: through `context: fork` + `agent: <name>` in skill frontmatter. Skill body becomes the subagent's task.
 - **Subagents ↔ filesystem**: via Read/Write/Edit tools (each agent declares allowed tools).
-- **Hooks ↔ skills**: hooks NEVER invoke skills directly (Claude Code limitation). Hooks print suggestions; user runs the slash command.
+- **Hooks ↔ skills**: hooks NEVER invoke skills directly (the harness runs hooks, not Claude). Since v1.1 they inject directives Claude acts on (`additionalContext`) or enforce at `Stop` (`exit 2`) — not just user-facing suggestions; `specialist-suggest` is the one soft nudge that prints a suggestion for the user. See [hooks.md](hooks.md) and ADR-0009.
 - **Stacks ↔ CLAUDE.md**: idempotent via HTML markers (`<!-- skipper:stack -->`, `<!-- skipper:layer:<id> -->`). Multiple `apply` calls don't duplicate.
 
 ## Distribution
