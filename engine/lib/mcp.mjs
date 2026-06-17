@@ -7,8 +7,9 @@
 //   - context_for(path)    -> governing decisions + invariants/risks + freshness, BEFORE an edit
 // Synthesis stays on the caller's Claude (ADR-0014): the server returns evidence, not prose.
 import { createInterface } from 'node:readline';
+import { existsSync } from 'node:fs';
 import { openDb } from './db.mjs';
-import { indexPath } from './build.mjs';
+import { build, indexPath } from './build.mjs';
 import { repoRoot } from './repo.mjs';
 import { ask, contextFor } from './retrieve.mjs';
 import { render } from './render.mjs';
@@ -33,6 +34,7 @@ const TOOLS = [
 
 function runTool(name, args) {
   const root = repoRoot();
+  if (!existsSync(indexPath(root))) build(); // self-sufficient: build the index on first use
   const db = openDb(indexPath(root));
   try {
     let b;

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "skipper-memory": {
+      "command": "node",
+      "args": ["engine/bin/skipper.mjs", "mcp"],
+      "env": { "NODE_NO_WARNINGS": "1" }
+    }
+  }
+}
