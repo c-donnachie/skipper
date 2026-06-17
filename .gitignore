@@ -7,3 +7,6 @@ node_modules/
 
 # skipper hook scratch (session/marker files written by its own hooks)
 .claude/.skipper-*
+
+# skipper memory engine — derived local index (regenerable via `skipper index`)
+.skipper/

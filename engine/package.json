@@ -1,0 +1,18 @@
+{
+  "name": "skipper-memory",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Skipper Memory engine — local, queryable memory over a repo's decision records (ADRs/PRDs/plans + git). OSS, opt-in, reached via MCP (ADR-0017). Phase B / plan-0004.",
+  "type": "module",
+  "bin": {
+    "skipper": "bin/skipper.mjs"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "index": "node bin/skipper.mjs index",
+    "test": "node test/idempotent.mjs"
+  },
+  "license": "MIT"
+}
