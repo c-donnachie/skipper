@@ -111,3 +111,26 @@ export function guard(root, db) {
   for (const [doc, reason] of stale) L.push(`  ⚠ ${doc} ${reason} — update it this turn.`);
   return L.join('\n');
 }
+
+// Hub-node fallback (#5): relate two nodes. Prefer a direct declared edge; else route through
+// a hub doc that declares references to BOTH (labelled doc-mediated, never a fabricated direct
+// edge); else 'not-linked'. Hubs ranked: architecture docs first, then fewest outbound refs.
+export function relate(db, a, b) {
+  const direct = db.prepare(
+    "SELECT from_id,to_id,type,src_file,src_line FROM edges WHERE edge_class='declared' AND ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?))",
+  ).all(a, b, b, a);
+  if (direct.length) return { kind: 'direct', edges: direct };
+
+  const refTo = (id) => new Set(db.prepare("SELECT from_id FROM edges WHERE edge_class='declared' AND type IN ('references','originated-from','implements') AND to_id=?").all(id).map((r) => r.from_id));
+  const toA = refTo(a);
+  const hubs = [...refTo(b)].filter((x) => toA.has(x) && x !== a && x !== b);
+  if (!hubs.length) return { kind: 'not-linked' };
+
+  const ranked = hubs.map((h) => ({
+    h, node: getNode(db, h),
+    out: db.prepare("SELECT COUNT(*) AS c FROM edges WHERE from_id=? AND edge_class='declared'").get(h).c,
+  })).sort((x, y) => (y.node?.type === 'arch' ? 1 : 0) - (x.node?.type === 'arch' ? 1 : 0) || x.out - y.out);
+  const best = ranked[0];
+  const cite = (from, to) => db.prepare("SELECT src_file,src_line FROM edges WHERE from_id=? AND to_id=? AND edge_class='declared' LIMIT 1").get(from, to);
+  return { kind: 'doc-mediated', hub: best.h, hubNode: best.node, citeA: cite(best.h, a), citeB: cite(best.h, b) };
+}

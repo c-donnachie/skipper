@@ -6,7 +6,7 @@ import { openDb } from '../lib/db.mjs';
 import { existsSync } from 'node:fs';
 import { repoRoot } from '../lib/repo.mjs';
 import { ensureGitignore } from '../lib/gitignore.mjs';
-import { ask, contextFor, guard } from '../lib/retrieve.mjs';
+import { ask, contextFor, guard, relate } from '../lib/retrieve.mjs';
 import { render, renderBrief } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
 import { serveMcp } from '../lib/mcp.mjs';
@@ -74,6 +74,29 @@ if (cmd === 'index') {
     finally { db.close(); }
   } else {
     answer((root, db) => contextFor(root, db, p));
+  }
+} else if (cmd === 'relate') {
+  const normId = (s) => { const m = (s || '').match(/^(adr|prd|plan|arch)[-:](.+)$/i); return m ? `${m[1].toUpperCase()}:${m[2]}` : s; };
+  const A = normId(argv[1]);
+  const B = normId(argv[2]);
+  if (!argv[1] || !argv[2]) { console.error('usage: skipper relate <A> <B>   (e.g. ADR-0001 ADR-0014)'); process.exit(2); }
+  const root = repoRoot();
+  const db = openIndex(root);
+  try {
+    const r = relate(db, A, B);
+    if (r.kind === 'direct') {
+      console.log(`${A} and ${B} are directly linked:`);
+      for (const e of r.edges) console.log(`  • ${e.from_id} ${e.type} ${e.to_id}  (${e.src_file}:${e.src_line})`);
+    } else if (r.kind === 'doc-mediated') {
+      console.log(`${A} ↔ ${B} — doc-mediated via ${r.hub}${r.hubNode ? ` (${r.hubNode.title})` : ''}:`);
+      if (r.citeA) console.log(`  • ${r.hub} → ${A}  (${r.citeA.src_file}:${r.citeA.src_line})`);
+      if (r.citeB) console.log(`  • ${r.hub} → ${B}  (${r.citeB.src_file}:${r.citeB.src_line})`);
+      console.log('  (doc-mediated — NOT a direct ADR-to-ADR edge.)');
+    } else {
+      console.log(`${A} and ${B} are not linked in the decision graph.`);
+    }
+  } finally {
+    db.close();
   }
 } else if (cmd === 'guard') {
   const root = repoRoot();

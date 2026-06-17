@@ -23,5 +23,8 @@
   { "id": "commits-ingested",   "kind": "node_type_min", "type": "commit", "min": 5 },
   { "id": "touches-hooks",      "kind": "edge_type_exists", "type": "touches", "to": "MODULE:hooks" },
 
-  { "id": "mismatch-specialists", "kind": "mismatch_exists", "node": "ADR:0004" }
+  { "id": "mismatch-specialists", "kind": "mismatch_exists", "node": "ADR:0004" },
+
+  { "id": "hub-direct-0015-0016", "kind": "relate", "a": "ADR:0015", "b": "ADR:0016", "expect_kind": "direct" },
+  { "id": "hub-mediated-0001-0014", "kind": "relate", "a": "ADR:0001", "b": "ADR:0014", "expect_kind": "doc-mediated", "expect_hub": "ADR:0017" }
 ]

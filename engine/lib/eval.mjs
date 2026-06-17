@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ask, contextFor } from './retrieve.mjs';
+import { ask, contextFor, relate } from './retrieve.mjs';
 import { render } from './render.mjs';
 import { verifyCitations } from './verify.mjs';
 
@@ -79,6 +79,9 @@ export function runGold(root, db) {
       } else if (c.kind === 'mismatch_exists') {
         const n = db.prepare('SELECT COUNT(*) AS c FROM mismatches WHERE node_a=? OR node_b=?').get(c.node, c.node).c;
         add(c.id, n >= 1, `mismatches involving ${c.node}=${n}`);
+      } else if (c.kind === 'relate') {
+        const r = relate(db, c.a, c.b);
+        add(c.id, r.kind === c.expect_kind && (!c.expect_hub || r.hub === c.expect_hub), `kind=${r.kind}${r.hub ? ` via ${r.hub}` : ''}`);
       } else {
         add(c.id, false, `unknown kind: ${c.kind}`);
       }
