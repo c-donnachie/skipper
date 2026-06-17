@@ -8,6 +8,29 @@ Status: **Phase B complete** (M0–M6 + extras) — see [plan-0004](../docs/plan
 
 - **Node ≥ 22.5** — uses the built-in `node:sqlite` (no npm/native deps, no database server). The index is a single local file under `.skipper/index/` (gitignored, derived, disposable). LLM synthesis (optional) shells out to your own `claude` CLI — no bundled key (ADR-0014).
 
+## Install in any repo
+
+The engine indexes whatever repo you run it in (its `docs/` ADRs/PRDs/plans + git). To use it across your own projects — no npm publish needed:
+
+```bash
+# once, from this engine/ dir — exposes `skipper` globally
+npm link              # or: npm install -g .
+
+# then in ANY repo:
+cd ~/my-project
+skipper index
+skipper ask "why did we choose X?"
+skipper context src/payments/
+```
+
+For agents in that repo, drop a `.mcp.json` at its root:
+
+```json
+{ "mcpServers": { "skipper-memory": { "command": "skipper", "args": ["mcp"] } } }
+```
+
+The plugin's proactive hooks (`memory-guard`/`memory-stop`) auto-detect `skipper` on `PATH` and light up; they no-op if it isn't installed. **The memory is only as rich as the repo's decision records** — adopt the skipper docs structure (`/skipper:init-structure`) and write ADRs as you decide things. To share it beyond your machine: `npm publish` (consider a scoped name if `skipper-memory` is taken).
+
 ## Usage
 
 ```bash

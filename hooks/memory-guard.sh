@@ -11,10 +11,14 @@ input="$(cat)"
 root="$(git rev-parse --show-toplevel 2>/dev/null)"
 [ -z "$root" ] && exit 0
 
-# the engine is a separate opt-in package — no-op if absent
-engine="$root/engine/bin/skipper.mjs"
-[ -f "$engine" ] || exit 0
-command -v node >/dev/null 2>&1 || exit 0
+# the engine is a separate opt-in package — resolve a global `skipper`, else the local engine; no-op if neither
+if command -v skipper >/dev/null 2>&1; then
+  run() { NODE_NO_WARNINGS=1 skipper "$@"; }
+elif [ -f "$root/engine/bin/skipper.mjs" ] && command -v node >/dev/null 2>&1; then
+  run() { NODE_NO_WARNINGS=1 node "$root/engine/bin/skipper.mjs" "$@"; }
+else
+  exit 0
+fi
 
 # edited file path from the hook payload
 fp="$(printf '%s' "$input" | python3 -c "import sys,json
@@ -42,7 +46,7 @@ if [ -f "$marker" ]; then
 fi
 
 # ask the engine for the governing decisions (compact, injectable). Empty => nothing to say.
-brief="$(NODE_NO_WARNINGS=1 node "$engine" context "$rel" --brief 2>/dev/null)"
+brief="$(run context "$rel" --brief 2>/dev/null)"
 [ -z "$brief" ] && exit 0
 
 echo "$now" > "$marker"

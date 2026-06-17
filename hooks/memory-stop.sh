@@ -12,9 +12,14 @@ input="$(cat)"
 root="$(git rev-parse --show-toplevel 2>/dev/null)"
 [ -z "$root" ] && exit 0
 
-engine="$root/engine/bin/skipper.mjs"
-[ -f "$engine" ] || exit 0
-command -v node >/dev/null 2>&1 || exit 0
+# resolve a global `skipper`, else the local engine; no-op if neither
+if command -v skipper >/dev/null 2>&1; then
+  run() { NODE_NO_WARNINGS=1 skipper "$@"; }
+elif [ -f "$root/engine/bin/skipper.mjs" ] && command -v node >/dev/null 2>&1; then
+  run() { NODE_NO_WARNINGS=1 node "$root/engine/bin/skipper.mjs" "$@"; }
+else
+  exit 0
+fi
 
 # loop-safe: never re-fire inside a stop-hook continuation
 stop_active="$(printf '%s' "$input" | python3 -c "import sys,json
@@ -33,7 +38,7 @@ if [ -f "$marker" ]; then
   if [ "$(( now - last ))" -lt 1800 ]; then exit 0; fi
 fi
 
-block="$(NODE_NO_WARNINGS=1 node "$engine" guard 2>/dev/null)"
+block="$(run guard 2>/dev/null)"
 [ -z "$block" ] && exit 0   # nothing governed changed → let the turn end
 
 echo "$now" > "$marker"
