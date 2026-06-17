@@ -2,6 +2,25 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-06-17
+
+### Added
+- **🧠 Skipper Memory** — a new **opt-in OSS engine** (`engine/`, Node + built-in `node:sqlite`, zero deps) that turns the markdown skipper already produces into a **queryable, cited, drift-aware memory**. Separate package, reached via MCP — the plugin stays zero-install (ADR-0017). Scoped by PRD-0004, built per plan-0004; validated **GO 5/5** via a multi-agent wizard-of-oz.
+  - **Typed directed graph** of ADRs/PRDs/plans/arch + commits/people/modules; every declared edge carries `file:line` provenance. Decoy-safe supersession; never fabricates an outbound edge from a link-less ADR.
+  - **`skipper ask`** — cited, graph-expanded answers (LLM prose via *your own* `claude` CLI, or `--no-llm` deterministic). **`skipper context <path>`** — the ADRs governing a path + invariants + freshness + recent activity. **`skipper relate <A> <B>`** — direct / doc-mediated-via-hub / not-linked.
+  - **`skipper-memory` MCP server** (`ask`, `context_for`) — a Conductor agent consults the project memory **before** editing. *Conductor = execution, Skipper = knowledge.*
+  - **Freshness/drift**: doc version vs `plugin.json` **+** git-delta (commits touching the subsystem since the doc was last edited). Plus **who-decided**, **what-touched**, and **count-mismatch** flags.
+  - **`skipper eval`** — a 19-check deterministic **gold regression gate** for CI.
+- **Proactive memory hooks** (ADR-0018) — `hooks/memory-guard.sh` (PostToolUse) injects the ADRs governing the edited path as `additionalContext`; `hooks/memory-stop.sh` (Stop) `exit 2`s if governed code changed, so Claude self-verifies compliance before yielding. No-op without the engine; loop-safe, throttled, opt-out `SKIPPER_PROACTIVE=off`.
+- **`skipper-memory.config.json`** — committed per-repo config: `governs` (code path → governing ADRs) and `subsystems` (arch doc → code dir); falls back to built-in defaults.
+- New decision records **ADR-0014…0018** (open-core boundary, MVP scope, connector strategy, engine-as-separate-package, proactive memory) + **PRD-0004** + **plan-0004**.
+
+### Changed
+- `hooks/hooks.json` now wires **9 scripts** across 5 events — added `memory-guard.sh` (PostToolUse Edit|Write) and `memory-stop.sh` (Stop).
+- `docs/architecture/hooks.md` + `plugin.md` corrected to the **proactive model** (were stale at v1.0.1 / "suggest, never execute") — drift surfaced by Skipper Memory's own validation.
+
+---
+
 ## [1.3.0] — 2026-05-30
 
 ### Added

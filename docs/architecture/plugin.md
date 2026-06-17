@@ -1,6 +1,6 @@
 # Plugin architecture
 
-> Last updated: 2026-06-17. Reflects v1.3.0.
+> Last updated: 2026-06-17. Reflects v1.4.0.
 
 ## Summary
 
