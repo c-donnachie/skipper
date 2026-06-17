@@ -32,3 +32,7 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0017 | [Memory engine as a separate opt-in package, not bundled in the plugin](0017-memory-engine-separate-opt-in-package.md) | Proposed |
 | 0018 | [Proactive memory: hook auto-injects governing decisions on edit](0018-proactive-memory-injection.md) | Proposed |
 | 0019 | [Proactive specialist auto-routing (inspired by Superpowers)](0019-proactive-specialist-auto-routing.md) | Proposed |
+| 0020 | [Skipper Platform: vision as staged north star (extends ADR-0016)](0020-platform-staging-vision-north-star.md) | Proposed |
+| 0021 | [Open-core fence: engine features are never paywalled](0021-open-core-fence.md) | Proposed |
+| 0022 | [SaaS privacy posture: host graph + docs, never source by default](0022-saas-privacy-posture.md) | Proposed |
+| 0023 | [Platform is a separate closed-source repo that consumes the engine as a package](0023-platform-separate-closed-repo.md) | Proposed |
