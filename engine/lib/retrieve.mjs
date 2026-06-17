@@ -55,7 +55,13 @@ export function ask(root, db, question) {
     for (const t of qToks) { if (title.includes(t)) s += 10; if (path.includes(t)) s += 5; }
     return { n, s };
   }).filter((x) => x.s > 0).sort((a, b) => b.s - a.s);
-  return bundle(root, db, scored.slice(0, 3).map((x) => x.n), { kind: 'ask', question });
+  const b = bundle(root, db, scored.slice(0, 3).map((x) => x.n), { kind: 'ask', question });
+  const top = b.anchors[0];
+  if (top) {
+    b.deciders = db.prepare("SELECT to_id FROM edges WHERE from_id=? AND type='decided-by'").all(top.id)
+      .map((r) => getNode(db, r.to_id)).filter(Boolean).map((n) => n.title);
+  }
+  return b;
 }
 
 export function contextFor(root, db, path) {

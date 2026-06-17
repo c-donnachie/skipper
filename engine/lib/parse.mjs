@@ -20,6 +20,13 @@ const DOC_DIRS = [
 
 const DECLARED_SECTIONS = new Set(['more information', 'related']);
 
+// Person canonicalization: collapse known aliases of one human to a single node.
+const PERSON_ALIASES = { 'c-donnachie': 'cristian-donnachie' };
+function personId(name) {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return `PERSON:${PERSON_ALIASES[slug] || slug}`;
+}
+
 function listDocs(root) {
   const out = [];
   for (const [rel, type, prefix] of DOC_DIRS) {
@@ -60,6 +67,7 @@ export function parseRepo(root) {
 
   const nodes = [];
   const edges = [];
+  const persons = new Map();
   const push = (from_id, to_id, type, edge_class, src_file, src_line, raw_text, resolved) =>
     edges.push({ from_id, to_id, type, edge_class, src_file, src_line, raw_text: raw_text.trim(), resolved });
 
@@ -150,8 +158,20 @@ export function parseRepo(root) {
         push(d.id, other, 'supersedes', 'declared', d.path, i + 1, lines[i], idSet.has(other) ? 1 : 0);
         push(other, d.id, 'superseded-by', 'declared', d.path, i + 1, lines[i], 1);
       }
+      // who decided: ADR `Deciders` frontmatter -> PERSON nodes + decided-by edges (derived)
+      if ((m = ncLines[i].match(/^\s*-\s*\*\*Deciders?\*\*\s*:\s*(.+?)\s*$/)) && (d.type === 'adr' || d.type === 'plan')) {
+        for (const raw of m[1].split(/[,·]/)) {
+          const name = raw.trim().replace(/^@/, '').trim();
+          if (!name) continue;
+          const pid = personId(name);
+          if (!persons.has(pid)) persons.set(pid, { id: pid, type: 'person', title: name, path: null, number: null, status: null, version_tag: null, date: null, self_freshness: null, reflects_version: null, h1_line: null });
+          else if (name.includes(' ') && !persons.get(pid).title.includes(' ')) persons.get(pid).title = name; // prefer the full name over a handle
+          push(d.id, pid, 'decided-by', 'derived', d.path, i + 1, lines[i], 1);
+        }
+      }
     }
   }
 
+  for (const p of persons.values()) nodes.push(p);
   return { nodes, edges };
 }

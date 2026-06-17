@@ -25,6 +25,7 @@ export function render(root, b) {
     L.push(`**${a.id} — ${a.title}** · ${a.status || '?'} · \`${a.path}\``);
     if (dec) L.push('', `> ${trunc(dec.text, 320)}`, `  —[quote] ${cite(a.path, dec.line)}`);
     if (b.freshness[a.id]) L.push('', `⚠ freshness: ${b.freshness[a.id].reason} —[inferred]`);
+    if (b.deciders && b.deciders.length) L.push('', `Decided by: ${b.deciders.map((d) => '@' + d).join(', ')}`);
 
     const rel = dedupe(b.edges.filter((e) => e.from_id === a.id || e.to_id === a.id));
     if (rel.length) {
