@@ -18,6 +18,16 @@ grep -q "skipper:stack" CLAUDE.md || exit 0
 stack=$(awk '/<!-- skipper:stack -->/{f=1} f && /^## Stack:/{print; exit}' CLAUDE.md | sed 's/^## Stack: *//')
 [[ -z "$stack" ]] && stack="(stack desconocido)"
 
+# Especialistas relevantes según el stack (para auto-routing proactivo, estilo "skills se activan solas")
+sl=$(printf '%s' "$stack" | tr '[:upper:]' '[:lower:]')
+specs=""
+case "$sl" in *expo*|*"react native"*|*"react-native"*) specs="$specs react-native" ;; esac
+case "$sl" in *next*) specs="$specs nextjs" ;; esac
+case "$sl" in *vite*) specs="$specs react-vite" ;; esac
+case "$sl" in *node*|*fastify*) specs="$specs node-backend" ;; esac
+case "$sl" in *supabase*) specs="$specs supabase" ;; esac
+specs=$(printf '%s' "$specs" | xargs 2>/dev/null)
+
 # Detecta layers
 layers=$(grep -oE "<!-- skipper:layer:[a-z-]+" CLAUDE.md 2>/dev/null | sed 's/<!-- skipper:layer://' | sort -u | tr '\n' ' ')
 [[ -z "$layers" ]] && layers="(sin layers)"
@@ -59,7 +69,10 @@ case "${SKIPPER_PROACTIVE:-on}" in
   • Si tomas una decisión con tradeoffs (lib, patrón, integración, deprecación), registra un ADR en docs/decisions/.
   • Mantén el bloque skipper:stack de CLAUDE.md alineado con package.json cuando agregues/quites dependencias relevantes.
   • No documentes cambios triviales. Sé conciso (< 200 líneas por doc).
-  (Para apagarlo: exporta SKIPPER_PROACTIVE=off.)
 EOF
+    # Auto-routing de especialistas (sin comando): aplicá el experto por contexto.
+    [[ -n "$specs" ]] && echo "  • Especialista del stack: al tocar/revisar código o responder preguntas de \"$stack\", aplicá proactivamente el criterio y las leyes del/los especialista(s) ($specs) — sus reglas están en CLAUDE.md (skipper:stack) y su dominio. NO esperes que el usuario tipee /skipper:<especialista>."
+    echo "  • Estructura/capas/dependencias → razoná como 'architect'. Code smells/SOLID/refactor → como 'solid-coach'. Reservá /skipper:<especialista> sólo para un refactor dedicado y profundo."
+    echo "  (Para apagarlo: exportá SKIPPER_PROACTIVE=off.)"
     ;;
 esac

@@ -1,7 +1,7 @@
 {
   "_comment": "skipper-memory per-repo config (committed; read by the engine, falls back to built-in defaults if absent). 'governs': code-path prefix -> governing ADRs (for context_for / Stop enforcer). 'subsystems': arch doc -> code dir (for git-delta freshness).",
   "governs": {
-    "hooks/": ["ADR-0009", "ADR-0010", "ADR-0011", "ADR-0018"],
+    "hooks/": ["ADR-0009", "ADR-0010", "ADR-0011", "ADR-0018", "ADR-0019"],
     "agents/": ["ADR-0002", "ADR-0004"],
     "skills/": ["ADR-0002", "ADR-0004"],
     "lib/": ["ADR-0008"],
