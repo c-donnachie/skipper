@@ -3,6 +3,22 @@
   "version": "0.1.0",
   "description": "Skipper Memory engine — local, queryable memory over a repo's decision records (ADRs/PRDs/plans + git). OSS, opt-in, reached via MCP (ADR-0017). Phase B / plan-0004.",
   "type": "module",
+  "main": "./lib/index.mjs",
+  "exports": {
+    ".": "./lib/index.mjs",
+    "./parse": "./lib/parse.mjs",
+    "./gitingest": "./lib/gitingest.mjs",
+    "./mismatch": "./lib/mismatch.mjs",
+    "./retrieve": "./lib/retrieve.mjs",
+    "./render": "./lib/render.mjs",
+    "./verify": "./lib/verify.mjs",
+    "./subsystem": "./lib/subsystem.mjs",
+    "./eval": "./lib/eval.mjs",
+    "./db": "./lib/db.mjs",
+    "./schema.sql": "./lib/schema.sql",
+    "./eval/gold.json": "./eval/gold.json",
+    "./package.json": "./package.json"
+  },
   "bin": {
     "skipper": "bin/skipper.mjs"
   },

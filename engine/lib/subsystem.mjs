@@ -28,8 +28,8 @@ function loadConfig(root) {
 }
 const normAdr = (id) => id.replace(/^([A-Za-z]+)-/, (m, g) => `${g.toUpperCase()}:`);
 
-export function governingAdrs(root, path) {
-  const { governs } = loadConfig(root);
+export function governingAdrs(root, path, cfg = loadConfig(root)) {
+  const { governs } = cfg;
   const p = path.replace(/^\.\//, '').replace(/^\//, '');
   for (const [prefix, adrs] of Object.entries(governs)) {
     if (p === prefix.replace(/\/$/, '') || p.startsWith(prefix)) return adrs.map(normAdr);
@@ -63,8 +63,8 @@ export const STALE_CODE_COMMITS = 12;
 
 // git-delta: when was the doc last edited, and how many commits touched its code since.
 // Computed at build time and stored on the node (query stays fast). Deterministic for a HEAD.
-export function docGitStats(root, node) {
-  const dir = loadConfig(root).subsystems[node.path];
+export function docGitStats(root, node, cfg = loadConfig(root)) {
+  const dir = cfg.subsystems[node.path];
   if (!dir) return {};
   try {
     const lastSha = git(['log', '-1', '--format=%H', '--', node.path], root);

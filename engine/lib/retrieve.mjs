@@ -13,10 +13,10 @@ const outE = (db, id) => db.prepare("SELECT * FROM edges WHERE from_id=? AND edg
 const inE = (db, id) => db.prepare("SELECT * FROM edges WHERE to_id=? AND edge_class='declared'").all(id);
 
 // Read the first non-empty paragraph of a `## <heading>` section, with its 1-based line.
-export function readSection(root, path, headings) {
+export function readSection(root, path, headings, readDoc = (p) => readFileSync(join(root, p), 'utf8')) {
   const cands = (Array.isArray(headings) ? headings : [headings]).map((x) => x.toLowerCase());
   let lines;
-  try { lines = readFileSync(join(root, path), 'utf8').split('\n'); } catch { return null; }
+  try { lines = readDoc(path).split('\n'); } catch { return null; }
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(/^##\s+(.*)/);
     if (m && cands.some((h) => m[1].trim().toLowerCase().startsWith(h))) {

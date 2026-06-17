@@ -9,7 +9,7 @@ const dedupe = (edges) => {
 };
 const trunc = (s, n) => (s.length > n ? s.slice(0, n).trimEnd() + '…' : s);
 
-export function render(root, b) {
+export function render(root, b, readDoc) {
   const cites = [];
   const cite = (path, line) => { cites.push({ path, line }); return `\`${path}:${line}\``; };
   const L = [];
@@ -21,7 +21,7 @@ export function render(root, b) {
       return { text: L.join('\n'), citations: cites };
     }
     const a = b.anchors[0];
-    const dec = readSection(root, a.path, ['Decision', 'Decisión']);
+    const dec = readSection(root, a.path, ['Decision', 'Decisión'], readDoc);
     L.push(`**${a.id} — ${a.title}** · ${a.status || '?'} · \`${a.path}\``);
     if (dec) L.push('', `> ${trunc(dec.text, 320)}`, `  —[quote] ${cite(a.path, dec.line)}`);
     if (b.freshness[a.id]) L.push('', `⚠ freshness: ${b.freshness[a.id].reason} —[inferred]`);
@@ -51,7 +51,7 @@ export function render(root, b) {
     if (!b.governing.length) L.push('- _(none configured — see related below)_');
     for (const n of b.governing) {
       L.push(`- **${n.id} — ${n.title}** (${n.status || '?'}) \`${n.path}\``);
-      const dec = readSection(root, n.path, ['Decision', 'Decisión']);
+      const dec = readSection(root, n.path, ['Decision', 'Decisión'], readDoc);
       if (dec) L.push(`    > ${trunc(dec.text, 200)}  —[quote] ${cite(n.path, dec.line)}`);
     }
     if (b.relevant && b.relevant.length) {

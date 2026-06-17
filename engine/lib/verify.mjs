@@ -4,14 +4,14 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-export function verifyCitations(root, citations) {
+export function verifyCitations(root, citations, readDoc = (p) => readFileSync(join(root, p), 'utf8')) {
   const cache = new Map();
   let ok = 0;
   const failures = [];
   for (const c of citations) {
     let lines = cache.get(c.path);
     if (lines === undefined) {
-      try { lines = readFileSync(join(root, c.path), 'utf8').split('\n'); } catch { lines = null; }
+      try { lines = readDoc(c.path).split('\n'); } catch { lines = null; }
       cache.set(c.path, lines);
     }
     if (lines && c.line >= 1 && c.line <= lines.length && lines[c.line - 1].trim() !== '') ok++;
