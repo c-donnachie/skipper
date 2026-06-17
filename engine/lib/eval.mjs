@@ -76,6 +76,9 @@ export function runGold(root, db) {
         if (c.to) { q += ' AND to_id=?'; args.push(c.to); }
         const n = db.prepare(q).get(...args).c;
         add(c.id, n >= 1, `${c.type}${c.to ? `→${c.to}` : ''} count=${n}`);
+      } else if (c.kind === 'mismatch_exists') {
+        const n = db.prepare('SELECT COUNT(*) AS c FROM mismatches WHERE node_a=? OR node_b=?').get(c.node, c.node).c;
+        add(c.id, n >= 1, `mismatches involving ${c.node}=${n}`);
       } else {
         add(c.id, false, `unknown kind: ${c.kind}`);
       }

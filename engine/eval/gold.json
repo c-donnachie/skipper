@@ -21,5 +21,7 @@
   { "id": "decided-by-0014",    "kind": "edge_exists", "from": "ADR:0014", "to": "PERSON:cristian-donnachie", "type": "decided-by" },
 
   { "id": "commits-ingested",   "kind": "node_type_min", "type": "commit", "min": 5 },
-  { "id": "touches-hooks",      "kind": "edge_type_exists", "type": "touches", "to": "MODULE:hooks" }
+  { "id": "touches-hooks",      "kind": "edge_type_exists", "type": "touches", "to": "MODULE:hooks" },
+
+  { "id": "mismatch-specialists", "kind": "mismatch_exists", "node": "ADR:0004" }
 ]

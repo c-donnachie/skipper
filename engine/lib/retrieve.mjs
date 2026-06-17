@@ -60,6 +60,7 @@ export function ask(root, db, question) {
   if (top) {
     b.deciders = db.prepare("SELECT to_id FROM edges WHERE from_id=? AND type='decided-by'").all(top.id)
       .map((r) => getNode(db, r.to_id)).filter(Boolean).map((n) => n.title);
+    b.mismatches = db.prepare('SELECT * FROM mismatches WHERE node_a=? OR node_b=?').all(top.id, top.id);
   }
   return b;
 }

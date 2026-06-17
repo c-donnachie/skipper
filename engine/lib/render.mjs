@@ -32,6 +32,10 @@ export function render(root, b) {
       L.push('', 'Related decisions (directed):');
       for (const e of rel) L.push(`- ${e.from_id} ${e.type} ${e.to_id}  —[quote] ${cite(e.src_file, e.src_line)}`);
     }
+    if (b.mismatches && b.mismatches.length) {
+      L.push('', 'Conflicts (flagged, not resolved):');
+      for (const m of b.mismatches) L.push(`  ⚠ "${m.claim_a}" (${m.src_a}:${m.line_a}) vs "${m.claim_b}" (${m.src_b}:${m.line_b}) —[inferred] ${m.note}`);
+    }
     if (b.anchors.length > 1) {
       L.push('', `Other matches: ${b.anchors.slice(1).map((n) => `${n.id} (${trunc(n.title || '', 40)})`).join(' · ')}`);
     }

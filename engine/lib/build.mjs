@@ -11,6 +11,7 @@ import { openDb, applySchema, SCHEMA_VERSION } from './db.mjs';
 import { repoRoot, headSha } from './repo.mjs';
 import { parseRepo } from './parse.mjs';
 import { ingestGit } from './gitingest.mjs';
+import { detectMismatches } from './mismatch.mjs';
 import { docGitStats } from './subsystem.mjs';
 
 export function indexDir(root) {
@@ -62,6 +63,10 @@ export function build({ cwd = process.cwd() } = {}) {
   );
   for (const e of edges) {
     insEdge.run(e.from_id, e.to_id, e.type, e.edge_class, e.src_file ?? null, e.src_line ?? null, e.raw_text ?? null, e.resolved);
+  }
+  const insMis = db.prepare('INSERT INTO mismatches (node_a,src_a,line_a,claim_a,node_b,src_b,line_b,claim_b,kind,note) VALUES (?,?,?,?,?,?,?,?,?,?)');
+  for (const m of detectMismatches(root, doc.nodes)) {
+    insMis.run(m.node_a, m.src_a, m.line_a, m.claim_a, m.node_b, m.src_b, m.line_b, m.claim_b, m.kind, m.note);
   }
 
   const setMeta = db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)');
