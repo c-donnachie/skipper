@@ -48,11 +48,15 @@ export function render(root, b) {
       L.push('Subsystem doc: _none resolved_');
     }
     L.push('', 'Governing decisions:');
-    if (!b.governing.length) L.push('- _none seeded for this path_');
+    if (!b.governing.length) L.push('- _(none configured — see related below)_');
     for (const n of b.governing) {
       L.push(`- **${n.id} — ${n.title}** (${n.status || '?'}) \`${n.path}\``);
       const dec = readSection(root, n.path, ['Decision', 'Decisión']);
       if (dec) L.push(`    > ${trunc(dec.text, 200)}  —[quote] ${cite(n.path, dec.line)}`);
+    }
+    if (b.relevant && b.relevant.length) {
+      L.push('', 'Related decisions (by relevance):');
+      for (const n of b.relevant) L.push(`- ${n.id} — ${n.title} \`${n.path}\``);
     }
     if (b.recentCommits && b.recentCommits.length) {
       L.push('', 'Recent activity:');
@@ -70,12 +74,14 @@ export function render(root, b) {
 export function renderBrief(b) {
   if (b.kind !== 'context') return '';
   const gov = b.governing || [];
+  const rel = b.relevant || [];
   const sub = b.subsystemDoc;
   const subStale = sub ? b.freshness[sub.id] : null;
-  if (!gov.length && !subStale) return '';
-  const L = [`🐧 skipper memory — \`${b.path}\` is governed by ${gov.length} decision(s):`];
-  for (const n of gov) L.push(`  • ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
-  if (sub) L.push(`  subsystem doc: ${sub.path}${subStale ? ` ⚠ ${subStale.reason}` : ' ✓ fresh'}`);
-  L.push(`Comply with these decisions before changing behavior; run \`skipper context ${b.path}\` for detail.`);
+  if (!gov.length && !rel.length && !subStale) return '';
+  const L = [`🐧 skipper memory — context for \`${b.path}\`:`];
+  for (const n of gov) L.push(`  • governs · ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
+  for (const n of rel) L.push(`  • related · ${n.id.replace(':', '-')} ${n.title}`);
+  if (sub) L.push(`  • subsystem doc · ${sub.path}${subStale ? ` ⚠ ${subStale.reason}` : ' ✓ fresh'}`);
+  L.push(`Consult these before changing behavior; run \`skipper context ${b.path}\` for detail.`);
   return L.join('\n');
 }

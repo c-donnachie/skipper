@@ -11,8 +11,10 @@ input="$(cat)"
 root="$(git rev-parse --show-toplevel 2>/dev/null)"
 [ -z "$root" ] && exit 0
 
-# the engine is a separate opt-in package — resolve a global `skipper`, else the local engine; no-op if neither
-if command -v skipper >/dev/null 2>&1; then
+# resolve the engine: bundled in the plugin (zero-install, works in any repo) > global `skipper` > local engine
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ] && [ -f "$CLAUDE_PLUGIN_ROOT/engine/bin/skipper.mjs" ] && command -v node >/dev/null 2>&1; then
+  run() { NODE_NO_WARNINGS=1 node "$CLAUDE_PLUGIN_ROOT/engine/bin/skipper.mjs" "$@"; }
+elif command -v skipper >/dev/null 2>&1; then
   run() { NODE_NO_WARNINGS=1 skipper "$@"; }
 elif [ -f "$root/engine/bin/skipper.mjs" ] && command -v node >/dev/null 2>&1; then
   run() { NODE_NO_WARNINGS=1 node "$root/engine/bin/skipper.mjs" "$@"; }

@@ -4,6 +4,10 @@ import { join } from 'node:path';
 import { resolveSubsystem, governingAdrs, freshnessFor } from './subsystem.mjs';
 import { git } from './repo.mjs';
 
+// word-boundary match (avoids substring false positives like "algo" ⊂ "algoritmo")
+const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const wordHit = (text, tok) => new RegExp(`\\b${esc(tok)}\\b`, 'i').test(text);
+
 const getNode = (db, id) => db.prepare('SELECT * FROM nodes WHERE id=?').get(id) || null;
 const outE = (db, id) => db.prepare("SELECT * FROM edges WHERE from_id=? AND edge_class='declared'").all(id);
 const inE = (db, id) => db.prepare("SELECT * FROM edges WHERE to_id=? AND edge_class='declared'").all(id);
@@ -52,7 +56,7 @@ export function ask(root, db, question) {
     if (explicit.includes(n.id)) s += 100;
     const title = (n.title || '').toLowerCase();
     const path = (n.path || '').toLowerCase();
-    for (const t of qToks) { if (title.includes(t)) s += 10; if (path.includes(t)) s += 5; }
+    for (const t of qToks) { if (wordHit(title, t)) s += 10; if (path.includes(t)) s += 5; }
     return { n, s };
   }).filter((x) => x.s > 0).sort((a, b) => b.s - a.s);
   const b = bundle(root, db, scored.slice(0, 3).map((x) => x.n), { kind: 'ask', question });
@@ -69,9 +73,25 @@ export function contextFor(root, db, path) {
   const sub = resolveSubsystem(db, path);
   const govIds = governingAdrs(root, path);
   const governing = govIds.map((id) => getNode(db, id)).filter(Boolean);
+  // retrieval: decisions relevant to the path's tokens — works with NO governance config
+  const govSet = new Set(govIds);
+  const toks = path.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 4);
+  const relevant = toks.length === 0 ? [] : db.prepare("SELECT * FROM nodes WHERE type IN ('adr','prd','plan')").all()
+    .map((n) => {
+      let s = 0;
+      const title = (n.title || '').toLowerCase();
+      const p = (n.path || '').toLowerCase();
+      for (const t of toks) { if (wordHit(title, t)) s += 10; if (p.includes(t)) s += 5; }
+      return { n, s };
+    })
+    .filter((x) => x.s > 0 && !govSet.has(x.n.id))
+    .sort((a, b2) => b2.s - a.s)
+    .slice(0, 4)
+    .map((x) => x.n);
   const b = bundle(root, db, [sub, ...governing], { kind: 'context', path });
   b.subsystemDoc = sub;
   b.governing = governing;
+  b.relevant = relevant;
   const seg = (path.replace(/^\.?\//, '').split('/')[0]) || '';
   if (seg) {
     b.recentCommits = db.prepare(
