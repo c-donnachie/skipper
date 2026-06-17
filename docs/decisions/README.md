@@ -26,3 +26,7 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0011 | [Dependency-change & subsystem-aware proactive hooks](0011-dependency-and-subsystem-proactive-hooks.md) | Accepted (v1.1.0) |
 | 0012 | [Next.js profiles adopt layered + Container architecture](0012-nextjs-layered-container-architecture.md) | Accepted (v1.2.0) |
 | 0013 | [MADR-aligned ADR lifecycle + supersede workflow](0013-madr-aligned-adr-lifecycle.md) | Accepted (v1.3.0) |
+| 0014 | [Open-core boundary: engine OSS, persistent shared memory SaaS](0014-open-core-boundary.md) | Accepted |
+| 0015 | [MVP scope: retrieval agent first, visualizations later](0015-mvp-scope-agent-first.md) | Proposed |
+| 0016 | [Connector strategy: deferred, repo-first, no "connect everything"](0016-connector-strategy-deferred.md) | Accepted |
+| 0017 | [Memory engine as a separate opt-in package, not bundled in the plugin](0017-memory-engine-separate-opt-in-package.md) | Proposed |
