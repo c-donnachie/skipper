@@ -1,6 +1,6 @@
 ---
-description: Supersedes an existing ADR with a new one. ADRs are immutable — when a past decision changes you don't rewrite it, you supersede it. Marks the old ADR "Superseded by ADR-NNNN", creates the replacement with "Supersedes ADR-MMMM", links both, and updates the index. Takes the old ADR number and the new title.
-argument-hint: [old-adr-number] [new title]
+description: "Supersedes an existing ADR with a new one. ADRs are immutable — when a past decision changes you don't rewrite it, you supersede it. Marks the old ADR 'Superseded by ADR-NNNN', creates the replacement with 'Supersedes ADR-MMMM', links both, and updates the index. Takes the old ADR number and the new title."
+argument-hint: "[old-adr-number] [new title]"
 allowed-tools: Read Write Edit Bash(ls *) Bash(mkdir *) Bash(date *) Bash(printf *) Bash(git config *) Bash(grep *) Bash(basename *)
 ---
 
