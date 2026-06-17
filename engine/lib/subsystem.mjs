@@ -7,7 +7,7 @@ import { join, basename } from 'node:path';
 // Seed: code-path prefix -> governing ADR ids. Graph edges are too sparse for code
 // modules to derive this, so it is curated for Phase B (critic must-fix #3).
 const GOVERNS = [
-  ['hooks/',  ['ADR:0009', 'ADR:0010', 'ADR:0011']],
+  ['hooks/',  ['ADR:0009', 'ADR:0010', 'ADR:0011', 'ADR:0018']],
   ['agents/', ['ADR:0002', 'ADR:0004']],
   ['skills/', ['ADR:0002', 'ADR:0004']],
   ['lib/',    ['ADR:0008']],

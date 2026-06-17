@@ -30,3 +30,4 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0015 | [MVP scope: retrieval agent first, visualizations later](0015-mvp-scope-agent-first.md) | Proposed |
 | 0016 | [Connector strategy: deferred, repo-first, no "connect everything"](0016-connector-strategy-deferred.md) | Accepted |
 | 0017 | [Memory engine as a separate opt-in package, not bundled in the plugin](0017-memory-engine-separate-opt-in-package.md) | Proposed |
+| 0018 | [Proactive memory: hook auto-injects governing decisions on edit](0018-proactive-memory-injection.md) | Proposed |

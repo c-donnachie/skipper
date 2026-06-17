@@ -3,10 +3,11 @@
 // deterministic render). LLM synthesis (claude -p) and standalone verify/eval are later.
 import { build, indexPath } from '../lib/build.mjs';
 import { openDb } from '../lib/db.mjs';
+import { existsSync } from 'node:fs';
 import { repoRoot } from '../lib/repo.mjs';
 import { ensureGitignore } from '../lib/gitignore.mjs';
 import { ask, contextFor } from '../lib/retrieve.mjs';
-import { render } from '../lib/render.mjs';
+import { render, renderBrief } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
 import { serveMcp } from '../lib/mcp.mjs';
 
@@ -14,9 +15,14 @@ const NOT_YET = { verify: 'M4 (standalone verify)', eval: 'M6 (gold gate)' };
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 
+function openIndex(root) {
+  if (!existsSync(indexPath(root))) build();
+  return openDb(indexPath(root));
+}
+
 function answer(makeBundle) {
   const root = repoRoot();
-  const db = openDb(indexPath(root));
+  const db = openIndex(root);
   try {
     const b = makeBundle(root, db);
     const { text, citations } = render(root, b);
@@ -41,9 +47,16 @@ if (cmd === 'index') {
   if (!q) { console.error('usage: skipper ask "<question>"'); process.exit(2); }
   answer((root, db) => ask(root, db, q));
 } else if (cmd === 'context') {
-  const p = argv[1];
-  if (!p) { console.error('usage: skipper context <path>'); process.exit(2); }
-  answer((root, db) => contextFor(root, db, p));
+  const p = argv.slice(1).find((a) => !a.startsWith('--'));
+  if (!p) { console.error('usage: skipper context <path> [--brief]'); process.exit(2); }
+  if (argv.includes('--brief')) {
+    const root = repoRoot();
+    const db = openIndex(root);
+    try { const t = renderBrief(contextFor(root, db, p)); if (t) process.stdout.write(t + '\n'); }
+    finally { db.close(); }
+  } else {
+    answer((root, db) => contextFor(root, db, p));
+  }
 } else if (cmd === 'mcp') {
   serveMcp(); // stdio MCP server; stays alive on stdin
 } else if (cmd === '--version' || cmd === 'version') {

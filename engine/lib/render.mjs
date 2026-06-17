@@ -54,3 +54,19 @@ export function render(root, b) {
   }
   return { text: L.join('\n'), citations: cites };
 }
+
+// Compact, injectable form for the proactive hook (additionalContext). Returns '' when
+// there is nothing actionable to say (no governing decisions and the subsystem doc is fresh),
+// so the hook stays quiet instead of adding noise.
+export function renderBrief(b) {
+  if (b.kind !== 'context') return '';
+  const gov = b.governing || [];
+  const sub = b.subsystemDoc;
+  const subStale = sub ? b.freshness[sub.id] : null;
+  if (!gov.length && !subStale) return '';
+  const L = [`🐧 skipper memory — \`${b.path}\` is governed by ${gov.length} decision(s):`];
+  for (const n of gov) L.push(`  • ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
+  if (sub) L.push(`  subsystem doc: ${sub.path}${subStale ? ` ⚠ ${subStale.reason}` : ' ✓ fresh'}`);
+  L.push(`Comply with these decisions before changing behavior; run \`skipper context ${b.path}\` for detail.`);
+  return L.join('\n');
+}
