@@ -67,7 +67,7 @@ export function ask(root, db, question) {
 
 export function contextFor(root, db, path) {
   const sub = resolveSubsystem(db, path);
-  const govIds = governingAdrs(path);
+  const govIds = governingAdrs(root, path);
   const governing = govIds.map((id) => getNode(db, id)).filter(Boolean);
   const b = bundle(root, db, [sub, ...governing], { kind: 'context', path });
   b.subsystemDoc = sub;
@@ -99,7 +99,7 @@ export function guard(root, db) {
   const stale = new Map();
   for (const p of paths) {
     if (/^docs\//.test(p) || /\.(md|mdx)$/.test(p) || /^engine\//.test(p) || /^\.skipper\//.test(p) || /^\.claude\//.test(p)) continue;
-    const gov = governingAdrs(p);
+    const gov = governingAdrs(root, p);
     if (!gov.length) continue;
     gov.forEach((id) => adrIds.add(id));
     const sub = resolveSubsystem(db, p);

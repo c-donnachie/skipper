@@ -2,25 +2,25 @@
 
 > Local, queryable memory over a repo's decision records (ADRs/PRDs/plans) + git. **OSS, opt-in, reached via MCP** — a separate package, **not** part of the markdown plugin ([ADR-0017](../docs/decisions/0017-memory-engine-separate-opt-in-package.md)).
 
-Status: **Phase B, M0 (foundations)** — see [plan-0004](../docs/plans/0004-skipper-memory-engine-phase-b.md) and [architecture/platform-memory.md](../docs/architecture/platform-memory.md). Scoped by [PRD-0004](../docs/prds/0004-skipper-memory-mvp.md).
+Status: **Phase B complete** (M0–M6 + extras) — see [plan-0004](../docs/plans/0004-skipper-memory-engine-phase-b.md), [architecture/platform-memory.md](../docs/architecture/platform-memory.md), scoped by [PRD-0004](../docs/prds/0004-skipper-memory-mvp.md).
 
 ## Requirements
 
-- **Node ≥ 22.5** — uses the built-in `node:sqlite` (no npm/native deps, no database server). The index is a single local file under `.skipper/index/` (gitignored, derived, disposable).
+- **Node ≥ 22.5** — uses the built-in `node:sqlite` (no npm/native deps, no database server). The index is a single local file under `.skipper/index/` (gitignored, derived, disposable). LLM synthesis (optional) shells out to your own `claude` CLI — no bundled key (ADR-0014).
 
 ## Usage
 
 ```bash
-node bin/skipper.mjs index                      # build/refresh the local graph index
-node bin/skipper.mjs ask "why proactive hooks?" # cited, graph-expanded answer
-node bin/skipper.mjs context hooks/             # governing decisions + invariants + freshness, before an edit
-node bin/skipper.mjs mcp                        # run the stdio MCP server (for agents)
-npm test                                        # idempotent-rebuild acceptance
-node test/mcp-smoke.mjs                         # MCP protocol smoke test
+node bin/skipper.mjs index                       # build/refresh the local graph index
+node bin/skipper.mjs ask "why proactive hooks?"  # LLM-synthesized, cited answer (--no-llm = deterministic)
+node bin/skipper.mjs context hooks/              # governing ADRs + invariants + freshness + recent activity
+node bin/skipper.mjs relate ADR-0001 ADR-0014    # direct / doc-mediated via hub / not-linked
+node bin/skipper.mjs mcp                         # stdio MCP server (for agents)
+npm test                                         # idempotent rebuild + the 19-check gold gate
+node test/mcp-smoke.mjs                          # MCP protocol smoke test
 ```
 
-Answers are **deterministic and cited** (no LLM call); LLM synthesis on top is a later milestone.
-`verify` / `eval` are stubbed until M4/M6.
+Answers carry inline citations (`ADR id` / `file:line`); every citation is self-verified before output. `--no-llm` renders deterministically (the CI/eval path) — `ask` otherwise synthesizes prose via your `claude` CLI over that same evidence pack.
 
 ### Register the MCP server (so agents can call it)
 
@@ -34,10 +34,24 @@ Add to your repo's `.mcp.json` (Claude Code / Conductor auto-loads it):
 }
 ```
 
-Then an agent can call `context_for("src/...")` **before editing** to pull the governing ADRs and risks — making "Conductor = execution, skipper = knowledge" literal at runtime. Tools exposed: `ask(question)`, `context_for(path)`. Synthesis runs on the caller's Claude — the server returns evidence, never a bundled API key (ADR-0014).
+An agent then calls `context_for("src/...")` **before editing** to pull the governing ADRs + risks — "Conductor = execution, skipper = knowledge" at runtime. Tools: `ask(question)`, `context_for(path)`. Synthesis runs on the caller's Claude; the server returns evidence, never a bundled key (ADR-0014).
 
-## What M0 ships
+### Per-repo config — `skipper-memory.config.json`
 
-- Node project scaffold (`bin/`, `lib/`, `test/`) — runtime locked to Node + `node:sqlite`, with bash subsystems shelled out later.
-- SQLite schema: `nodes`, `edges` (typed, **directed**, with `src_file:src_line` provenance), `mismatches`, `meta`. **No vector table** (deferred; `meta.schema_version` is the migration seam).
-- Idempotent full-rebuild builder. The M1 parser plugs in at the marked point in `lib/build.mjs`.
+Committed at the repo root (NOT under `.skipper/`, so it's tracked). Overrides the built-in defaults; falls back to them if absent.
+
+```json
+{
+  "governs":     { "hooks/": ["ADR-0009", "ADR-0018"] },     // code path → governing ADRs
+  "subsystems":  { "docs/architecture/hooks.md": "hooks" }   // arch doc → code dir (git-delta freshness)
+}
+```
+
+## What it does
+
+- **Typed directed graph** (SQLite): ADR/PRD/plan/arch + commit/person/module nodes; `references`/`originated-from`/`implements`/`supersedes`/`touches`/`authored-by`/`decided-by`/`doc-mediated-via` edges — each declared edge carries `file:line` provenance. No vector table (deferred; `meta.schema_version` is the seam).
+- **Retrieval** (no vectors): lexical anchor → directed graph expansion → cited answer. Decoy-safe supersession; never fabricates an outbound edge from a link-less ADR.
+- **Freshness/drift**: doc-declared version vs `plugin.json`, **and** git-delta (commits touching the subsystem since the doc was last edited).
+- **who-decided** (`decided-by`), **what-touched / recent activity** (commits → modules), **count-mismatch** flags (e.g. 7 specialists vs 9 subagents), **hub-node `relate`**.
+- **Proactive** (plugin side, ADR-0018): `memory-guard.sh` injects governing ADRs on edit; `memory-stop.sh` enforces (exit 2) on governed-code changes.
+- **`skipper eval`** — a 19-check deterministic gold gate locking all the above for CI.
