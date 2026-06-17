@@ -11,6 +11,7 @@ import { render, renderBrief } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
 import { serveMcp } from '../lib/mcp.mjs';
 import { runGold } from '../lib/eval.mjs';
+import { synthesize } from '../lib/llm.mjs';
 
 const NOT_YET = { verify: 'M4 (standalone verify)' };
 const argv = process.argv.slice(2);
@@ -45,8 +46,24 @@ if (cmd === 'index') {
   console.log(`  graph: ${r.counts.nodes} nodes · ${r.counts.edges} edges · ${r.counts.mismatches} mismatches`);
 } else if (cmd === 'ask') {
   const q = argv.slice(1).filter((a) => !a.startsWith('--')).join(' ');
-  if (!q) { console.error('usage: skipper ask "<question>"'); process.exit(2); }
-  answer((root, db) => ask(root, db, q));
+  if (!q) { console.error('usage: skipper ask "<question>" [--no-llm]'); process.exit(2); }
+  const root = repoRoot();
+  const db = openIndex(root);
+  try {
+    const b = ask(root, db, q);
+    const { text, citations } = render(root, b);
+    const v = verifyCitations(root, citations);
+    const prose = argv.includes('--no-llm') ? null : synthesize(q, text);
+    if (prose) {
+      console.log(prose);
+      console.log(`\n— synthesized by your claude from ${v.ok}/${v.checked} verified citations (skipper-memory)`);
+    } else {
+      console.log(text);
+      console.log(`\n— ${v.ok}/${v.checked} citations verified`);
+    }
+  } finally {
+    db.close();
+  }
 } else if (cmd === 'context') {
   const p = argv.slice(1).find((a) => !a.startsWith('--'));
   if (!p) { console.error('usage: skipper context <path> [--brief]'); process.exit(2); }
