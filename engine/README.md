@@ -61,7 +61,7 @@ An agent then calls `context_for("src/...")` **before editing** to pull the gove
 
 ### Per-repo config — `skipper-memory.config.json`
 
-Committed at the repo root (NOT under `.skipper/`, so it's tracked). Overrides the built-in defaults; falls back to them if absent.
+Committed at the repo root (NOT under `.skipper/`, so it's tracked). The engine ships with **no** project-specific defaults — each repo maps its own paths → ADRs here. Without it, `context_for` / the proactive hooks have no governance to show (but `ask`, `relate`, freshness, and who/what-touched still work).
 
 ```json
 {

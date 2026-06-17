@@ -5,21 +5,12 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { git } from './repo.mjs';
 
-// Built-in defaults. Overridable per-repo via a committed `skipper-memory.config.json`
-// (graph edges are too sparse for code modules to derive governance — critic must-fix #3).
-const DEFAULT_GOVERNS = {
-  'hooks/': ['ADR-0009', 'ADR-0010', 'ADR-0011', 'ADR-0018'],
-  'agents/': ['ADR-0002', 'ADR-0004'],
-  'skills/': ['ADR-0002', 'ADR-0004'],
-  'lib/': ['ADR-0008'],
-  'stacks/': ['ADR-0003', 'ADR-0005'],
-};
-const DEFAULT_SUBSYSTEMS = {
-  'docs/architecture/hooks.md': 'hooks',
-  'docs/architecture/agents.md': 'agents',
-  'docs/architecture/detection.md': 'lib',
-  'docs/architecture/platform-memory.md': 'engine',
-};
+// The engine is repo-agnostic: it ships with NO project-specific defaults. Each indexed repo
+// declares its own governance in a committed `skipper-memory.config.json` (skipper's own
+// mappings live in skipper's config file, not here). Absent a config, governance is just empty —
+// querying, freshness, and who/what-touched still work; only path→ADR governance is unset.
+const DEFAULT_GOVERNS = {};
+const DEFAULT_SUBSYSTEMS = {};
 
 // Read the committed per-repo override (NOT under .skipper/, so it is tracked), else defaults.
 let _cfg = null;
