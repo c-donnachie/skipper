@@ -12,7 +12,8 @@
   },
   "scripts": {
     "index": "node bin/skipper.mjs index",
-    "test": "node test/idempotent.mjs"
+    "eval": "node bin/skipper.mjs eval",
+    "test": "node test/idempotent.mjs && node bin/skipper.mjs eval"
   },
   "license": "MIT"
 }

@@ -10,8 +10,9 @@ import { ask, contextFor, guard } from '../lib/retrieve.mjs';
 import { render, renderBrief } from '../lib/render.mjs';
 import { verifyCitations } from '../lib/verify.mjs';
 import { serveMcp } from '../lib/mcp.mjs';
+import { runGold } from '../lib/eval.mjs';
 
-const NOT_YET = { verify: 'M4 (standalone verify)', eval: 'M6 (gold gate)' };
+const NOT_YET = { verify: 'M4 (standalone verify)' };
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 
@@ -62,6 +63,17 @@ if (cmd === 'index') {
   const db = openIndex(root);
   try { const t = guard(root, db); if (t) process.stdout.write(t + '\n'); }
   finally { db.close(); }
+} else if (cmd === 'eval') {
+  const root = repoRoot();
+  const db = openIndex(root);
+  try {
+    const r = runGold(root, db);
+    for (const c of r.results) console.log(`${c.ok ? '✓' : '✗'} ${c.id.padEnd(22)} ${c.detail}`);
+    console.log(`\n${r.passed}/${r.total} gold checks passed`);
+    if (r.failed) process.exitCode = 1;
+  } finally {
+    db.close();
+  }
 } else if (cmd === 'mcp') {
   serveMcp(); // stdio MCP server; stays alive on stdin
 } else if (cmd === '--version' || cmd === 'version') {

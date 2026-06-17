@@ -1,0 +1,18 @@
+[
+  { "id": "anchor-proactive",   "kind": "ask", "query": "why proactive hooks?",            "expect_anchor": "ADR:0009" },
+  { "id": "anchor-opencore",    "kind": "ask", "query": "open core boundary OSS vs SaaS",  "expect_anchor": "ADR:0014" },
+
+  { "id": "no-fabricated-0001", "kind": "no_outbound_declared", "node": "ADR:0001" },
+  { "id": "prose-0007-0001",    "kind": "edge_exists", "from": "ADR:0007", "to": "ADR:0001", "class": "prose" },
+  { "id": "originated-0014",    "kind": "edge_exists", "from": "ADR:0014", "to": "PRD:0004", "type": "originated-from", "class": "declared" },
+  { "id": "refs-0014",          "kind": "edges_to", "from": "ADR:0014", "to_includes": ["ADR:0015", "ADR:0016", "ARCH:platform-memory"] },
+
+  { "id": "decoy-safe-supersede", "kind": "count_zero", "edge_types": ["supersedes", "superseded-by"] },
+  { "id": "provenance-100pct",    "kind": "provenance_all_declared" },
+
+  { "id": "drift-detection",    "kind": "context_stale", "path": "lib/detect.sh", "doc": "docs/architecture/detection.md", "stale": true },
+  { "id": "fresh-hooks",        "kind": "context_stale", "path": "hooks/",        "doc": "docs/architecture/hooks.md",     "stale": false },
+  { "id": "govern-hooks",       "kind": "governing_includes", "path": "hooks/", "includes": ["ADR:0009", "ADR:0010", "ADR:0011", "ADR:0018"] },
+
+  { "id": "citations-valid",    "kind": "ask_citations_valid", "query": "open core boundary OSS vs SaaS" }
+]
