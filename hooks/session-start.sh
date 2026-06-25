@@ -8,6 +8,23 @@ set -u
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$repo_root" || exit 0
 
+# Self-heal .gitignore: skipper's hooks write machine-local scratch (.claude/.skipper-*:
+# throttle timestamps, session state, run locks) and the engine writes a derived index
+# (.skipper/). Both are rewritten on every run — if tracked they produce perpetual diff
+# noise. Ensure they're ignored before any scratch is written this session. Idempotent;
+# mirrors the engine's ensureGitignore(). Runs for any git repo where this hook fires.
+gi_missing=()
+for e in '.claude/.skipper-*' '.skipper/'; do
+  { [[ -f .gitignore ]] && grep -qxF "$e" .gitignore; } || gi_missing+=("$e")
+done
+if (( ${#gi_missing[@]} )); then
+  {
+    [[ -f .gitignore && -s .gitignore && -n "$(tail -c1 .gitignore)" ]] && printf '\n'
+    printf '# Skipper — machine-local artifacts (hook scratch + derived index), never commit\n'
+    printf '%s\n' "${gi_missing[@]}"
+  } >> .gitignore
+fi
+
 # Sin CLAUDE.md → silencioso
 [[ -f CLAUDE.md ]] || exit 0
 

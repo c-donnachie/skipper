@@ -8,7 +8,7 @@ Since v1.1 skipper's hooks are **proactive**: they don't just message the user, 
 
 | Event | Script | Job | Throttle |
 |---|---|---|---|
-| `SessionStart` | `session-start.sh` | Banner (stack/layers/docs) **+ standing directives**: keep docs in sync, **and apply the stack's specialist by context — no command** (ADR-0019) | 1× per session |
+| `SessionStart` | `session-start.sh` | Self-heal `.gitignore` (ignore `.claude/.skipper-*` + `.skipper/`) **+** banner (stack/layers/docs) **+ standing directives**: keep docs in sync, **and apply the stack's specialist by context — no command** (ADR-0019) | 1× per session |
 | `UserPromptSubmit` | `plan-guard.sh` | In **plan mode** (`permission_mode == plan`), inject the architecture protocol so plans apply CLAUDE.md laws, reuse code, reference docs | 5 min (`.skipper-planguard`) |
 | `PreToolUse` (ExitPlanMode) | `plan-exit-guard.sh` | Best-effort checklist before a plan is presented (no-op if the matcher isn't supported) | per event |
 | `PostToolUse` (Edit\|Write) | `docs-sync.sh` | **Subsystem-aware**: point Claude at the *specific* `docs/architecture` doc for the edited subsystem and tell it to update it **this turn** | 10 min per subsystem (`.skipper-docsync-<slug>`) |
@@ -20,7 +20,7 @@ Since v1.1 skipper's hooks are **proactive**: they don't just message the user, 
 
 ## SessionStart (`session-start.sh`)
 
-Fires when Claude Code opens; silent unless the project has a CLAUDE.md with the `skipper:stack` section. Prints the banner **and** injects standing directives: (1) keep `docs/` and the stack block in sync as it works, and (2) **stack-aware specialist auto-routing** (ADR-0019) — it derives the relevant specialist(s) from the stack (e.g. *React Native Expo + Supabase* → `react-native` + `supabase`) and tells Claude to apply their laws by context, without a `/skipper:` command (Superpowers-style).
+Fires when Claude Code opens. **First, for any git repo, it self-heals `.gitignore`** — ensuring `.claude/.skipper-*` (hook scratch) and `.skipper/` (derived index) are ignored before any scratch is written this session, so the engine's machine-local state never gets committed (idempotent; mirrors the engine's `ensureGitignore()`). This runs *before* the silence gate. The rest is silent unless the project has a CLAUDE.md with the `skipper:stack` section: it prints the banner **and** injects standing directives: (1) keep `docs/` and the stack block in sync as it works, and (2) **stack-aware specialist auto-routing** (ADR-0019) — it derives the relevant specialist(s) from the stack (e.g. *React Native Expo + Supabase* → `react-native` + `supabase`) and tells Claude to apply their laws by context, without a `/skipper:` command (Superpowers-style).
 
 Reads: `CLAUDE.md` (`<!-- skipper:stack -->`, `<!-- skipper:layer:* -->`), `docs/{decisions,prds,plans}/*.md` (counts `^[0-9]{4}-`), and `.claude/.skipper-last` mtime (for "up to date" / "N days ago").
 
@@ -73,4 +73,4 @@ Set `SKIPPER_PROACTIVE=off` (environment or `settings.json` `env`) to disable th
 
 `.claude/.skipper-*` markers (`-last`, `-stop-block`, `-docsync-<slug>`, `-stackwatch`, `-planguard`, `-session`, `-suggested`):
 - Live in the project's `.claude/` directory (created if missing); session-scoped, safe to delete between sessions; each hook anchors to `git rev-parse --show-toplevel`, not cwd.
-- **Gitignored** — the repo ignores `.claude/.skipper-*` (no longer "the user is responsible"; this landed in v1.x).
+- **Gitignored, automatically** — `session-start.sh` self-heals the project `.gitignore` on every session (and the engine's `ensureGitignore()` does the same on `skipper index`), adding `.claude/.skipper-*` + `.skipper/` if missing. The user never has to do it, and repos adopted before this landed get fixed on their next session. (If these files were already *tracked* in a repo, run `git rm --cached` once — `.gitignore` does not untrack history.)
