@@ -126,7 +126,7 @@ export function guard(root, db) {
     if (sub) { const f = freshnessFor(root, sub); if (f.stale) stale.set(sub.path, f.reason); }
   }
   if (!adrIds.size) return '';
-  const L = ['🐧 skipper memory — this turn changed code governed by project decisions. Before yielding, verify the change COMPLIES (fix it, or supersede the ADR if the decision itself changed):'];
+  const L = ['━━━ 🐧 SKIPPER · memory ━━━', 'this turn changed code governed by project decisions. Before yielding, verify the change COMPLIES (fix it, or supersede the ADR if the decision itself changed):'];
   for (const id of [...adrIds].sort()) { const n = getNode(db, id); L.push(`  • ${id.replace(':', '-')}${n ? ` ${n.title}` : ''}`); }
   for (const [doc, reason] of stale) L.push(`  ⚠ ${doc} ${reason} — update it this turn.`);
   return L.join('\n');

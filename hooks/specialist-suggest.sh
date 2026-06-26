@@ -104,7 +104,8 @@ if [[ $top_count -ge $THRESHOLD && -n "$top_agent" ]]; then
     echo "$top_agent" >> "$SUGGESTED_FILE"
 
     cat <<EOF
-🐧 Skipper detectó $top_count archivos editados que tocan el dominio del especialista \`$top_agent\`.
+━━━ 🐧 SKIPPER · specialist ━━━
+detecté $top_count archivos editados que tocan el dominio del especialista \`$top_agent\`.
    Considera invocar:  /skipper:$top_agent "<tu pregunta>"
    O usar el router:    /skipper:ask "<pregunta libre>"
 EOF

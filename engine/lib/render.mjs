@@ -78,7 +78,7 @@ export function renderBrief(b) {
   const sub = b.subsystemDoc;
   const subStale = sub ? b.freshness[sub.id] : null;
   if (!gov.length && !rel.length && !subStale) return '';
-  const L = [`🐧 skipper memory — context for \`${b.path}\`:`];
+  const L = [`━━━ 🐧 SKIPPER · memory ━━━`, `context for \`${b.path}\`:`];
   for (const n of gov) L.push(`  • governs · ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
   for (const n of rel) L.push(`  • related · ${n.id.replace(':', '-')} ${n.title}`);
   if (sub) L.push(`  • subsystem doc · ${sub.path}${subStale ? ` ⚠ ${subStale.reason}` : ' ✓ fresh'}`);

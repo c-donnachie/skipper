@@ -1,6 +1,6 @@
 # Platform memory layer (Skipper Memory)
 
-> Last updated: 2026-06-17. Reflects v1.4.0.
+> Last updated: 2026-06-25. Reflects v1.4.1.
 
 > Architecture for the queryable, agent-facing memory built on top of the artifacts skipper already produces. Scoped by [PRD-0004](../prds/0004-skipper-memory-mvp.md); boundary/scope/connector decisions in [ADR-0014](../decisions/0014-open-core-boundary.md), [ADR-0015](../decisions/0015-mvp-scope-agent-first.md), [ADR-0016](../decisions/0016-connector-strategy-deferred.md).
 
