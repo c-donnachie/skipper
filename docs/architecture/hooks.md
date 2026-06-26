@@ -1,6 +1,6 @@
 # Hooks lifecycle
 
-> Last updated: 2026-06-25. Reflects v1.4.1.
+> Last updated: 2026-06-25. Reflects v1.4.2.
 
 Since v1.1 skipper's hooks are **proactive**: they don't just message the user, they **inject directives Claude acts on** (`hookSpecificOutput.additionalContext`) and, at `Stop`, **enforce** with `exit 2`. Rationale and design in **ADR-0009** (proactive model), **ADR-0010** (plan-mode guard), **ADR-0011** (dependency + subsystem-aware hooks). All proactive hooks are opt-out via `SKIPPER_PROACTIVE=off`. Two hooks marked **⊕** are *engine-dependent*: they bridge to the separately-installed skipper-memory engine (**ADR-0017/0018**) and no-op without it.
 

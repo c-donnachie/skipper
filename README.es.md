@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.4.1-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.2-green)](./CHANGELOG.md)
 
 [English](./README.md) · **Español**
 

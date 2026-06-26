@@ -2,10 +2,12 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.1] — 2026-06-25
+## [1.4.2] — 2026-06-25
 
 ### Changed
 - **Unified chat visual identity** — every skipper-originated message now uses one consistent banner, `━━━ 🐧 SKIPPER · <category> ━━━`, so the user can tell skipper's voice from Claude's at a glance. Categories: `session`/`proactive` (session-start), `docs` (Stop docs-sync), `specialist` (routing), `memory` (engine `context`/`guard`). Color is intentionally avoided — Claude Code renders hook output as plain markdown and strips ANSI, so the text signature is the only reliable differentiator. See [`docs/architecture/hooks.md`](./docs/architecture/hooks.md).
+
+## [1.4.1] — 2026-06-25
 
 ### Fixed
 - **MCP packaging** — stop shipping the root `.mcp.json` with the plugin. Because it was committed, the plugin bundled and auto-registered the `skipper-memory` MCP server, which (a) produced a duplicate warning (`skipped — same command/URL`) in any repo that also configured it, and (b) used a broken relative path (`engine/bin/skipper.mjs`) for end users who install the plugin. This violated [ADR-0017](./docs/decisions/0017-memory-engine-separate-opt-in-package.md) (engine is opt-in, **not** bundled). The plugin now stays pure markdown+bash; each repo opts into memory via its own `.mcp.json` (see [`engine/README.md`](./engine/README.md)).

@@ -1,7 +1,7 @@
 {
   "name": "skipper",
   "description": "Claude Code framework that scaffolds, documents, and maintains your project following Clean Code and SOLID. Detects the stack, generates an opinionated CLAUDE.md, keeps living docs (ADRs/PRDs/plans), and ships specialist subagents that refactor with stack-aware judgment. v1.4 adds Skipper Memory: an opt-in engine that turns your decisions into a queryable, cited graph and proactively surfaces the governing ones before edits.",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "author": {
     "name": "Cristian Donnachie",
     "email": "cristianu@dropout.cl"
