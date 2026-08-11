@@ -30,7 +30,7 @@
   "scripts": {
     "index": "node bin/skipper.mjs index",
     "eval": "node bin/skipper.mjs eval",
-    "test": "node test/idempotent.mjs && node bin/skipper.mjs eval"
+    "test": "node test/idempotent.mjs && node test/gate.mjs && node bin/skipper.mjs eval"
   },
   "license": "MIT"
 }
