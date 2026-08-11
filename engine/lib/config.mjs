@@ -28,6 +28,26 @@ export function defaultDod(stack = {}) {
   return items;
 }
 
+// Infer the verification command for a runnable method from the project's own package.json scripts
+// (deterministic — ADR-0026). No script → null → the criterion is honestly `unverified`, not green.
+export function inferCommand(root, method) {
+  let scripts = {};
+  try { scripts = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).scripts ?? {}; } catch { /* no pkg */ }
+  if (method === 'test') return scripts.test ? 'npm test' : null;
+  if (method === 'static') return scripts.lint ? 'npm run lint' : null;
+  if (method === 'type') {
+    if (scripts.typecheck) return 'npm run typecheck';
+    return existsSync(join(root, 'tsconfig.json')) ? 'npx tsc --noEmit' : null;
+  }
+  return null;
+}
+
+// Fill `command` for runnable items that don't declare one, from package.json.
+function withCommands(root, items) {
+  const runnable = new Set(['test', 'type', 'static']);
+  return items.map((it) => (it.command || !runnable.has(it.method) ? it : { ...it, command: inferCommand(root, it.method) }));
+}
+
 export function load(root) {
   const p = join(root, CONFIG_FILE);
   if (!existsSync(p)) return null;
@@ -43,7 +63,7 @@ export function save(root, config) {
 export function dod(root, stack = {}) {
   const cfg = load(root);
   const items = cfg?.dod ?? defaultDod(stack);
-  return items.filter((it) => it.enabled);
+  return withCommands(root, items.filter((it) => it.enabled));
 }
 
 // Gate policy knobs (PRD-0006 Q4). `unverified` warns in Phase A, blocks in Phase B; `fail` always blocks.

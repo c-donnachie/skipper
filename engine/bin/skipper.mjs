@@ -150,6 +150,26 @@ if (cmd === 'index') {
     else if (v.status === 'stale') { console.error('gate: receipt STALE — content changed; re-run /skipper:review to re-freeze.'); process.exit(1); }
     else { console.log('gate: unmanaged (no receipt — review not run or disabled). Not blocking.'); }
   }
+} else if (cmd === 'config') {
+  // Deterministic policy-file management (ADR-0026). `config init` scaffolds skipper.config.json
+  // (committed, at repo root — NOT under .skipper/). `config show` prints the effective DoD.
+  const root = repoRoot();
+  const sub = argv[1] || 'show';
+  if (sub === 'init') {
+    if (config.load(root)) { console.log(`${config.CONFIG_FILE} already exists — leaving it untouched.`); process.exit(0); }
+    const presetArg = argv.find((a) => a.startsWith('--preset='));
+    const preset = presetArg ? presetArg.split('=')[1] : 'minimal';
+    const isTs = existsSync(`${root}/tsconfig.json`);
+    const stack = isTs ? { language: 'typescript' } : {};
+    config.save(root, config.scaffold({ stack, preset }));
+    const items = config.dod(root, stack);
+    console.log(`wrote ${config.CONFIG_FILE} (preset: ${preset}) — ${items.length} DoD items enabled`);
+    for (const it of items) console.log(`  ● ${it.id.padEnd(14)} ${it.method}`);
+  } else {
+    const items = config.dod(root);
+    console.log(`DoD (${items.length} enabled):`);
+    for (const it of items) console.log(`  ● ${it.id.padEnd(14)} ${it.method.padEnd(7)} ${it.title}`);
+  }
 } else if (cmd === 'mcp') {
   serveMcp(); // stdio MCP server; stays alive on stdin
 } else if (cmd === '--version' || cmd === 'version') {
@@ -158,6 +178,6 @@ if (cmd === 'index') {
   console.error(`'${cmd}' not implemented yet — ${NOT_YET[cmd]}.`);
   process.exit(2);
 } else {
-  console.error('usage: skipper <index|ask|context|relate|guard|gate|mcp|--version>');
+  console.error('usage: skipper <index|ask|context|relate|guard|gate|config|mcp|--version>');
   process.exit(2);
 }
