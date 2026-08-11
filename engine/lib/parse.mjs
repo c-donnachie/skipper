@@ -16,6 +16,7 @@ const DOC_DIRS = [
   ['docs/prds', 'prd', 'PRD'],
   ['docs/plans', 'plan', 'PLAN'],
   ['docs/architecture', 'arch', 'ARCH'],
+  ['docs/specs', 'spec', 'SPEC'], // spec-anchored SDD (ADR-0024): living, verifiable anchors
 ];
 
 // Sections whose markdown links become declared edges. EN + ES conventions.

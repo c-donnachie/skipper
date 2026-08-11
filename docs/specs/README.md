@@ -17,4 +17,4 @@ Create with `/skipper:new-spec "<title>"`. Project-wide Definition-of-Done defau
 
 | # | Title | Status |
 |---|---|---|
-| — | _(none yet — run `/skipper:new-spec`)_ | — |
+| 0001 | [Spec-anchored delivery gate](0001-spec-anchored-delivery-gate.md) | Active |
