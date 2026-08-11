@@ -46,6 +46,7 @@ Si el proyecto tiene SPECs (`docs/specs/*.md`), el review NO es genérico — se
    ```
 
    El gate reporta `pass|warn|blocked`. Si `blocked`, NO se emite receipt → no hay entrega. `unverified` se reporta con honestidad (nunca verde).
+   Para criterios `manual`/`human`, adjuntá el artefacto (correr la app y observar — usá `/verify`): `skipper gate freeze --artifact=<AC-id>=<ruta>`.
 5. Si no hay engine/`skipper` disponible (opt-in, ADR-0017), hacé el review anclado igual (a mano) y avisá que el receipt no se pudo emitir → el delivery gate reportará `unmanaged`.
 
 ## Output

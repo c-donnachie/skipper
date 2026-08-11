@@ -1,9 +1,29 @@
 # PRD 0006 — SDD verification & evidence pipeline (la mitad trasera)
 
-- **Status**: Draft
+- **Status**: In progress — **Phase A shipped** (M1–M9 + S1), Phase B S2–S5 pending
 - **Owner**: @Cristian Donnachie
 - **Created**: 2026-08-11
 - **Target date**: TBD
+
+## Build status (2026-08-11)
+
+**Phase A — done & tested** (engine suite green: 17/17 gate + 19/19 gold):
+- ✅ **M1** `/skipper:new-spec` + SPEC template + `docs/specs/` (+ dogfood SPEC-0001)
+- ✅ **M2** `/skipper:review` anclado — `divergence: SPEC-NNNN#AC-k`
+- ✅ **M3** evidence runner (`engine/lib/evidence.mjs`) — orquesta comandos del stack
+- ✅ **M4** receipt content-bound (`engine/lib/receipt.mjs`) — `skipper gate freeze|validate`
+- ✅ **M5** regla de honestidad — sin evidencia ⇒ `unverified`, nunca verde
+- ✅ **M6** SPECs como nodos del grafo (`parse.mjs` → `docs/specs`)
+- ✅ **M7** awareness proactiva — `skipper guard` surtea el SPEC al editar código anclado
+- ✅ **M8** DoD policy-as-file (`skipper.config.json`, `engine/lib/config.mjs`)
+- ✅ **M9** `/skipper:setup` orquestador + `skipper config init`
+- ✅ **S1** delivery git-hook (`skipper gate install-hook` → pre-push)
+
+**Phase B — pendiente:**
+- ⏳ **S2** tiers de riesgo 4R (hoy `risk_tier` se registra pero no escala lentes — ceremonia del review, subjetiva)
+- ⏳ **S3** evidencia `manual` vía `/verify` (el runner ya acepta artefacto; falta cablear el skill)
+- 🟡 **S4** política `unverified` warn/block — **cubierta** en `config.gatePolicy` + `gateVerdict`
+- 🟡 **S5** drift de evidencia — **cubierto por diseño**: el receipt content-bound se invalida (`stale`) si el código cambia
 
 ## Problem
 

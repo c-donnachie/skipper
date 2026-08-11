@@ -143,7 +143,13 @@ if (cmd === 'index') {
     // Run the project DoD evidence, then emit a content-bound receipt if nothing failed.
     const items = config.dod(root);
     const policy = config.gatePolicy(root);
-    const results = evidence.runAll(root, items);
+    // Manual/human evidence: `--artifact=<id>=<path>` attaches proof (PRD-0006 S3/Q2). Without it, `unverified`.
+    const optsById = {};
+    for (const a of argv) {
+      const m = a.match(/^--artifact=([^=]+)=(.+)$/);
+      if (m) optsById[m[1]] = { artifact: m[2] };
+    }
+    const results = evidence.runAll(root, items, optsById);
     const verdict = evidence.gateVerdict(results, policy);
     for (const r of results) {
       const mark = r.result === 'pass' ? '✓' : r.result === 'fail' ? '✗' : '○';
