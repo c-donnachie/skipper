@@ -1,8 +1,33 @@
 // M3 retrieval (no vectors): lexical anchor -> directed declared-edge expansion -> Bundle.
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { resolveSubsystem, governingAdrs, freshnessFor } from './subsystem.mjs';
 import { git } from './repo.mjs';
+import { changedFiles } from './receipt.mjs';
+
+// SPEC governance (PRD-0006 M7): a SPEC anchors code via the backtick-quoted paths in its body
+// (its `Touched code:` line / criteria commands). Additive & config-free — does NOT touch the
+// config-driven governingAdrs. Lets the proactive guard surface the governing SPEC on edit.
+export function specGovernance(root) {
+  let files;
+  try { files = readdirSync(join(root, 'docs/specs')); } catch { return []; }
+  const out = [];
+  for (const f of files) {
+    const m = f.match(/^(\d{4})-/);
+    if (!f.endsWith('.md') || f === 'README.md' || !m) continue;
+    let raw;
+    try { raw = readFileSync(join(root, 'docs/specs', f), 'utf8'); } catch { continue; }
+    const paths = new Set();
+    for (const bm of raw.matchAll(/`([^`]+)`/g)) {
+      const tok = bm[1].trim();
+      if (/^[\w.@-]+(?:\/[\w.@-]+)+\.\w+$/.test(tok)) paths.add(tok); // looks like a real file path
+    }
+    if (!paths.size) continue;
+    const title = (raw.match(/^#\s+(?:\d{4}\s*[—–-]\s*)?(.*)/m)?.[1] || f).trim();
+    out.push({ id: `SPEC-${m[1]}`, title, paths: [...paths] });
+  }
+  return out;
+}
 
 // word-boundary match (avoids substring false positives like "algo" ⊂ "algoritmo")
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -111,10 +136,8 @@ export function contextFor(root, db, path) {
 // (+ stale governing docs) for Claude to self-verify compliance. Empty when nothing governed
 // changed. Detecting actual violation is Claude's judgment — this forces the confrontation.
 export function guard(root, db) {
-  let status;
-  try { status = git(['status', '--porcelain'], root); } catch { return ''; }
-  const paths = status.split('\n').map((l) => l.slice(3).trim()).filter(Boolean)
-    .map((p) => (p.includes(' -> ') ? p.split(' -> ')[1] : p)); // handle renames
+  let paths;
+  try { paths = changedFiles(root); } catch { return ''; } // robust porcelain parse (diff vs HEAD + untracked)
   const adrIds = new Set();
   const stale = new Map();
   for (const p of paths) {
@@ -125,9 +148,17 @@ export function guard(root, db) {
     const sub = resolveSubsystem(db, p);
     if (sub) { const f = freshnessFor(root, sub); if (f.stale) stale.set(sub.path, f.reason); }
   }
-  if (!adrIds.size) return '';
+  // SPEC governance (M7): additive, path-declared, not config-filtered. Skips docs/scratch only.
+  const specHits = new Map();
+  const specs = specGovernance(root);
+  for (const p of paths) {
+    if (/^docs\//.test(p) || /^\.skipper\//.test(p) || /^\.claude\//.test(p)) continue;
+    for (const s of specs) if (s.paths.some((sp) => p === sp || p.startsWith(sp + '/'))) specHits.set(s.id, s.title);
+  }
+  if (!adrIds.size && !specHits.size) return '';
   const L = ['🐧 skipper memory — this turn changed code governed by project decisions. Before yielding, verify the change COMPLIES (fix it, or supersede the ADR if the decision itself changed):'];
   for (const id of [...adrIds].sort()) { const n = getNode(db, id); L.push(`  • ${id.replace(':', '-')}${n ? ` ${n.title}` : ''}`); }
+  for (const [id, title] of [...specHits].sort()) L.push(`  ⚓ ${id} ${title} — check the diff against its acceptance criteria (divergence: ${id}#AC-k). Then \`skipper gate freeze\`.`);
   for (const [doc, reason] of stale) L.push(`  ⚠ ${doc} ${reason} — update it this turn.`);
   return L.join('\n');
 }
