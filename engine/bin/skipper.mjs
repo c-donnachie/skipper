@@ -16,6 +16,7 @@ import { synthesize } from '../lib/llm.mjs';
 import * as receipt from '../lib/receipt.mjs';
 import * as evidence from '../lib/evidence.mjs';
 import * as config from '../lib/config.mjs';
+import { classify } from '../lib/risk.mjs';
 
 const NOT_YET = { verify: 'M4 (standalone verify)' };
 const argv = process.argv.slice(2);
@@ -122,7 +123,15 @@ if (cmd === 'index') {
   // Spec-anchored delivery gate (PRD-0006 M3/M4 + ADR-0024/0025). Zero graph dependency.
   const root = repoRoot();
   const sub = argv[1] || 'validate';
-  if (sub === 'install-hook') {
+  if (sub === 'risk') {
+    // Deterministic risk classification for the current change (drives review lens depth — S2).
+    const r = classify(root);
+    console.log(`risk: ${r.tier}  (${r.files} files · ${r.churn} lines)`);
+    for (const reason of r.reasons) console.log(`  • ${reason}`);
+    const lens = r.tier === 'high' ? '4R (Risk · Readability · Reliability · Resilience) + forecast'
+      : r.tier === 'low' ? 'structural readback (silent, 0 lenses)' : '1 focus lens + consent';
+    console.log(`  → review: ${lens}`);
+  } else if (sub === 'install-hook') {
     // Opt-in delivery gate (PRD-0006 S1). pre-push revalidates the receipt before code leaves the
     // machine. Graceful: if the `skipper` CLI isn't on PATH, the hook is a no-op (never blocks push).
     const hookDir = join(root, '.git', 'hooks');
@@ -159,13 +168,14 @@ if (cmd === 'index') {
       console.error(`\ngate: BLOCKED (${verdict.reason}) — no receipt issued.`);
       process.exit(1);
     }
+    const risk = classify(root);
     const rec = receipt.emit(root, {
       criteria: results.map((r) => ({ id: r.id, verdict: r.result })),
       evidenceDigest: evidence.evidenceDigest(results),
       reviewVerdict: verdict.status, // pass | warn
-      riskTier: 'standard',
+      riskTier: risk.tier,
     });
-    console.log(`\ngate: receipt issued (${verdict.status}) — ${rec.content_hash.slice(0, 12)} over ${rec.files.length} file(s)`);
+    console.log(`\ngate: receipt issued (${verdict.status}, risk: ${risk.tier}) — ${rec.content_hash.slice(0, 12)} over ${rec.files.length} file(s)`);
     if (verdict.status === 'warn') console.log(`  note: ${verdict.unverified.length} unverified (policy: ${policy.unverified})`);
   } else {
     // validate: revalidate the stored receipt against current content (for delivery hooks).

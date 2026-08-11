@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import * as receipt from '../lib/receipt.mjs';
 import * as evidence from '../lib/evidence.mjs';
 import * as config from '../lib/config.mjs';
+import { classify } from '../lib/risk.mjs';
 
 let passed = 0, failed = 0;
 const ok = (name, cond) => { if (cond) { passed++; console.log(`✓ ${name}`); } else { failed++; console.error(`✗ ${name}`); } };
@@ -63,6 +64,13 @@ try {
   ok('TS stack includes a type-check item', tsDod.some((i) => i.method === 'type'));
   ok('non-TS stack omits type-check', !config.defaultDod({ language: 'python' }).some((i) => i.method === 'type'));
   ok('scaffold produces schema+dod+gate', (() => { const c = config.scaffold({ stack: {}, preset: 'layered' }); return c.schema === 1 && Array.isArray(c.dod) && !!c.gate; })());
+
+  // --- risk classifier (S2) — deterministic, from explicit file lists ---
+  ok('sensitive path → high', classify(root, ['src/auth/login.ts']).tier === 'high');
+  ok('migration → high', classify(root, ['db/migrations/001_init.sql']).tier === 'high');
+  ok('10+ files → high', classify(root, Array.from({ length: 12 }, (_, i) => `src/f${i}.js`)).tier === 'high');
+  ok('docs-only small → low', classify(root, ['docs/guide.md']).tier === 'low');
+  ok('ordinary code change → standard', classify(root, ['src/widget.js']).tier === 'standard');
 
   console.log(`\n${passed}/${passed + failed} gate checks passed`);
   if (failed) process.exit(1);

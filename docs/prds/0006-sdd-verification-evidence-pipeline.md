@@ -1,6 +1,6 @@
 # PRD 0006 — SDD verification & evidence pipeline (la mitad trasera)
 
-- **Status**: In progress — **Phase A shipped** (M1–M9 + S1), Phase B S2–S5 pending
+- **Status**: In progress — **Phase A + S1/S2 shipped** (M1–M9); S3 partial; S4/S5 covered by design
 - **Owner**: @Cristian Donnachie
 - **Created**: 2026-08-11
 - **Target date**: TBD
@@ -19,9 +19,10 @@
 - ✅ **M9** `/skipper:setup` orquestador + `skipper config init`
 - ✅ **S1** delivery git-hook (`skipper gate install-hook` → pre-push)
 
-**Phase B — pendiente:**
-- ⏳ **S2** tiers de riesgo 4R (hoy `risk_tier` se registra pero no escala lentes — ceremonia del review, subjetiva)
-- ⏳ **S3** evidencia `manual` vía `/verify` (el runner ya acepta artefacto; falta cablear el skill)
+**Phase B:**
+- ✅ **S1** delivery git-hook (`skipper gate install-hook` → pre-push)
+- ✅ **S2** tiers de riesgo 4R — clasificador determinista (`engine/lib/risk.mjs`, `skipper gate risk`) → el review escala lentes (low silencioso · standard 1 lente · high 4R). Tier registrado en el receipt.
+- 🟡 **S3** evidencia `manual` — lado-engine listo (`gate freeze --artifact=<id>=<path>`); falta cablear el skill `/verify` para capturar el artefacto solo
 - 🟡 **S4** política `unverified` warn/block — **cubierta** en `config.gatePolicy` + `gateVerdict`
 - 🟡 **S5** drift de evidencia — **cubierto por diseño**: el receipt content-bound se invalida (`stale`) si el código cambia
 

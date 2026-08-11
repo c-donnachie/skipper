@@ -39,6 +39,15 @@ Si el proyecto tiene SPECs (`docs/specs/*.md`), el review NO es genérico — se
 1. Para cada SPEC cuyos archivos/`Touched code` se solapan con el diff, leé su tabla de **Acceptance criteria**.
 2. Contrastá el diff contra **cada criterio** y reportá por ID: `ok` o **`divergence: SPEC-NNNN#AC-k`** con la razón concreta.
 3. **Severidad** (patrón agent-harness): una divergence *major* **bloquea** (gate duro, ADR-0024); *minor* vuelve como recomendación.
+
+   **Profundidad del review por riesgo** (S2, determinista — corré `skipper gate risk`):
+   | Tier | Ceremonia |
+   |---|---|
+   | `low` (poco cambio, docs/tests/estilos) | readback estructural, **silencioso**, 0 lentes |
+   | `standard` | **1 lente de foco** + consentimiento |
+   | `high` (path sensible: auth/pagos/migraciones, o churn grande) | **4R — Risk · Readability · Reliability · Resilience** + consentimiento + forecast |
+
+   No sobre-ceremonies un cambio `low`; no dejes pasar un `high` con una sola mirada.
 4. Los criterios con método `test|type|static` se **verifican corriendo** — no los evalúes de memoria; disparalos con el gate:
 
    ```bash
