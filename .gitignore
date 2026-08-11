@@ -9,4 +9,9 @@ node_modules/
 .claude/.skipper-*
 
 # skipper memory engine — derived local index (regenerable via `skipper index`)
-.skipper/
+# ignore the derived index, but KEEP receipts (committed source of truth — ADR-0025)
+.skipper/*
+!.skipper/receipts/
+
+# skipper-memory MCP — opt-in per-repo, never commit/ship (ADR-0017; regressed on this branch, re-fixed)
+.mcp.json

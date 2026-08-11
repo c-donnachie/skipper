@@ -36,3 +36,6 @@ Technical decisions with real tradeoffs that apply more than once in the project
 | 0021 | [Open-core fence: engine features are never paywalled](0021-open-core-fence.md) | Proposed |
 | 0022 | [SaaS privacy posture: host graph + docs, never source by default](0022-saas-privacy-posture.md) | Proposed |
 | 0023 | [Platform is a separate closed-source repo that consumes the engine as a package](0023-platform-separate-closed-repo.md) | Proposed |
+| 0024 | [SPEC vivo como ancla de SDD (spec-anchored, mutable, gate duro)](0024-spec-anchored-sdd-living-spec.md) | Accepted |
+| 0025 | [Receipt content-bound in-repo para el gate duro (RDD)](0025-content-bound-receipt-rdd.md) | Accepted |
+| 0026 | [Superficies de config: archivos = verdad, CLI determinista infiere, UI = proyección paga](0026-config-surfaces-deterministic-cli-files-truth.md) | Accepted |
