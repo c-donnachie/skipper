@@ -3,7 +3,8 @@
 // deterministic render). LLM synthesis (claude -p) and standalone verify/eval are later.
 import { build, indexPath } from '../lib/build.mjs';
 import { openDb } from '../lib/db.mjs';
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync, mkdirSync, chmodSync } from 'node:fs';
+import { join } from 'node:path';
 import { repoRoot } from '../lib/repo.mjs';
 import { ensureGitignore } from '../lib/gitignore.mjs';
 import { ask, contextFor, guard, relate } from '../lib/retrieve.mjs';
@@ -121,7 +122,24 @@ if (cmd === 'index') {
   // Spec-anchored delivery gate (PRD-0006 M3/M4 + ADR-0024/0025). Zero graph dependency.
   const root = repoRoot();
   const sub = argv[1] || 'validate';
-  if (sub === 'freeze') {
+  if (sub === 'install-hook') {
+    // Opt-in delivery gate (PRD-0006 S1). pre-push revalidates the receipt before code leaves the
+    // machine. Graceful: if the `skipper` CLI isn't on PATH, the hook is a no-op (never blocks push).
+    const hookDir = join(root, '.git', 'hooks');
+    const hookPath = join(hookDir, 'pre-push');
+    const script = [
+      '#!/bin/sh',
+      '# Skipper spec-anchored delivery gate (PRD-0006 S1 / ADR-0025).',
+      '# Revalidates the content-bound receipt; blocks push if STALE. Unmanaged never blocks.',
+      'command -v skipper >/dev/null 2>&1 || exit 0',
+      'exec skipper gate validate',
+      '',
+    ].join('\n');
+    mkdirSync(hookDir, { recursive: true });
+    writeFileSync(hookPath, script);
+    chmodSync(hookPath, 0o755);
+    console.log(`installed ${hookPath} → skipper gate validate (pre-push)`);
+  } else if (sub === 'freeze') {
     // Run the project DoD evidence, then emit a content-bound receipt if nothing failed.
     const items = config.dod(root);
     const policy = config.gatePolicy(root);
