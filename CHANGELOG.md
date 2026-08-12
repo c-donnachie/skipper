@@ -2,6 +2,23 @@
 
 All notable changes to skipper. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-08-11
+
+### Added
+- **⚓ Spec-anchored SDD** — the "make it verifiable" half of the loop (PRD-0006; ADR-0024/0025/0026). A change reaches "Done" only when evidence proves it meets its acceptance criteria, with approval **bound to the exact content reviewed**.
+  - **Living SPECs** — `/skipper:new-spec` creates a mutable, verifiable anchor in `docs/specs/` with acceptance criteria (each carrying a stable `SPEC-NNNN#AC-k` id + a `method`: `test|type|static|manual|memory|human`). Parsed as first-class graph nodes.
+  - **Spec-anchored review** — `/skipper:review` now checks the diff against each criterion and reports `divergence: SPEC-NNNN#AC-k`; a *major* divergence blocks. Ceremony scales with a deterministic **risk tier** (`skipper gate risk`): low = silent readback, standard = 1 lens, high = 4R.
+  - **Content-bound receipt** (`skipper gate freeze|validate`) — hashes the git blob-hashes of the change; delivery gates revalidate the *same* receipt without re-running (`valid|stale|unmanaged`). Never fabricates approval. `skipper gate install-hook` wires a pre-push check.
+  - **Evidence runner** — orchestrates the project's own verification commands per criterion; honest by design — `manual/human/memory` without a captured `--artifact` is `unverified`, never green.
+  - **DoD policy-as-file** — `skipper config init` writes `skipper.config.json` (committed, stack-aware defaults, commands inferred from `package.json`). `/skipper:setup` guides onboarding (greenfield vs brownfield). Deterministic CLI infers/renders/applies; the LLM only conducts.
+  - **Proactive SPEC awareness** — editing SPEC-anchored code surfaces the governing SPEC via `context_for`/`guard`, like governing ADRs.
+  - **Regression gates** — a new `test/gate.mjs` (22 checks) + the gold gate (now 20) run in CI (`.github/workflows/ci.yml`).
+- Inspired by RDD (gentle-ai), spec-anchoring (Predictable Code) and contract-first loops (agent-harness) — see [`docs/business/sdd-spec-anchored-research.md`](./docs/business/sdd-spec-anchored-research.md).
+
+### Fixed
+- **Receipts are committable** — `.gitignore` and the session-start self-heal now ignore `.skipper/*` but **keep** `.skipper/receipts/` (the gate's in-repo source of truth — ADR-0025), instead of swallowing the whole `.skipper/` dir.
+- **`guard` porcelain parsing** — the working-tree change list is now read via a robust `changedFiles()` (diff vs HEAD + untracked) instead of the trimmed `git status --porcelain`, which corrupted the first unstaged path.
+
 ## [1.4.2] — 2026-06-25
 
 ### Changed
