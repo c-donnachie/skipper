@@ -97,6 +97,17 @@ meets its acceptance criteria, and that approval is **content-bound**.
 SPECs live in `docs/specs/*.md` (living, verifiable anchors — ADR-0024) and are parsed as first-class
 graph nodes; `guard` surfaces the governing SPEC when you edit the code it anchors.
 
+**Enforce the gate in CI** — skipper deliberately does **not** generate a CI workflow (a one-time,
+project-specific YAML is yours to own). If you commit receipts, add one step to your *existing* pipeline
+so a PR can't merge a stale receipt:
+
+```yaml
+- run: skipper gate validate   # fails the job if the committed receipt no longer matches the content
+```
+
+Provider-agnostic; the only skipper-specific piece of CI. Everything else (running your tests) is your
+normal pipeline.
+
 ## What it does
 
 - **Typed directed graph** (SQLite): ADR/PRD/plan/arch + commit/person/module nodes; `references`/`originated-from`/`implements`/`supersedes`/`touches`/`authored-by`/`decided-by`/`doc-mediated-via` edges — each declared edge carries `file:line` provenance. No vector table (deferred; `meta.schema_version` is the seam).

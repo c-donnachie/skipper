@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Marketplace: madagascar](https://img.shields.io/badge/marketplace-madagascar-blue)](https://github.com/c-donnachie/madagascar)
-[![Version](https://img.shields.io/badge/version-1.4.2-green)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.5.0-green)](./CHANGELOG.md)
 
 [English](./README.md) · **Español**
 
@@ -27,9 +27,32 @@ skipper relate ADR-0001 ADR-0014                    # cómo se conectan dos deci
 - **Para agentes** — un **MCP server** `skipper-memory` deja que un agente de Conductor llame `context_for(path)` **antes de editar**, así sigue las decisiones ya tomadas en vez de repetir errores. *Conductor ejecuta, Skipper sabe.*
 - **Proactivo** — `memory-guard` inyecta los ADRs que gobiernan el path en el momento en que editás; `memory-stop` bloquea el turno (`exit 2`) si cambió código gobernado sin verificar el cumplimiento.
 - **Consciente del drift** — marca cuándo un doc quedó desactualizado vs el código (versión + git-delta), revela *quién decidió* y *qué tocó* un subsistema, y caza conflictos de conteo.
-- **Honesto** — cada cita se autoverifica contra la fuente, y un gold gate de 19 checks corre en CI.
+- **Honesto** — cada cita se autoverifica contra la fuente, y gates de regresión gold + gate (20 + 22 checks) corren en CI.
 
 Motor OSS opt-in (Node + `node:sqlite` incorporado, **cero dependencias**) bajo [`engine/`](./engine/) — un paquete separado, accedido vía MCP, así el plugin sigue siendo zero-install ([ADR-0017](./docs/decisions/0017-memory-engine-separate-opt-in-package.md)). Ver [`engine/README.md`](./engine/README.md).
+
+---
+
+## ⚓ SDD anclado a spec — *el gate de entrega*
+
+Skipper ahora **verifica**, no solo documenta. Declarás qué significa "listo" como un **SPEC** vivo con
+criterios de aceptación verificables, y un cambio solo se entrega cuando la evidencia lo prueba — con la
+aprobación **atada al contenido exacto revisado** (un receipt content-addressed).
+
+```bash
+skipper new-spec "Rate limiting"    # un ancla vivo y verificable (docs/specs/)
+skipper gate freeze                 # corre el DoD → receipt content-bound (honesto: sin evidencia ≠ verde)
+skipper gate validate               # revalida en el gate de entrega: valid | stale | unmanaged
+skipper gate risk                   # tier de riesgo determinista → el review escala sus lentes
+```
+
+- **Review anclado a spec** — `/skipper:review` contrasta el diff contra cada criterio y reporta `divergence: SPEC-NNNN#AC-k`; una divergence *major* bloquea (gate duro).
+- **Receipt content-bound** ([ADR-0025](./docs/decisions/0025-content-bound-receipt-rdd.md)) — la aprobación se ata a los blob-hashes de git del cambio; tocás un archivo cubierto y queda `stale`. Los hooks de entrega revalidan sin re-correr el review. Nunca finge aprobación.
+- **Honesto por diseño** — un check `manual`/`human`/`memory` sin artefacto capturado es `unverified`, jamás verde. Inspirado en RDD (gentle-ai), spec-anchoring (Predictable Code) y contract-first loops (agent-harness) — ver el [research](./docs/business/sdd-spec-anchored-research.md).
+- **Determinista** — el CLI infiere, renderiza y aplica (detección, DoD, riesgo); el LLM solo conduce ([ADR-0026](./docs/decisions/0026-config-surfaces-deterministic-cli-files-truth.md)). Los archivos son la fuente de verdad; una futura UI es solo una proyección.
+- **Proactivo** — editar código anclado a un SPEC lo surtea vía `context_for`/`guard`, igual que los ADRs que gobiernan.
+
+Gobernado por [ADR-0024](./docs/decisions/0024-spec-anchored-sdd-living-spec.md) · scopeado por [PRD-0006](./docs/prds/0006-sdd-verification-evidence-pipeline.md). Corre en un git hook pelado incluso con el motor de memoria apagado.
 
 ---
 
@@ -152,6 +175,16 @@ claude --plugin-dir /ruta/a/skipper
 | `/skipper:stack-sync` | Compara `package.json` vs el stack declarado — marca librerías undocumented y phantom (declaradas pero no instaladas). |
 | `/skipper:docs-doctor` | Chequeo de salud de `docs/` — docs stale (el código se movió, el doc no), ADRs/PRDs stub, links rotos, carpetas vacías. |
 
+### SDD anclado a spec (el gate de entrega)
+
+| Comando | Qué hace |
+|---|---|
+| `/skipper:new-spec "título"` | Crea un SPEC vivo en `docs/specs/` con criterios de aceptación verificables. |
+| `/skipper:setup` | Onboarding guiado: detecta stack → preset → DoD → index; greenfield vs brownfield. |
+| `/skipper:review` | Ahora anclado a spec — `divergence: SPEC-NNNN#AC-k`, lentes escaladas por riesgo. |
+| `skipper gate freeze \| validate \| risk` | Corre el DoD → receipt content-bound; revalida en la entrega; clasifica el riesgo. |
+| `skipper config init` | Escribe `skipper.config.json` (la Definition-of-Done, commiteada). |
+
 ---
 
 ## Stacks soportados
@@ -203,7 +236,7 @@ Además de los pingüinos, están los **especialistas técnicos** (no pingüinos
 
 ## Componentes
 
-- **23 skills** (bootstrap, docs, especialistas, routers, validación, lib-lookup) — incl. health checks `stack-sync` + `docs-doctor`, `supersede-adr`
+- **27 skills** (bootstrap, docs, especialistas, routers, validación, SDD anclado a spec, lib-lookup) — incl. `new-spec` + `setup`, health checks `stack-sync` + `docs-doctor`, `supersede-adr`
 - **9 subagentes** (skipper, kowalski + 7 técnicos)
 - **8 perfiles de stack** + **6 capas componibles**
 - **5 eventos de hook / 9 scripts** (proactivos por defecto — ver abajo):
@@ -213,7 +246,7 @@ Además de los pingüinos, están los **especialistas técnicos** (no pingüinos
   - `PostToolUse` (Edit/Write) → `docs-sync` apunta a Claude al doc **específico** de `docs/architecture` del subsistema que editaste; `specialist-suggest` te sugiere un especialista tras ≥3 archivos de un dominio; (Bash/Edit/Write) → `stack-watch` recuerda mantener el bloque `skipper:stack` en sync cuando cambian dependencias
   - `Stop` → si el turno cambió código en un área documentada sin tocar `docs/`, instruye a Claude a sincronizar docs **antes de ceder** (loop-safe, throttle de 30 min)
   - **Memory (v1.4, opt-in)** → `memory-guard` (PostToolUse) inyecta los ADRs que gobiernan el path editado; `memory-stop` (Stop) bloquea (`exit 2`) si cambió código gobernado sin verificar el cumplimiento — ambos no-op si el motor no está instalado
-- **🧠 Motor Skipper Memory** (`engine/`, opt-in) — un grafo consultable y citado de tus decisiones + un MCP server `skipper-memory` + un gold gate de 19 checks (ver la sección [Skipper Memory](#-skipper-memory--nuevo-en-v14)).
+- **🧠 Motor Skipper Memory** (`engine/`, opt-in) — un grafo consultable y citado de tus decisiones + un MCP server `skipper-memory` + gates de regresión (gold + gate) (ver la sección [Skipper Memory](#-skipper-memory--nuevo-en-v14)).
 
 Costo de tokens: ~355 tokens en descripciones (≈0.18% de tu ventana de contexto).
 
@@ -243,6 +276,7 @@ Para la referencia técnica de cómo funcionan plugins, hooks, skills y subagent
 
 ## Roadmap
 
+- 🚧 **próximo** — ⚓ **SDD anclado a spec**: SPECs vivos, un gate de entrega respaldado por evidencia con receipts content-bound, review escalonado por riesgo, y un setup determinista — la mitad "hacelo verificable" del loop ([PRD-0006](./docs/prds/0006-sdd-verification-evidence-pipeline.md)).
 - ✅ **v1.4** — 🧠 **Skipper Memory**: memoria consultable y citada (`ask`/`context`/`relate`), hooks de memoria proactivos, un MCP server para agentes, y un gold gate de regresión.
 - ✅ **v1.0** — Envío al marketplace oficial de Anthropic.
 - 🔜 **v1.1+** — Más stacks (Astro, SvelteKit, Tauri, Remix) según demanda real.

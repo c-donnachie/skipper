@@ -241,7 +241,7 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
 
 ## Components
 
-- **23 skills** (bootstrap, docs, specialists, routers, validation, lib-lookup) — incl. `stack-sync` + `docs-doctor` health checks, `supersede-adr`
+- **27 skills** (bootstrap, docs, specialists, routers, validation, spec-anchored SDD, lib-lookup) — incl. `new-spec` + `setup`, `stack-sync` + `docs-doctor` health checks, `supersede-adr`
 - **9 subagents** (skipper, kowalski + 7 technicals)
 - **8 stack profiles** + **6 composable layers**
 - **5 hook events / 9 scripts** (proactive by default — see below):
