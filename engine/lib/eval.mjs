@@ -58,6 +58,10 @@ export function runGold(root, db) {
         const ids = (b.governing || []).map((n) => n.id);
         const missing = c.includes.filter((i) => !ids.includes(i));
         add(c.id, missing.length === 0, missing.length ? `missing ${missing.join(', ')}` : `govern=[${ids.join(', ')}]`);
+      } else if (c.kind === 'anchored_spec_includes') {
+        const b = contextFor(root, db, c.path);
+        const ids = (b.governingSpecs || []).map((s) => s.id);
+        add(c.id, ids.includes(c.spec), ids.length ? `anchored=[${ids.join(', ')}]` : 'no SPEC surfaced');
       } else if (c.kind === 'ask_citations_valid') {
         const b = ask(root, db, c.query);
         const { citations } = render(root, b);
