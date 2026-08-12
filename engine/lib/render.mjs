@@ -54,6 +54,10 @@ export function render(root, b, readDoc) {
       const dec = readSection(root, n.path, ['Decision', 'Decisión'], readDoc);
       if (dec) L.push(`    > ${trunc(dec.text, 200)}  —[quote] ${cite(n.path, dec.line)}`);
     }
+    if (b.governingSpecs && b.governingSpecs.length) {
+      L.push('', 'Anchored SPECs (verify the change against their acceptance criteria):');
+      for (const s of b.governingSpecs) L.push(`- **${s.id} — ${s.title}** → \`divergence: ${s.id}#AC-k\` · then \`skipper gate freeze\``);
+    }
     if (b.relevant && b.relevant.length) {
       L.push('', 'Related decisions (by relevance):');
       for (const n of b.relevant) L.push(`- ${n.id} — ${n.title} \`${n.path}\``);
@@ -74,12 +78,14 @@ export function render(root, b, readDoc) {
 export function renderBrief(b) {
   if (b.kind !== 'context') return '';
   const gov = b.governing || [];
+  const specs = b.governingSpecs || [];
   const rel = b.relevant || [];
   const sub = b.subsystemDoc;
   const subStale = sub ? b.freshness[sub.id] : null;
-  if (!gov.length && !rel.length && !subStale) return '';
+  if (!gov.length && !specs.length && !rel.length && !subStale) return '';
   const L = [`🐧 skipper memory — context for \`${b.path}\`:`];
   for (const n of gov) L.push(`  • governs · ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
+  for (const s of specs) L.push(`  ⚓ anchored · ${s.id} ${s.title} — check the diff vs its acceptance criteria`);
   for (const n of rel) L.push(`  • related · ${n.id.replace(':', '-')} ${n.title}`);
   if (sub) L.push(`  • subsystem doc · ${sub.path}${subStale ? ` ⚠ ${subStale.reason}` : ' ✓ fresh'}`);
   L.push(`Consult these before changing behavior; run \`skipper context ${b.path}\` for detail.`);

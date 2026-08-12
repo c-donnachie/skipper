@@ -116,6 +116,8 @@ export function contextFor(root, db, path) {
   const b = bundle(root, db, [sub, ...governing], { kind: 'context', path });
   b.subsystemDoc = sub;
   b.governing = governing;
+  // Governing SPECs (M7): a SPEC anchors this path → surface it pre-edit too, not just at Stop (guard).
+  b.governingSpecs = specGovernance(root).filter((s) => s.paths.some((sp) => path === sp || path.startsWith(sp + '/')));
   b.relevant = relevant;
   const seg = (path.replace(/^\.?\//, '').split('/')[0]) || '';
   if (seg) {
