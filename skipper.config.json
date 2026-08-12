@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "stack": { "primary": "node-cli", "language": "javascript" },
+  "architecture": { "preset": "layered", "boundaries": "enforce" },
+  "dod": [
+    {
+      "id": "engine-suite",
+      "title": "Engine suite passes (idempotent + gate + gold)",
+      "method": "test",
+      "command": "cd engine && npm test",
+      "enabled": true
+    },
+    {
+      "id": "adr",
+      "title": "ADR added/updated if a decision was made",
+      "method": "memory",
+      "enabled": true
+    }
+  ],
+  "gate": { "unverified": "warn", "risk_tiers": true }
+}

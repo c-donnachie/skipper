@@ -38,8 +38,13 @@ node bin/skipper.mjs index                       # build/refresh the local graph
 node bin/skipper.mjs ask "why proactive hooks?"  # LLM-synthesized, cited answer (--no-llm = deterministic)
 node bin/skipper.mjs context hooks/              # governing ADRs + invariants + freshness + recent activity
 node bin/skipper.mjs relate ADR-0001 ADR-0014    # direct / doc-mediated via hub / not-linked
+node bin/skipper.mjs guard                        # governing ADRs + SPECs for the working-tree change
+node bin/skipper.mjs gate freeze                 # run the DoD → emit a content-bound receipt (SDD)
+node bin/skipper.mjs gate validate               # revalidate the receipt (valid|stale|unmanaged)
+node bin/skipper.mjs gate risk                   # deterministic risk tier (low|standard|high → lenses)
+node bin/skipper.mjs config init                 # write skipper.config.json (DoD, committed)
 node bin/skipper.mjs mcp                         # stdio MCP server (for agents)
-npm test                                         # idempotent rebuild + the 19-check gold gate
+npm test                                         # idempotent rebuild + gate (22) + gold (19) gates
 node test/mcp-smoke.mjs                          # MCP protocol smoke test
 ```
 
@@ -70,11 +75,34 @@ Committed at the repo root (NOT under `.skipper/`, so it's tracked). The engine 
 }
 ```
 
+### Spec-anchored delivery gate — SDD (PRD-0006)
+
+The engine also enforces **spec-anchored SDD**: a change reaches "Done" only when evidence shows it
+meets its acceptance criteria, and that approval is **content-bound**.
+
+- **DoD policy** — `skipper.config.json` (committed, repo root) lists the Definition-of-Done items,
+  each with a `method` (`test|type|static|manual|memory|human`); `skipper config init` scaffolds it
+  with stack-aware defaults, inferring commands from `package.json`.
+- **Evidence + receipt** — `gate freeze` runs each item's verification (orchestrating the project's own
+  commands), then writes `.skipper/receipts/<branch>.json`: a **content-bound receipt** (sha256 over the
+  git blob-hashes of changed files). Honest by design — `manual/human/memory` without a captured
+  `--artifact=<id>=<path>` is `unverified`, never green; nothing fails silently.
+- **Revalidation** — `gate validate` recomputes the hash: `valid` (unchanged) · `stale` (re-freeze) ·
+  `unmanaged` (no receipt — never fabricates approval). `gate install-hook` wires a pre-push check.
+- **Risk tiers** — `gate risk` classifies the change `low|standard|high` (sensitive paths, churn) so the
+  review scales ceremony (silent readback → 1 lens → 4R). The tier is recorded in the receipt.
+- **The gate needs no graph** — the receipt is the in-repo source of truth (ADR-0025); it runs in a bare
+  git hook even when the memory engine is off (opt-in, ADR-0017).
+
+SPECs live in `docs/specs/*.md` (living, verifiable anchors — ADR-0024) and are parsed as first-class
+graph nodes; `guard` surfaces the governing SPEC when you edit the code it anchors.
+
 ## What it does
 
 - **Typed directed graph** (SQLite): ADR/PRD/plan/arch + commit/person/module nodes; `references`/`originated-from`/`implements`/`supersedes`/`touches`/`authored-by`/`decided-by`/`doc-mediated-via` edges — each declared edge carries `file:line` provenance. No vector table (deferred; `meta.schema_version` is the seam).
 - **Retrieval** (no vectors): lexical anchor → directed graph expansion → cited answer. Decoy-safe supersession; never fabricates an outbound edge from a link-less ADR.
 - **Freshness/drift**: doc-declared version vs `plugin.json`, **and** git-delta (commits touching the subsystem since the doc was last edited).
 - **who-decided** (`decided-by`), **what-touched / recent activity** (commits → modules), **count-mismatch** flags (e.g. 7 specialists vs 9 subagents), **hub-node `relate`**.
-- **Proactive** (plugin side, ADR-0018): `memory-guard.sh` injects governing ADRs on edit; `memory-stop.sh` enforces (exit 2) on governed-code changes.
-- **`skipper eval`** — a 19-check deterministic gold gate locking all the above for CI.
+- **Proactive** (plugin side, ADR-0018): `memory-guard.sh` injects governing ADRs on edit; `memory-stop.sh` enforces (exit 2) on governed-code changes — and now surfaces the governing **SPEC** too.
+- **Spec-anchored gate** (SDD, PRD-0006): DoD policy → evidence runner → content-bound receipt → risk-tiered review → delivery hook (see above).
+- **`skipper eval`** + `test/gate.mjs` — deterministic gates locking all the above for CI (19 gold + 22 gate checks).
