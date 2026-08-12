@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  engine:
+    name: Engine suite (gate + gold)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # git-delta freshness + receipt content-hash need history
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24' # engine uses built-in node:sqlite (>= 22.5), zero deps
+      - name: Configure git identity (idempotent rebuild touches nothing, but git ops need it)
+        run: |
+          git config user.email ci@skipper.local
+          git config user.name skipper-ci
+      - name: Run engine suite
+        working-directory: engine
+        run: npm test # idempotent rebuild + 22 gate checks + 19 gold checks
