@@ -27,9 +27,32 @@ skipper relate ADR-0001 ADR-0014              # how two decisions connect (direc
 - **For agents** — a `skipper-memory` **MCP server** lets a Conductor agent call `context_for(path)` **before editing**, so it follows the settled decisions instead of repeating mistakes. *Conductor executes, Skipper knows.*
 - **Proactive** — `memory-guard` injects the governing ADRs the moment you edit a path; `memory-stop` blocks the turn (`exit 2`) if governed code changed without verifying compliance.
 - **Drift-aware** — flags when a doc has gone stale vs the code (version + git-delta), surfaces *who decided* and *what touched* a subsystem, and catches count conflicts.
-- **Honest** — every citation is self-verified against the source, and a 19-check gold gate runs in CI.
+- **Honest** — every citation is self-verified against the source, and gold + gate regression gates (20 + 22 checks) run in CI.
 
 Opt-in OSS engine (Node + built-in `node:sqlite`, **zero deps**) under [`engine/`](./engine/) — a separate package, reached via MCP, so the plugin stays zero-install ([ADR-0017](./docs/decisions/0017-memory-engine-separate-opt-in-package.md)). See [`engine/README.md`](./engine/README.md).
+
+---
+
+## ⚓ Spec-anchored SDD — *the delivery gate*
+
+Skipper now **verifies**, not just documents. Declare what "done" means as a living **SPEC** with
+verifiable acceptance criteria, and a change only ships when the evidence proves it — with the
+approval **bound to the exact content reviewed** (a content-addressed receipt).
+
+```bash
+skipper new-spec "Rate limiting"    # a living, verifiable anchor (docs/specs/)
+skipper gate freeze                 # run the DoD → content-bound receipt (honest: no evidence ≠ green)
+skipper gate validate               # revalidate at the delivery gate: valid | stale | unmanaged
+skipper gate risk                   # deterministic risk tier → the review scales its lenses
+```
+
+- **Spec-anchored review** — `/skipper:review` checks the diff against each criterion and reports `divergence: SPEC-NNNN#AC-k`; a *major* divergence blocks (gate duro).
+- **Content-bound receipt** ([ADR-0025](./docs/decisions/0025-content-bound-receipt-rdd.md)) — approval is tied to the git blob-hashes of the change; touch a covered file and it goes `stale`. Delivery hooks revalidate without re-running the review. Never fabricates approval.
+- **Honest by design** — a `manual`/`human`/`memory` check without a captured artifact is `unverified`, never green. Inspired by RDD (gentle-ai), spec-anchoring (Predictable Code) and contract-first loops (agent-harness) — see the [research](./docs/business/sdd-spec-anchored-research.md).
+- **Deterministic** — the CLI infers, renders and applies (detection, DoD, risk); the LLM only conducts ([ADR-0026](./docs/decisions/0026-config-surfaces-deterministic-cli-files-truth.md)). Files are the source of truth; a future UI is just a projection.
+- **Proactive** — editing SPEC-anchored code surfaces the SPEC via `context_for`/`guard`, the same as governing ADRs.
+
+Governed by [ADR-0024](./docs/decisions/0024-spec-anchored-sdd-living-spec.md) · scoped by [PRD-0006](./docs/prds/0006-sdd-verification-evidence-pipeline.md). Runs in a bare git hook even with the memory engine off.
 
 ---
 
@@ -157,6 +180,16 @@ claude --plugin-dir /path/to/skipper
 | `/skipper:stack-sync` | Diffs `package.json` vs the declared stack — flags undocumented and phantom (declared-but-uninstalled) libraries. |
 | `/skipper:docs-doctor` | Health check of `docs/` — stale docs (code moved, doc didn't), stub ADRs/PRDs, broken links, empty folders. |
 
+### Spec-anchored SDD (the delivery gate)
+
+| Command | What it does |
+|---|---|
+| `/skipper:new-spec "title"` | Creates a living SPEC in `docs/specs/` with verifiable acceptance criteria. |
+| `/skipper:setup` | Guided onboarding: detect stack → preset → DoD → index; greenfield vs brownfield. |
+| `/skipper:review` | Now spec-anchored — `divergence: SPEC-NNNN#AC-k`, lenses scaled by risk. |
+| `skipper gate freeze \| validate \| risk` | Run the DoD → content-bound receipt; revalidate at delivery; classify risk. |
+| `skipper config init` | Write `skipper.config.json` (the Definition-of-Done, committed). |
+
 ---
 
 ## Supported stacks
@@ -218,7 +251,7 @@ Aside from penguins, there are **technical specialists** (not penguins, the cont
   - `PostToolUse` (Edit/Write) → `docs-sync` points Claude at the **specific** `docs/architecture` doc for the subsystem you edited; `specialist-suggest` nudges you toward a specialist after ≥3 files of one domain; (Bash/Edit/Write) → `stack-watch` reminds to keep the `skipper:stack` block in sync when dependencies change
   - `Stop` → if the turn changed code in a documented area without touching `docs/`, instructs Claude to sync docs **before yielding** (loop-safe, 30-min throttle)
   - **Memory (v1.4, opt-in)** → `memory-guard` (PostToolUse) injects the ADRs governing the edited path; `memory-stop` (Stop) blocks (`exit 2`) if governed code changed without verifying compliance — both no-op without the engine
-- **🧠 Skipper Memory engine** (`engine/`, opt-in) — a queryable, cited graph of your decisions + a `skipper-memory` MCP server + a 19-check gold gate (see the [Skipper Memory](#-skipper-memory--new-in-v14) section).
+- **🧠 Skipper Memory engine** (`engine/`, opt-in) — a queryable, cited graph of your decisions + a `skipper-memory` MCP server + regression gates (gold + gate) (see the [Skipper Memory](#-skipper-memory--new-in-v14) section).
 
 Token cost: ~355 tokens in descriptions (≈0.18% of your context window).
 
@@ -248,6 +281,7 @@ For the technical reference of how plugins, hooks, skills, and subagents work in
 
 ## Roadmap
 
+- 🚧 **next** — ⚓ **Spec-anchored SDD**: living SPECs, an evidence-backed delivery gate with content-bound receipts, risk-tiered review, and a deterministic setup — the "make it verifiable" half of the loop ([PRD-0006](./docs/prds/0006-sdd-verification-evidence-pipeline.md)).
 - ✅ **v1.4** — 🧠 **Skipper Memory**: queryable cited memory (`ask`/`context`/`relate`), proactive memory hooks, an MCP server for agents, and a gold regression gate.
 - ✅ **v1.0** — Submission to Anthropic's official marketplace.
 - 🔜 **v1.1+** — More stacks (Astro, SvelteKit, Tauri, Remix) based on real demand.
