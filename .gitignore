@@ -13,5 +13,9 @@ node_modules/
 .skipper/*
 !.skipper/receipts/
 
-# skipper-memory MCP — opt-in per-repo, never commit/ship (ADR-0017; regressed on this branch, re-fixed)
+# MCP registration is opt-in per-repo, NOT shipped with the plugin (ADR-0017).
+# This repo keeps a local .mcp.json so dev can use the engine, but it must not be
+# committed — otherwise the plugin "bundles" it and auto-registers skipper-memory,
+# causing a duplicate ("skipped — same command/URL") and a broken relative path
+# for end users. Each repo opts in via its own .mcp.json (see engine/README.md).
 .mcp.json

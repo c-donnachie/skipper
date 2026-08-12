@@ -48,6 +48,19 @@ mkdir -p docs/{architecture,decisions,prds,plans,api,references}
 
 > Si el usuario quiere carpetas extra de otro tipo (ej. una app que también expone API → agrega `api/`), créalas. La tabla es un default, no una cárcel.
 
+## Paso 1.5 — Asegura el `.gitignore`
+
+skipper escribe estado local de máquina que **nunca** debe commitearse: scratch de hooks (`.claude/.skipper-*`: timestamps de throttle, estado de sesión, locks) y el índice derivado (`.skipper/`). Si quedan trackeados, ensucian el diff en cada run. Asegúralo (idempotente — no dupliques líneas ya presentes):
+
+```bash
+gi=.gitignore
+for e in '.claude/.skipper-*' '.skipper/'; do
+  { [ -f "$gi" ] && grep -qxF "$e" "$gi"; } || printf '%s\n' "$e" >> "$gi"
+done
+```
+
+> El hook `session-start.sh` ya hace esto automáticamente en cada sesión; aquí solo se garantiza durante el init. Si estos archivos ya estaban **trackeados** en el repo, además corre `git rm -r --cached .claude/.skipper-* .skipper/ 2>/dev/null` una vez (el `.gitignore` no destrackea lo ya commiteado).
+
 ## Paso 2 — README de cada carpeta
 
 Escribe un `README.md` por carpeta. **Carpetas base (todos los tipos):**

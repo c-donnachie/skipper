@@ -8,6 +8,24 @@ set -u
 repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
 cd "$repo_root" || exit 0
 
+# Self-heal .gitignore: skipper's hooks write machine-local scratch (.claude/.skipper-*:
+# throttle timestamps, session state, run locks) and the engine writes a derived index
+# (.skipper/). Both are rewritten on every run — if tracked they produce perpetual diff
+# noise. Ensure they're ignored before any scratch is written this session. Idempotent;
+# mirrors the engine's ensureGitignore(). Runs for any git repo where this hook fires.
+# NOTE: ignore .skipper/* but KEEP .skipper/receipts/ committed (gate source of truth — ADR-0025).
+gi_missing=()
+for e in '.claude/.skipper-*' '.skipper/*' '!.skipper/receipts/'; do
+  { [[ -f .gitignore ]] && grep -qxF "$e" .gitignore; } || gi_missing+=("$e")
+done
+if (( ${#gi_missing[@]} )); then
+  {
+    [[ -f .gitignore && -s .gitignore && -n "$(tail -c1 .gitignore)" ]] && printf '\n'
+    printf '# Skipper — machine-local artifacts (hook scratch + derived index), never commit\n'
+    printf '%s\n' "${gi_missing[@]}"
+  } >> .gitignore
+fi
+
 # Sin CLAUDE.md → silencioso
 [[ -f CLAUDE.md ]] || exit 0
 
@@ -50,11 +68,10 @@ fi
 
 # Banner
 cat <<EOF
-╭─ 🐧 skipper ──────────────────────────────────────────╮
-│ Stack:  $stack
-│ Layers: $layers
-│ Docs:   $adr_count ADR · $prd_count PRD · $plan_count plan · update $docs_status
-╰───────────────────────────────────────────────────────╯
+━━━ 🐧 SKIPPER · session ━━━
+Stack:  $stack
+Layers: $layers
+Docs:   $adr_count ADR · $prd_count PRD · $plan_count plan · update $docs_status
 EOF
 
 # Directiva proactiva (Tier 2). stdout en SessionStart llega a Claude como contexto de
@@ -64,7 +81,8 @@ case "${SKIPPER_PROACTIVE:-on}" in
   *)
     cat <<'EOF'
 
-🐧 skipper — modo proactivo ON. Durante esta sesión, sin que el usuario lo pida:
+━━━ 🐧 SKIPPER · proactive ━━━
+modo proactivo ON. Durante esta sesión, sin que el usuario lo pida:
   • Si editas código de un subsistema documentado en docs/architecture/, mantén ese doc en sync en el mismo turno.
   • Si tomas una decisión con tradeoffs (lib, patrón, integración, deprecación), registra un ADR en docs/decisions/.
   • Mantén el bloque skipper:stack de CLAUDE.md alineado con package.json cuando agregues/quites dependencias relevantes.

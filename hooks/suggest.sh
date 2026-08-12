@@ -62,7 +62,8 @@ if [[ "$PROACTIVE" -eq 1 ]]; then
 
   # exit 2 + stderr → Claude lo recibe como directiva y sigue trabajando
   cat >&2 <<'EOF'
-🐧 skipper: cambiaste código (src/app/lib/api) en este turno y no actualizaste docs/.
+━━━ 🐧 SKIPPER · docs ━━━
+cambiaste código (src/app/lib/api) en este turno y no actualizaste docs/.
 Antes de terminar, evalúa SIN pedir permiso al usuario (es el protocolo skipper Tier 2):
   1. ¿El cambio altera un subsistema documentado en docs/architecture/*.md? → actualiza ese doc ahora.
   2. ¿Tomaste una decisión con tradeoffs (lib, patrón, integración, deprecación)? → crea un ADR en docs/decisions/.
@@ -82,7 +83,8 @@ fi
 touch "$marker"
 
 cat <<EOF
-🐧 skipper reportándose: detecté cambios en código fuente desde el último update.
+━━━ 🐧 SKIPPER · docs ━━━
+detecté cambios en código fuente desde el último update.
    Capitán, considera correr /skipper:update para revisar si hay ADRs, PRDs o docs de business que actualizar.
    O /skipper:docs-doctor para ver qué docs quedaron atrás respecto al código.
 EOF

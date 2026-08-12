@@ -83,7 +83,7 @@ export function renderBrief(b) {
   const sub = b.subsystemDoc;
   const subStale = sub ? b.freshness[sub.id] : null;
   if (!gov.length && !specs.length && !rel.length && !subStale) return '';
-  const L = [`🐧 skipper memory — context for \`${b.path}\`:`];
+  const L = [`━━━ 🐧 SKIPPER · memory ━━━`, `context for \`${b.path}\`:`];
   for (const n of gov) L.push(`  • governs · ${n.id.replace(':', '-')} ${n.title} (${n.status || '?'})`);
   for (const s of specs) L.push(`  ⚓ anchored · ${s.id} ${s.title} — check the diff vs its acceptance criteria`);
   for (const n of rel) L.push(`  • related · ${n.id.replace(':', '-')} ${n.title}`);

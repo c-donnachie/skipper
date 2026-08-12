@@ -158,7 +158,7 @@ export function guard(root, db) {
     for (const s of specs) if (s.paths.some((sp) => p === sp || p.startsWith(sp + '/'))) specHits.set(s.id, s.title);
   }
   if (!adrIds.size && !specHits.size) return '';
-  const L = ['🐧 skipper memory — this turn changed code governed by project decisions. Before yielding, verify the change COMPLIES (fix it, or supersede the ADR if the decision itself changed):'];
+  const L = ['━━━ 🐧 SKIPPER · memory ━━━', 'this turn changed code governed by project decisions. Before yielding, verify the change COMPLIES (fix it, or supersede the ADR if the decision itself changed):'];
   for (const id of [...adrIds].sort()) { const n = getNode(db, id); L.push(`  • ${id.replace(':', '-')}${n ? ` ${n.title}` : ''}`); }
   for (const [id, title] of [...specHits].sort()) L.push(`  ⚓ ${id} ${title} — check the diff against its acceptance criteria (divergence: ${id}#AC-k). Then \`skipper gate freeze\`.`);
   for (const [doc, reason] of stale) L.push(`  ⚠ ${doc} ${reason} — update it this turn.`);
